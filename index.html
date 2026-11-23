@@ -209,196 +209,222 @@
 
   function capturarLocalizacaoCompleta(origem) {
     var btnEnd = document.getElementById('btnEndGps');
-var btnLink = document.getElementById('btnGps');
-var campoEndereco = document.getElementById('endereco_ponta_a');
-var campoMaps = document.getElementById('link_maps');
-if (!navigator.geolocation) {
-alert('Seu navegador não suporta captura de GPS.');
-return;
-}
-btnEnd.disabled = true;
-btnLink.disabled = true;
-if (origem === 'endereco') btnEnd.textContent = '⏳...';
-if (origem === 'link') btnLink.textContent = '⏳ Buscando...';
-navigator.geolocation.getCurrentPosition(
-async function(pos) {
-var lat = pos.coords.latitude.toFixed(6);
-var lng = pos.coords.longitude.toFixed(6);
-var precisao = Math.round(pos.coords.accuracy);
-if (origem === 'link' || !campoMaps.value.trim()) {
-campoMaps.value = 'google.com' + lat + ',' + lng;
-}
-if (origem === 'endereco' || !campoEndereco.value.trim()) {
-try {
-var urlOsm = 'openstreetmap.org' + lat + '&lon=' + lng + '&addressdetails=1';
-var resp = await fetch(urlOsm, { headers: { 'Accept-Language': 'pt-BR' } });
-var data = await resp.json();
-if (data && data.address) {
-var a = data.address;
-var rua = a.road || a.pedestrian || a.street || '';
-var numero = a.house_number ? ', ' + a.house_number : ', S/N';
-var bairro = a.suburb || a.neighbourhood || a.district || '';
-var cidade = a.city || a.town || a.village || a.municipality || '';
-var estado = a.state || '';
-var partes = [];
-if (rua) partes.push(rua + numero);
-if (bairro) partes.push(bairro);
-if (cidade && estado) partes.push(cidade + ' - ' + estado);
-else if (cidade || estado) partes.push(cidade || estado);
-if (partes.length > 0) {
-campoEndereco.value = partes.join(', ');
-} else if (data.display_name) {
-campoEndereco.value = data.display_name;
-}
-}
-} catch (err) {
-console.error(err);
-}
-}
-btnEnd.textContent = '📍 GPS';
-btnLink.textContent = '📍 Pegar GPS';
-btnEnd.disabled = false;
-btnLink.disabled = false;
-mostrarBanner('📍 Localização e endereço capturados via GPS! (Precisão de ~' + precisao + 'm)', 'status-found');
-},
-function() {
-btnEnd.textContent = '📍 GPS';
-btnLink.textContent = '📍 Pegar GPS';
-btnEnd.disabled = false;
-btnLink.disabled = false;
-alert('Não foi possível obter o GPS. Verifique se a localização está ativada no aparelho.');
-},
-{ enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-);
-}
-async function buscarSiteNoBanco() {
-var site = document.getElementById('site').value.trim().toUpperCase();
-if (!site) return;
-mostrarBanner('Pesquisando site ' + site + ' no banco de dados...', 'status-info');
-try {
-var res = await fetch('/api/sites?site=' + encodeURIComponent(site));
-var json = await res.json();
-if (json.encontrado && json.dados) {
-var d = json.dados;
-if (d.rota) document.getElementById('rota').value = d.rota;
-if (d.ponta_a) document.getElementById('ponta_a').value = d.ponta_a;
-if (d.endereco_ponta_a) document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a;
-if (d.detentora) document.getElementById('detentora').value = d.detentora;
-if (d.id_acesso) document.getElementById('id_acesso').value = d.id_acesso;
-if (d.portao) document.getElementById('portao').value = d.portao;
-if (d.gabinete) document.getElementById('gabinete').value = d.gabinete;
-if (d.medidor) document.getElementById('medidor').value = d.medidor;
-if (d.uc) document.getElementById('uc').value = d.uc;
-if (d.link_maps) document.getElementById('link_maps').value = d.link_maps;
-if (d.obs) document.getElementById('obs').value = d.obs;
-mostrarBanner('✅ Site ' + site + ' já cadastrado! Dados carregados. Edite qualquer campo para melhorar o cadastro.', 'status-found');
-} else {
-mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado. Preencha os dados para salvar como novo.', 'status-warn');
-}
-} catch (e) {
-mostrarBanner('⚠️ Banco não conectado (verifique a Associação DB na Cloudflare).', 'status-warn');
-}
-}
-async function gerarESalvar() {
-var v = function(id) { return document.getElementById(id).value.trim(); };
-var site = v('site').toUpperCase();
-if (!site) {
-alert('Por favor, informe o código do Site.');
-document.getElementById('site').focus();
-return;
-}
-var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
-var textoCarimbo =
-'CARIMBO OPERACIONAL CIRE\n' +
-'Site: ' + site + ' | Data: ' + dataFormatada + '\n' +
-'TA: ' + v('ta') + ' | Rota: ' + v('rota') + '\n' +
-'Técnico: ' + v('tecnico') + ' (' + v('contato') + ')\n' +
-'Ponta A: ' + v('ponta_a') + ' - ' + v('endereco_ponta_a') + '\n' +
-'Ponta B: ' + v('ponta_b') + ' - ' + v('endereco_ponta_b') + '\n' +
-'Afetação: ' + v('afetacao') + '\n\n' +
-'--- ALÇA 1 ---\n' +
-'Cabo: ' + v('cabo1') + ' | Fibra: ' + v('fibra1') + '\n' +
-'Dist. A->B: ' + v('dist_ab1') + ' | B->A: ' + v('dist_ba1') + ' | Total: ' + v('dist_tot1') + '\n' +
-'Equip/Cluster: ' + v('equip1') + '\n\n' +
-'--- ALÇA 2 ---\n' +
-'Cabo: ' + v('cabo2') + ' | Fibra: ' + v('fibra2') + '\n' +
-'Dist. A->B: ' + v('dist_ab2') + ' | B->A: ' + v('dist_ba2') + ' | Total: ' + v('dist_tot2') + '\n' +
-'Equip/Cluster: ' + v('equip2') + '\n\n' +
-'--- ACESSO AO SITE ---\n' +
-'Site: ' + site + ' | Detentora: ' + v('detentora') + '\n' +
-'ID: ' + v('id_acesso') + ' | Portão: ' + v('portao') + ' | Gabinete: ' + v('gabinete') + '\n' +
-'Medidor: ' + v('medidor') + ' | UC: ' + v('uc') + '\n' +
-'Maps: ' + v('link_maps') + '\n' +
-'OBS: ' + v('obs') + '\n' +
-'' + v('rodape') + '';
-document.getElementById('carimboPreview').textContent = textoCarimbo;
-try {
-await navigator.clipboard.writeText(textoCarimbo);
-} catch (e) {}
-var payload = {
-site: site,
-rota: v('rota'),
-ponta_a: v('ponta_a'),
-endereco_ponta_a: v('endereco_ponta_a'),
-detentora: v('detentora'),
-id_acesso: v('id_acesso'),
-portao: v('portao'),
-gabinete: v('gabinete'),
-medidor: v('medidor'),
-uc: v('uc'),
-link_maps: v('link_maps'),
-obs: v('obs'),
-forcarAtualizacao: false
-};
-try {
-var res = await fetch('/api/sites', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-if (res.status === 409) {
-var confirmar = confirm('O site ' + site + ' já existe no banco de dados!\n\nDeseja ATUALIZAR este cadastro com as melhorias preenchidas agora (sem criar duplicado)?');
-if (confirmar) {
-payload.forcarAtualizacao = true;
-res = await fetch('/api/sites', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-if (res.ok) {
-mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado com sucesso e carimbo copiado!', 'status-found');
-}
-} else {
-mostrarBanner('📋 Carimbo copiado! Cadastro original de ' + site + ' mantido sem alterações.', 'status-info');
-}
-} else if (res.ok) {
-mostrarBanner('✅ Novo site ' + site + ' salvo no banco e carimbo copiado para o WhatsApp!', 'status-found');
-} else {
-mostrarBanner('📋 Carimbo gerado e copiado! (Erro ao salvar no banco: verifique a tabela SQL).', 'status-warn');
-}
-} catch (e) {
-mostrarBanner('📋 Carimbo gerado e copiado! (Sem conexão com o banco).', 'status-warn');
-}
-}
-function baixarImagem() {
-var el = document.getElementById('carimboPreview');
-if (typeof html2canvas === 'undefined') {
-alert('Aguarde o carregamento da biblioteca de imagem e tente novamente.');
-return;
-}
-html2canvas(el, { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
-var link = document.createElement('a');
-link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
-link.href = canvas.toDataURL();
-link.click();
-});
-}
-function limparFormulario() {
-document.querySelectorAll('input, textarea').forEach(function(el) {
-if (el.type !== 'date') el.value = '';
-});
-document.getElementById('carimboPreview').textContent = 'Aguardando geração...';
-document.getElementById('dbBanner').style.display = 'none';
-}
+    var btnLink = document.getElementById('btnGps');
+    var campoEndereco = document.getElementById('endereco_ponta_a');
+    var campoMaps = document.getElementById('link_maps');
 
-  
+    if (!navigator.geolocation) {
+      alert('Seu navegador não suporta captura de GPS.');
+      return;
+    }
+
+    btnEnd.disabled = true;
+    btnLink.disabled = true;
+    if (origem === 'endereco') btnEnd.textContent = '⏳...';
+    if (origem === 'link') btnLink.textContent = '⏳ Buscando...';
+
+    navigator.geolocation.getCurrentPosition(
+      async function(pos) {
+        var lat = pos.coords.latitude.toFixed(6);
+        var lng = pos.coords.longitude.toFixed(6);
+        var precisao = Math.round(pos.coords.accuracy);
+
+        if (origem === 'link' || !campoMaps.value.trim()) {
+          campoMaps.value = 'https://google.com' + lat + ',' + lng;
+        }
+
+        if (origem === 'endereco' || !campoEndereco.value.trim()) {
+          try {
+            var urlOsm = 'https://openstreetmap.org' + lat + '&lon=' + lng + '&addressdetails=1';
+            var resp = await fetch(urlOsm, { headers: { 'Accept-Language': 'pt-BR' } });
+            var data = await resp.json();
+
+            if (data && data.address) {
+              var a = data.address;
+              var rua = a.road || a.pedestrian || a.street || '';
+              var numero = a.house_number ? ', ' + a.house_number : ', S/N';
+              var bairro = a.suburb || a.neighbourhood || a.district || '';
+              var cidade = a.city || a.town || a.village || a.municipality || '';
+              var estado = a.state || '';
+
+              var partes = [];
+              if (rua) partes.push(rua + numero);
+              if (bairro) partes.push(bairro);
+              if (cidade && estado) partes.push(cidade + ' - ' + estado);
+              else if (cidade || estado) partes.push(cidade || estado);
+
+              if (partes.length > 0) {
+                campoEndereco.value = partes.join(', ');
+              } else if (data.display_name) {
+                campoEndereco.value = data.display_name;
+              }
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        }
+
+        btnEnd.textContent = '📍 GPS';
+        btnLink.textContent = '📍 Pegar GPS';
+        btnEnd.disabled = false;
+        btnLink.disabled = false;
+
+        mostrarBanner('📍 Localização e endereço capturados via GPS! (Precisão de ~' + precisao + 'm)', 'status-found');
+      },
+      function() {
+        btnEnd.textContent = '📍 GPS';
+        btnLink.textContent = '📍 Pegar GPS';
+        btnEnd.disabled = false;
+        btnLink.disabled = false;
+        alert('Não foi possível obter o GPS. Verifique se a localização está ativada no aparelho.');
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
+  async function buscarSiteNoBanco() {
+    var site = document.getElementById('site').value.trim().toUpperCase();
+    if (!site) return;
+
+    mostrarBanner('Pesquisando site ' + site + ' no banco de dados...', 'status-info');
+
+    try {
+      var res = await fetch('/api/sites?site=' + encodeURIComponent(site));
+      var json = await res.json();
+
+      if (json.encontrado && json.dados) {
+        var d = json.dados;
+        if (d.rota) document.getElementById('rota').value = d.rota;
+        if (d.ponta_a) document.getElementById('ponta_a').value = d.ponta_a;
+        if (d.endereco_ponta_a) document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a;
+        if (d.detentora) document.getElementById('detentora').value = d.detentora;
+        if (d.id_acesso) document.getElementById('id_acesso').value = d.id_acesso;
+        if (d.portao) document.getElementById('portao').value = d.portao;
+        if (d.gabinete) document.getElementById('gabinete').value = d.gabinete;
+        if (d.medidor) document.getElementById('medidor').value = d.medidor;
+        if (d.uc) document.getElementById('uc').value = d.uc;
+        if (d.link_maps) document.getElementById('link_maps').value = d.link_maps;
+        if (d.obs) document.getElementById('obs').value = d.obs;
+
+        mostrarBanner('✅ Site ' + site + ' já cadastrado! Dados carregados. Edite qualquer campo para melhorar o cadastro.', 'status-found');
+      } else {
+        mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado. Preencha os dados para salvar como novo.', 'status-warn');
+      }
+    } catch (e) {
+      mostrarBanner('⚠️ Banco não conectado (verifique a Associação DB na Cloudflare).', 'status-warn');
+    }
+  }
+
+  async function gerarESalvar() {
+    var v = function(id) { return document.getElementById(id).value.trim(); };
+    var site = v('site').toUpperCase();
+
+    if (!site) {
+      alert('Por favor, informe o código do Site.');
+      document.getElementById('site').focus();
+      return;
+    }
+
+    var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
+    var textoCarimbo =
+      '*CARIMBO OPERACIONAL CIRE*\n' +
+      '*Site:* ' + site + ' | *Data:* ' + dataFormatada + '\n' +
+      '*TA:* ' + v('ta') + ' | *Rota:* ' + v('rota') + '\n' +
+      '*Técnico:* ' + v('tecnico') + ' (' + v('contato') + ')\n' +
+      '*Ponta A:* ' + v('ponta_a') + ' - ' + v('endereco_ponta_a') + '\n' +
+      '*Ponta B:* ' + v('ponta_b') + ' - ' + v('endereco_ponta_b') + '\n' +
+      '*Afetação:* ' + v('afetacao') + '\n\n' +
+      '*--- ALÇA 1 ---*\n' +
+      '*Cabo:* ' + v('cabo1') + ' | *Fibra:* ' + v('fibra1') + '\n' +
+      '*Dist. A->B:* ' + v('dist_ab1') + ' | *B->A:* ' + v('dist_ba1') + ' | *Total:* ' + v('dist_tot1') + '\n' +
+      '*Equip/Cluster:* ' + v('equip1') + '\n\n' +
+      '*--- ALÇA 2 ---*\n' +
+      '*Cabo:* ' + v('cabo2') + ' | *Fibra:* ' + v('fibra2') + '\n' +
+      '*Dist. A->B:* ' + v('dist_ab2') + ' | *B->A:* ' + v('dist_ba2') + ' | *Total:* ' + v('dist_tot2') + '\n' +
+      '*Equip/Cluster:* ' + v('equip2') + '\n\n' +
+      '*--- ACESSO AO SITE ---*\n' +
+      '*Site:* ' + site + ' | *Detentora:* ' + v('detentora') + '\n' +
+      '*ID:* ' + v('id_acesso') + ' | *Portão:* ' + v('portao') + ' | *Gabinete:* ' + v('gabinete') + '\n' +
+      '*Medidor:* ' + v('medidor') + ' | *UC:* ' + v('uc') + '\n' +
+      '*Maps:* ' + v('link_maps') + '\n' +
+      '*OBS:* ' + v('obs') + '\n' +
+      '_' + v('rodape') + '_';
+
+    document.getElementById('carimboPreview').textContent = textoCarimbo;
+
+    try {
+      await navigator.clipboard.writeText(textoCarimbo);
+    } catch (e) {}
+
+    var payload = {
+      site: site,
+      rota: v('rota'),
+      ponta_a: v('ponta_a'),
+      endereco_ponta_a: v('endereco_ponta_a'),
+      detentora: v('detentora'),
+      id_acesso: v('id_acesso'),
+      portao: v('portao'),
+      gabinete: v('gabinete'),
+      medidor: v('medidor'),
+      uc: v('uc'),
+      link_maps: v('link_maps'),
+      obs: v('obs'),
+      forcarAtualizacao: false
+    };
+
+    try {
+      var res = await fetch('/api/sites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.status === 409) {
+        var confirmar = confirm('O site ' + site + ' já existe no banco de dados!\n\nDeseja ATUALIZAR este cadastro com as melhorias preenchidas agora (sem criar duplicado)?');
+        if (confirmar) {
+          payload.forcarAtualizacao = true;
+          res = await fetch('/api/sites', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado com sucesso e carimbo copiado!', 'status-found');
+          }
+        } else {
+          mostrarBanner('📋 Carimbo copiado! Cadastro original de ' + site + ' mantido sem alterações.', 'status-info');
+        }
+      } else if (res.ok) {
+        mostrarBanner('✅ Novo site ' + site + ' salvo no banco e carimbo copiado para o WhatsApp!', 'status-found');
+      } else {
+        mostrarBanner('📋 Carimbo gerado e copiado! (Erro ao salvar no banco: verifique a tabela SQL).', 'status-warn');
+      }
+    } catch (e) {
+      mostrarBanner('📋 Carimbo gerado e copiado! (Sem conexão com o banco).', 'status-warn');
+    }
+  }
+
+  function baixarImagem() {
+    var el = document.getElementById('carimboPreview');
+    if (typeof html2canvas === 'undefined') {
+      alert('Aguarde o carregamento da biblioteca de imagem e tente novamente.');
+      return;
+    }
+    html2canvas(el, { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
+      var link = document.createElement('a');
+      link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  }
+
+  function limparFormulario() {
+    document.querySelectorAll('input, textarea').forEach(function(el) {
+      if (el.type !== 'date') el.value = '';
+    });
+    document.getElementById('carimboPreview').textContent = 'Aguardando geração...';
+    document.getElementById('dbBanner').style.display = 'none';
+  }
+</script>
+</body>
+</html>
