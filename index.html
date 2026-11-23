@@ -285,7 +285,7 @@
           var enderecoEncontrado = '';
 
           try {
-            var urlOsm = 'https://openstreetmap.org' + '/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng;
+            var urlOsm = 'https://nominatim.' + 'openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng;
             var resp = await fetch(urlOsm);
             var data = await resp.json();
 
@@ -313,7 +313,7 @@
 
           if (!enderecoEncontrado) {
             try {
-              var urlBdc = 'https://bigdatacloud.net' + '/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=pt';
+              var urlBdc = 'https://api.' + 'bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=pt';
               var resp2 = await fetch(urlBdc);
               var data2 = await resp2.json();
               if (data2) {
