@@ -289,12 +289,31 @@
     atualizarPreview();
   }
 
-  function mostrarBanner(texto, tipo) {
+   function mostrarBanner(texto, tipo) {
     var banner = document.getElementById('dbBanner');
     banner.textContent = texto;
     banner.className = 'status-banner ' + tipo;
     banner.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    var toast = document.getElementById('toastAviso');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toastAviso';
+      toast.style.cssText = 'position:fixed; top:20px; right:20px; z-index:9999; padding:14px 20px; border-radius:8px; font-weight:700; font-size:0.92rem; box-shadow:0 10px 25px rgba(0,0,0,0.5); transition:0.3s;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = texto;
+    toast.style.background = tipo === 'status-found' ? '#059669' : (tipo === 'status-warn' ? '#d97706' : '#2563eb');
+    toast.style.color = '#ffffff';
+    toast.style.display = 'block';
+
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(function() {
+      toast.style.display = 'none';
+    }, 5000);
   }
+
 
   function montarTextoCarimbo() {
     var v = function(id) { return document.getElementById(id).value.trim(); };
