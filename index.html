@@ -210,3 +210,190 @@
   function capturarLocalizacaoCompleta(origem) {
     const btnEnd = document.getElementById('btnEndGps');
     const btnLink = document.getElementById('btnGps');
+const campoEndereco = document.getElementById('endereco_ponta_a');
+const campoMaps = document.getElementById('link_maps');
+if (!navigator.geolocation) {
+alert('Seu navegador não suporta captura de GPS.');
+return;
+}
+btnEnd.disabled = true;
+btnLink.disabled = true;
+if (origem === 'endereco') btnEnd.textContent = '⏳...';
+if (origem === 'link') btnLink.textContent = '⏳ Buscando...';
+navigator.geolocation.getCurrentPosition(
+async (pos) => {
+const lat = pos.coords.latitude.toFixed(6);
+const lng = pos.coords.longitude.toFixed(6);
+const precisao = Math.round(pos.coords.accuracy);
+if (origem === 'link' || !campoMaps.value.trim()) {
+campoMaps.value = https://google.com{lat},${lng};
+}
+if (origem === 'endereco' || !campoEndereco.value.trim()) {
+try {
+const resp = await fetch(https://openstreetmap.org{lat}&lon=${lng}&addressdetails=1, {
+headers: { 'Accept-Language': 'pt-BR' }
+});
+const data = await resp.json();
+if (data && data.address) {
+const a = data.address;
+const rua = a.road || a.pedestrian || a.street || '';
+const numero = a.house_number ? , ${a.house_number} : ', S/N';
+const bairro = a.suburb || a.neighbourhood || a.district || '';
+const cidade = a.city || a.town || a.village || a.municipality || '';
+const estado = a.state || '';
+const partes = [
+rua ? ${rua}${numero} : '',
+bairro,
+cidade && estado ? ${cidade} - ${estado} : (cidade || estado)
+].filter(Boolean);
+if (partes.length > 0) {
+campoEndereco.value = partes.join(', ');
+} else if (data.display_name) {
+campoEndereco.value = data.display_name;
+}
+}
+} catch (err) {
+console.error(err);
+}
+}
+btnEnd.textContent = '📍 GPS';
+btnLink.textContent = '📍 Pegar GPS';
+btnEnd.disabled = false;
+btnLink.disabled = false;
+mostrarBanner(📍 Localização e endereço capturados via GPS! (Precisão de ~${precisao}m), 'status-found');
+},
+() => {
+btnEnd.textContent = '📍 GPS';
+btnLink.textContent = '📍 Pegar GPS';
+btnEnd.disabled = false;
+btnLink.disabled = false;
+alert('Não foi possível obter o GPS. Verifique se a localização está ativada no aparelho.');
+},
+{ enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+);
+}
+async function buscarSiteNoBanco() {
+const site = document.getElementById('site').value.trim().toUpperCase();
+if (!site) return;
+mostrarBanner(Pesquisando site ${site} no banco de dados..., 'status-info');
+try {
+const res = await fetch(/api/sites?site=${encodeURIComponent(site)});
+const json = await res.json();
+if (json.encontrado && json.dados) {
+const d = json.dados;
+if (d.rota) document.getElementById('rota').value = d.rota;
+if (d.ponta_a) document.getElementById('ponta_a').value = d.ponta_a;
+if (d.endereco_ponta_a) document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a;
+if (d.detentora) document.getElementById('detentora').value = d.detentora;
+if (d.id_acesso) document.getElementById('id_acesso').value = d.id_acesso;
+if (d.portao) document.getElementById('portao').value = d.portao;
+if (d.gabinete) document.getElementById('gabinete').value = d.gabinete;
+if (d.medidor) document.getElementById('medidor').value = d.medidor;
+if (d.uc) document.getElementById('uc').value = d.uc;
+if (d.link_maps) document.getElementById('link_maps').value = d.link_maps;
+if (d.obs) document.getElementById('obs').value = d.obs;
+mostrarBanner(✅ Site ${site} já cadastrado! Dados carregados. Edite qualquer campo para melhorar o cadastro., 'status-found');
+} else {
+mostrarBanner(🆕 Site ${site} ainda não cadastrado. Preencha os dados para salvar como novo., 'status-warn');
+}
+} catch (e) {
+mostrarBanner('⚠️ Banco não conectado (verifique a Associação DB na Cloudflare).', 'status-warn');
+}
+}
+async function gerarESalvar() {
+const v = (id) => document.getElementById(id).value.trim();
+const site = v('site').toUpperCase();
+if (!site) {
+alert('Por favor, informe o código do Site.');
+document.getElementById('site').focus();
+return;
+}
+const dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
+const textoCarimbo =
+`CARIMBO OPERACIONAL CIRE
+Site: ${site} | Data: ${dataFormatada}
+TA: ${v('ta')} | Rota: ${v('rota')}
+Técnico: ${v('tecnico')} (${v('contato')})
+Ponta A: ${v('ponta_a')} - ${v('endereco_ponta_a')}
+Ponta B: ${v('ponta_b')} - ${v('endereco_ponta_b')}
+Afetação: ${v('afetacao')}
+--- ALÇA 1 ---
+Cabo: ${v('cabo1')} | Fibra: ${v('fibra1')}
+Dist. A->B: ${v('dist_ab1')} | B->A: ${v('dist_ba1')} | Total: ${v('dist_tot1')}
+Equip/Cluster: ${v('equip1')}
+--- ALÇA 2 ---
+Cabo: ${v('cabo2')} | Fibra: ${v('fibra2')}
+Dist. A->B: ${v('dist_ab2')} | B->A: ${v('dist_ba2')} | Total: ${v('dist_tot2')}
+Equip/Cluster: ${v('equip2')}
+--- ACESSO AO SITE ---
+Site: ${site} | Detentora: ${v('detentora')}
+ID: ${v('id_acesso')} | Portão: ${v('portao')} | Gabinete: ${v('gabinete')}
+Medidor: ${v('medidor')} | UC: ${v('uc')}
+Maps: ${v('link_maps')}
+OBS: ${v('obs')}
+${v('rodape')}`;
+document.getElementById('carimboPreview').textContent = textoCarimbo;
+try {
+await navigator.clipboard.writeText(textoCarimbo);
+} catch (e) {}
+const payload = {
+site,
+rota: v('rota'),
+ponta_a: v('ponta_a'),
+endereco_ponta_a: v('endereco_ponta_a'),
+detentora: v('detentora'),
+id_acesso: v('id_acesso'),
+portao: v('portao'),
+gabinete: v('gabinete'),
+medidor: v('medidor'),
+uc: v('uc'),
+link_maps: v('link_maps'),
+obs: v('obs'),
+forcarAtualizacao: false
+};
+try {
+let res = await fetch('/api/sites', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
+});
+if (res.status === 409) {
+const confirmar = confirm(O site ${site} já existe no banco de dados!\n\nDeseja ATUALIZAR este cadastro com as melhorias preenchidas agora (sem criar duplicado)?);
+if (confirmar) {
+payload.forcarAtualizacao = true;
+res = await fetch('/api/sites', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
+});
+if (res.ok) {
+mostrarBanner(🔄 Cadastro do site ${site} atualizado com sucesso e carimbo copiado!, 'status-found');
+}
+} else {
+mostrarBanner(📋 Carimbo copiado! Cadastro original de ${site} mantido sem alterações., 'status-info');
+}
+} else if (res.ok) {
+mostrarBanner(✅ Novo site ${site} salvo no banco e carimbo copiado para o WhatsApp!, 'status-found');
+} else {
+mostrarBanner('📋 Carimbo gerado e copiado! (Erro ao salvar no banco: verifique a tabela SQL).', 'status-warn');
+}
+} catch (e) {
+mostrarBanner('📋 Carimbo gerado e copiado! (Sem conexão com o banco).', 'status-warn');
+}
+}
+function baixarImagem() {
+const el = document.getElementById('carimboPreview');
+html2canvas(el, { backgroundColor: '#020617', scale: 2 }).then(canvas => {
+const link = document.createElement('a');
+link.download = carimbo-${document.getElementById('site').value || 'cire'}.png;
+link.href = canvas.toDataURL();
+link.click();
+});
+}
+function limparFormulario() {
+document.querySelectorAll('input, textarea').forEach(el => {
+if (el.type !== 'date') el.value = '';
+});
+document.getElementById('carimboPreview').textContent = 'Aguardando geração...';
+document.getElementById('dbBanner').style.display = 'none';
+}
