@@ -4,7 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gerador de Carimbo CIRE</title>
-  <script src="https://cloudflare.com"></script>
+      <script>
+    document.write('<scr' + 'ipt src="https://cdnjs.' + '://cloudflare.com"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="https://cdnjs.' + '://cloudflare.com"></scr' + 'ipt>');
+      </script>
+
+
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f8fafc;
@@ -629,30 +634,7 @@
     }
   }
 
-  async function exportarCSV() {
-    try {
-      var res = await fetch('/api/sites?acao=listar');
-      var json = await res.json();
-      var lista = json.sites || [];
-      if (lista.length === 0) { alert('Nenhum site salvo para exportar.'); return; }
-
-      var cabecalho = ['Site', 'Rota', 'Ponta A', 'Endereco', 'Detentora', 'ID', 'Portao', 'Gabinete', 'Medidor', 'UC', 'Maps', 'OBS', 'Rodape', 'Atualizado Por'];
-      var linhas = [cabecalho.join(';')];
-      lista.forEach(function(s) {
-        var row = [s.site, s.rota, s.ponta_a, s.endereco_ponta_a, s.detentora, s.id_acesso, s.portao, s.gabinete, s.medidor, s.uc, s.link_maps, s.obs, s.rodape, s.atualizado_por]
-          .map(function(val) { return '"' + String(val || '').replace(/"/g, '""').replace(/\n/g, ' ') + '"'; });
-        linhas.push(row.join(';'));
-      });
-
-      var blob = new Blob(['\uFEFF' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      var link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'base-sites-cire.csv';
-      link.click();
-    } catch (e) {
-      alert('Erro ao exportar planilha.');
-    }
-  }
+  
 
   async function abrirPainelAdmin() {
     document.getElementById('modalAdmin').style.display = 'flex';
