@@ -12,126 +12,75 @@
       --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+    body { background: var(--bg); color: var(--text); margin: 0; padding: 16px; }
     .container { max-width: 1180px; margin: 0 auto; }
     header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-    header h1 { margin: 0; font-size: 1.6rem; color: #60a5fa; }
-    header p { margin: 2px 0; color: var(--muted); font-size: 0.85rem; }
+    header h1 { margin: 0; font-size: 1.5rem; color: #60a5fa; }
+    header p { margin: 2px 0 0; color: var(--muted); font-size: 0.82rem; }
     .top-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
     @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
-    .card h3 { margin-top: 0; font-size: 1.05rem; color: #93c5fd; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .full { margin-bottom: 12px; }
-    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+    .card h3 { margin-top: 0; font-size: 1rem; color: #93c5fd; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .full { margin-bottom: 10px; }
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
     input, textarea {
       width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text);
-      padding: 9px 11px; border-radius: 6px; font-size: 0.9rem;
+      padding: 8px 10px; border-radius: 6px; font-size: 0.88rem;
     }
     input:focus, textarea:focus { outline: none; border-color: var(--primary); }
-    .status-banner { padding: 12px 14px; border-radius: 6px; font-size: 0.88rem; margin-bottom: 14px; display: none; font-weight: 600; }
+    .status-banner { padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; display: none; font-weight: 600; }
     .status-info { background: rgba(59, 130, 246, 0.2); border: 1px solid var(--primary); color: #93c5fd; }
     .status-found { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #6ee7b7; }
     .status-warn { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warning); color: #fcd34d; }
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
-    button { padding: 10px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.2s; white-space: nowrap; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    button { padding: 10px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.83rem; transition: 0.2s; }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-hover); }
     .btn-secondary { background: #334155; color: white; }
-    .btn-secondary:hover { background: #475569; }
     .btn-success { background: var(--success); color: #064e3b; }
-    .btn-whatsapp { background: #22c55e; color: #052e16; }
     .btn-danger { background: var(--danger); color: white; }
-    .btn-gps { background: #0284c7; color: white; }
+    .btn-gps { background: #0284c7; color: white; white-space: nowrap; }
+    .btn-sm { padding: 7px 11px; font-size: 0.8rem; }
     .preview-box {
-      background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 16px;
-      white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.45;
+      background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+      white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.83rem; line-height: 1.45;
       min-height: 360px; color: #e2e8f0;
     }
     .input-with-btn { display: flex; gap: 6px; }
-    .input-with-btn button { flex: 0 0 auto; padding: 9px 11px; }
-    /* Tela de Login e Modais */
-    .overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.92); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
-    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 100%; max-width: 750px; max-height: 85vh; overflow-y: auto; }
-    .login-box { max-width: 380px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.85rem; }
-    th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); }
-    th { color: #93c5fd; }
-    tr:hover { background: rgba(255,255,255,0.03); }
-    .hidden { display: none !important; }
+    .input-with-btn button { flex: 0 0 auto; padding: 8px 10px; }
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; padding: 16px; }
+    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 720px; max-height: 85vh; overflow-y: auto; padding: 20px; }
+    .login-screen { max-width: 380px; margin: 60px auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .site-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); gap: 10px; }
+    .site-item:hover { background: rgba(255,255,255,0.03); }
   </style>
 </head>
 <body>
 
-<!-- TELA DE LOGIN -->
-<div id="loginOverlay" class="overlay">
-  <div class="modal-box login-box">
-    <h2 style="margin-top:0; color:#60a5fa; text-align:center;">🔐 Acesso Restrito CIRE</h2>
-    <p style="color:var(--muted); font-size:0.85rem; text-align:center;">Entre com seu usuário e senha cadastrados</p>
-    <div class="full"><label>Usuário</label><input type="text" id="loginUser" placeholder="Ex: hamilton" /></div>
-    <div class="full"><label>Senha</label><input type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter') fazerLogin()" /></div>
-    <p id="loginErro" style="color:#f87171; font-size:0.82rem; display:none; margin:6px 0;"></p>
-    <button type="button" class="btn-primary" style="width:100%; margin-top:8px;" onclick="fazerLogin()">Entrar no Sistema</button>
-  </div>
+<div id="loginBox" class="login-screen">
+  <h2 style="margin-top:0; color:#60a5fa; text-align:center;">🔐 Acesso CIRE</h2>
+  <p style="color:var(--muted); font-size:0.85rem; text-align:center;">Entre com seu usuário técnico</p>
+  <div class="full"><label>Usuário</label><input type="text" id="loginUser" placeholder="Ex: hamilton" /></div>
+  <div class="full"><label>Senha</label><input type="password" id="loginPass" placeholder="••••••" onkeyup="if(event.key==='Enter') fazerLogin()" /></div>
+  <button type="button" class="btn-primary" style="width:100%; margin-top:8px;" onclick="fazerLogin()">Entrar no Sistema</button>
+  <p id="loginErro" style="color:#f87171; font-size:0.82rem; text-align:center; display:none; margin-top:10px;"></p>
 </div>
 
-<!-- MODAL LISTA DE SITES SALVOS -->
-<div id="modalSites" class="overlay hidden">
-  <div class="modal-box">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="margin:0; color:#60a5fa;">📋 Sites Cadastrados no Banco</h3>
-      <div style="display:flex; gap:8px;">
-        <button type="button" class="btn-success" onclick="exportarCsv()">📊 Baixar Excel</button>
-        <button type="button" class="btn-secondary" onclick="fecharModais()">✖ Fechar</button>
-      </div>
-    </div>
-    <input type="text" id="filtroSites" placeholder="🔍 Filtrar por código do site, rota, detentora ou endereço..." oninput="filtrarTabelaSites()" />
-    <table>
-      <thead>
-        <tr><th>Site</th><th>Rota</th><th>Detentora</th><th>Atualizado por</th><th>Ações</th></tr>
-      </thead>
-      <tbody id="tabelaSitesBody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- MODAL ADMIN GERENCIAR TÉCNICOS -->
-<div id="modalAdmin" class="overlay hidden">
-  <div class="modal-box">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="margin:0; color:#60a5fa;">👥 Gerenciar Logins dos Técnicos</h3>
-      <button type="button" class="btn-secondary" onclick="fecharModais()">✖ Fechar</button>
-    </div>
-    <div class="row">
-      <div><label>Login (sem espaço)</label><input type="text" id="novoUser" placeholder="ex: joao.silva" /></div>
-      <div><label>Senha</label><input type="text" id="novaSenhaUser" placeholder="ex: tel123" /></div>
-    </div>
-    <div class="row">
-      <div><label>Nome Completo</label><input type="text" id="novoNomeUser" placeholder="Ex: João Silva" /></div>
-      <div><label>Telefone / WhatsApp</label><input type="text" id="novoTelUser" placeholder="(19) 99999-9999" /></div>
-    </div>
-    <button type="button" class="btn-primary" style="width:100%; margin-bottom:16px;" onclick="criarTecnico()">➕ Cadastrar Novo Técnico</button>
-    <table>
-      <thead><tr><th>Usuário</th><th>Nome</th><th>Contato</th><th>Ação</th></tr></thead>
-      <tbody id="tabelaUsuariosBody"></tbody>
-    </table>
-  </div>
-</div>
-<div id="appPrincipal" class="container hidden">
+<div id="appBox" class="container" style="display:none;">
   <header>
     <div>
       <h1>Gerador de Carimbos CIRE</h1>
-      <p>Logado como: <strong id="lblUsuarioLogado" style="color:#6ee7b7;"></strong></p>
+      <p id="userInfo" style="color:#6ee7b7;"></p>
     </div>
     <div class="top-bar">
-      <button type="button" class="btn-primary" onclick="abrirListaSites()">📋 Sites Salvos</button>
-      <button type="button" id="btnAdminMenu" class="btn-secondary hidden" onclick="abrirPainelAdmin()">👥 Técnicos</button>
-      <button type="button" class="btn-danger" onclick="sairSistema()">Sair</button>
+      <button type="button" class="btn-secondary btn-sm" onclick="abrirListaSites()">📋 Sites Salvos</button>
+      <button type="button" class="btn-secondary btn-sm" onclick="exportarCSV()">📊 Baixar Excel</button>
+      <button type="button" id="btnAdmin" class="btn-secondary btn-sm" style="display:none;" onclick="abrirPainelAdmin()">👥 Técnicos</button>
+      <button type="button" class="btn-danger btn-sm" onclick="sair()">Sair</button>
     </div>
   </header>
-
   <div class="grid">
     <div>
       <div id="dbBanner" class="status-banner"></div>
@@ -143,8 +92,8 @@
             <label>Site (Pesquisa Automática no Banco)</label>
             <div class="input-with-btn">
               <input type="text" id="site" placeholder="Ex: 0AE ou 7SS" oninput="this.value = this.value.toUpperCase(); espelharSite();" onblur="buscarSiteNoBanco()" />
-              <button type="button" class="btn-secondary" onclick="buscarSiteNoBanco()" title="Pesquisar Site">🔍</button>
-              <button type="button" id="btnExcluirSite" class="btn-danger hidden" onclick="excluirSiteAtual()" title="Excluir Site">🗑️</button>
+              <button type="button" class="btn-secondary" onclick="buscarSiteNoBanco()" title="Pesquisar">🔍</button>
+              <button type="button" class="btn-danger" onclick="excluirSiteComSenha(document.getElementById('site').value)" title="Excluir Site">🗑️</button>
             </div>
           </div>
           <div><label>Data</label><input type="date" id="data" /></div>
@@ -223,9 +172,9 @@
       <div class="card">
         <h3>Notas e Localização</h3>
         <div class="full">
-          <label>Link de Localização (Use o GPS no local ou cole do Google Maps)</label>
+          <label>Link de Localização (GPS ou Google Maps)</label>
           <div class="input-with-btn">
-            <input type="text" id="link_maps" placeholder="Clique em Pegar GPS ou cole o link aqui..." />
+            <input type="text" id="link_maps" placeholder="Clique em Pegar GPS ou cole o link..." />
             <button type="button" id="btnGps" class="btn-gps" onclick="capturarLocalizacaoCompleta('link')">📍 Pegar GPS</button>
           </div>
         </div>
@@ -234,14 +183,14 @@
     </div>
 
     <div>
-      <div class="card" style="position: sticky; top: 20px;">
+      <div class="card" style="position: sticky; top: 16px;">
         <h3>Pré-visualização do Carimbo (Ao Vivo)</h3>
         <div id="carimboPreview" class="preview-box"></div>
 
         <div class="actions">
-          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Salvar e Copiar</button>
-          <button type="button" class="btn-whatsapp" onclick="enviarWhatsApp()">📲 Enviar WhatsApp</button>
-          <button type="button" class="btn-success" onclick="baixarImagem()">📷 Baixar Imagem</button>
+          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar e Salvar</button>
+          <button type="button" class="btn-success" onclick="enviarWhatsApp()">📲 Enviar WhatsApp</button>
+          <button type="button" class="btn-secondary" onclick="baixarImagem()">📷 Baixar Imagem</button>
           <button type="button" class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar Campos</button>
         </div>
       </div>
@@ -249,93 +198,501 @@
   </div>
 </div>
 
-<script>
-  var usuarioAtual = null;
-  var listaSitesCache = [];
-  document.getElementById('data').valueAsDate = new Date();
-  <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerador de Carimbo CIRE</title>
-  <script src="https://cloudflare.com"></script>
-  <style>
-    :root {
-      --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f8fafc;
-      --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
-      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-    }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); margin: 0; padding: 16px; }
-    .container { max-width: 1180px; margin: 0 auto; }
-    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-    header h1 { margin: 0; font-size: 1.5rem; color: #60a5fa; }
-    header p { margin: 2px 0 0; color: var(--muted); font-size: 0.82rem; }
-    .top-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
-    @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
-    .card h3 { margin-top: 0; font-size: 1rem; color: #93c5fd; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .full { margin-bottom: 10px; }
-    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
-    input, textarea {
-      width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text);
-      padding: 8px 10px; border-radius: 6px; font-size: 0.88rem;
-    }
-    input:focus, textarea:focus { outline: none; border-color: var(--primary); }
-    .status-banner { padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; display: none; font-weight: 600; }
-    .status-info { background: rgba(59, 130, 246, 0.2); border: 1px solid var(--primary); color: #93c5fd; }
-    .status-found { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #6ee7b7; }
-    .status-warn { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warning); color: #fcd34d; }
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-    button { padding: 10px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.83rem; transition: 0.2s; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-secondary { background: #334155; color: white; }
-    .btn-success { background: var(--success); color: #064e3b; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-gps { background: #0284c7; color: white; white-space: nowrap; }
-    .btn-sm { padding: 7px 11px; font-size: 0.8rem; }
-    .preview-box {
-      background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 14px;
-      white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.83rem; line-height: 1.45;
-      min-height: 360px; color: #e2e8f0;
-    }
-    .input-with-btn { display: flex; gap: 6px; }
-    .input-with-btn button { flex: 0 0 auto; padding: 8px 10px; }
-    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; padding: 16px; }
-    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 720px; max-height: 85vh; overflow-y: auto; padding: 20px; }
-    .login-screen { max-width: 380px; margin: 60px auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-    .site-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); gap: 10px; }
-    .site-item:hover { background: rgba(255,255,255,0.03); }
-  </style>
-</head>
-<body>
-
-<!-- TELA DE LOGIN -->
-<div id="loginBox" class="login-screen">
-  <h2 style="margin-top:0; color:#60a5fa; text-align:center;">🔐 Acesso CIRE</h2>
-  <p style="color:var(--muted); font-size:0.85rem; text-align:center;">Entre com seu usuário técnico</p>
-  <div class="full"><label>Usuário</label><input type="text" id="loginUser" placeholder="Ex: hamilton" /></div>
-  <div class="full"><label>Senha</label><input type="password" id="loginPass" placeholder="••••••" onkeyup="if(event.key==='Enter') fazerLogin()" /></div>
-  <button type="button" class="btn-primary" style="width:100%; margin-top:8px;" onclick="fazerLogin()">Entrar no Sistema</button>
-  <p id="loginErro" style="color:#f87171; font-size:0.82rem; text-align:center; display:none; margin-top:10px;"></p>
+<div id="modalSites" class="modal-bg">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; color:#60a5fa;">📋 Sites Cadastrados no Banco</h3>
+      <button type="button" class="btn-secondary btn-sm" onclick="fecharModal('modalSites')">Fechar ✖</button>
+    </div>
+    <input type="text" id="filtroSites" placeholder="Filtrar por site, detentora, rota ou endereço..." oninput="renderizarListaSites()" style="margin-bottom:12px;" />
+    <div id="listaSitesConteudo">Carregando...</div>
+  </div>
 </div>
 
-<!-- SISTEMA PRINCIPAL (OCULTO ATÉ LOGAR) -->
-<div id="appBox" class="container" style="display:none;">
-  <header>
-    <div>
-      <h1>Gerador de Carimbos CIRE</h1>
-      <p id="userInfo" style="color:#6ee7b7;"></p>
+<div id="modalAdmin" class="modal-bg">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; color:#60a5fa;">👥 Gerenciar Técnicos</h3>
+      <button type="button" class="btn-secondary btn-sm" onclick="fecharModal('modalAdmin')">Fechar ✖</button>
     </div>
-    <div class="top-bar">
-      <button type="button" class="btn-secondary btn-sm" onclick="abrirListaSites()">📋 Sites Salvos</button>
-      <button type="button" class="btn-secondary btn-sm" onclick="exportarCSV()">📊 Baixar Excel</button>
-      <button type="button" id="btnAdmin" class="btn-secondary btn-sm" style="display:none;" onclick="abrirPainelAdmin()">👥 Técnicos</button>
-      <button type="button" class="btn-danger btn-sm" onclick="sair()">Sair</button>
+    <div class="row">
+      <input type="text" id="novoUser" placeholder="Login (ex: joao)" />
+      <input type="text" id="novaSenha" placeholder="Senha inicial" />
     </div>
-  </header>
+    <div class="row">
+      <input type="text" id="novoNome" placeholder="Nome Completo (ex: João Silva)" />
+      <input type="text" id="novoContato" placeholder="Telefone (ex: 19 99999-0000)" />
+    </div>
+    <button type="button" class="btn-primary" style="width:100%; margin-bottom:14px;" onclick="criarTecnico()">+ Cadastrar Técnico</button>
+    <div id="listaUsuariosConteudo"></div>
+  </div>
+</div>
+<script>
+  var usuarioLogado = null;
+  var cacheSites = [];
 
+  (function init() {
+    var salvo = localStorage.getItem('cire_user');
+    if (salvo) {
+      usuarioLogado = JSON.parse(salvo);
+      entrarNoApp();
+    }
+  })();
+
+  async function fazerLogin() {
+    var u = document.getElementById('loginUser').value.trim();
+    var s = document.getElementById('loginPass').value.trim();
+    var errEl = document.getElementById('loginErro');
+    errEl.style.display = 'none';
+
+    try {
+      var res = await fetch('/api/sites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acao: 'login', usuario: u, senha: s })
+      });
+      var json = await res.json();
+      if (res.ok && json.sucesso) {
+        usuarioLogado = json.usuario;
+        localStorage.setItem('cire_user', JSON.stringify(usuarioLogado));
+        entrarNoApp();
+      } else {
+        errEl.textContent = json.erro || 'Usuário ou senha inválidos.';
+        errEl.style.display = 'block';
+      }
+    } catch (e) {
+      errEl.textContent = 'Erro de conexão com o servidor.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  function entrarNoApp() {
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('appBox').style.display = 'block';
+    document.getElementById('userInfo').textContent = '👤 Logado como: ' + usuarioLogado.nome_completo;
+    document.getElementById('tecnico').value = usuarioLogado.nome_completo || '';
+    document.getElementById('contato').value = usuarioLogado.contato || '';
+    if (usuarioLogado.is_admin === 1) {
+      document.getElementById('btnAdmin').style.display = 'inline-block';
+    }
+    document.getElementById('data').valueAsDate = new Date();
+    atualizarPreview();
+  }
+
+  function sair() {
+    localStorage.removeItem('cire_user');
+    location.reload();
+  }
+
+  function espelharSite() {
+    document.getElementById('site_acesso').value = document.getElementById('site').value;
+    atualizarPreview();
+  }
+
+  function mostrarBanner(texto, tipo) {
+    var banner = document.getElementById('dbBanner');
+    banner.textContent = texto;
+    banner.className = 'status-banner ' + tipo;
+    banner.style.display = 'block';
+  }
+
+  function montarTextoCarimbo() {
+    var v = function(id) { return document.getElementById(id).value.trim(); };
+    var site = v('site').toUpperCase();
+    var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
+
+    var texto =
+      '***ABRIR CARIMBO CIRE***\n\n' +
+      '*Site:* ' + site + '\n' +
+      '*Data:* ' + dataFormatada + '\n' +
+      '*TA:* ' + v('ta') + '\n' +
+      '*Técnico:* ' + v('tecnico') + '\n' +
+      '*Contato:* ' + v('contato') + '\n' +
+      '*Rota:* ' + v('rota') + '\n' +
+      '*Ponta A:* ' + v('ponta_a') + '\n' +
+      '*Endereço:* ' + v('endereco_ponta_a') + '\n' +
+      '*Ponta B:* ' + v('ponta_b') + '\n' +
+      '*Endereço:* ' + v('endereco_ponta_b') + '\n' +
+      '*Afetação:* ' + v('afetacao') + '\n\n' +
+      '*Alça 1*\n' +
+      '*Cabo:* ' + (v('cabo1') || 'X') + '\n' +
+      '*Fibra:* ' + (v('fibra1') || 'XX') + '\n' +
+      '*Distância de A_ B:* ' + (v('dist_ab1') || 'xxx mts') + '\n' +
+      '*Distância de B_ A:* ' + (v('dist_ba1') || 'xxx mts') + '\n' +
+      '*Distância  total:* ' + (v('dist_tot1') || 'XXX mts') + '\n' +
+      (v('equip1') ? v('equip1') + '\n' : '');
+
+    if (v('cabo2') || v('fibra2') || v('dist_ab2') || v('dist_ba2') || v('dist_tot2') || v('equip2')) {
+      texto += '\n' +
+        '*Alça 2*\n' +
+        '*Cabo:* ' + (v('cabo2') || 'X') + '\n' +
+        '*Fibra:* ' + (v('fibra2') || 'XX') + '\n' +
+        '*Distância de A_ B:* ' + (v('dist_ab2') || 'xxx mts') + '\n' +
+        '*Distância de B_ A:* ' + (v('dist_ba2') || 'xxx mts') + '\n' +
+        '*Distância  total:* ' + (v('dist_tot2') || 'XXX mts') + '\n' +
+        (v('equip2') ? v('equip2') + '\n' : '');
+    }
+
+    texto += '\n\n' +
+      '*OBS:* ' + v('obs') + '\n\n' +
+      '*Localização*\n' +
+      v('link_maps') + '\n\n' +
+      '*### CARIMBO DE ACESSO AO SITE  ###*\n' +
+      '*Site:* ' + site + '\n' +
+      '*Detentora:* ' + v('detentora') + '\n' +
+      '*ID :* ' + v('id_acesso') + '\n' +
+      '*Portão:* ' + v('portao') + '\n' +
+      '*Gabinete:* ' + v('gabinete') + '\n' +
+      '*Medidor:* ' + v('medidor') + '\n' +
+      '*UC:* ' + v('uc');
+
+    if (v('rodape')) texto += '\n\n' + v('rodape');
+    return texto;
+  }
+
+  function atualizarPreview() {
+    document.getElementById('carimboPreview').textContent = montarTextoCarimbo();
+  }
+
+  document.querySelectorAll('input, textarea').forEach(function(el) {
+    el.addEventListener('input', atualizarPreview);
+    el.addEventListener('change', atualizarPreview);
+  });
+
+  function enviarWhatsApp() {
+    var texto = montarTextoCarimbo();
+    window.open('https://api.' + '://whatsapp.com' + encodeURIComponent(texto), '_blank');
+  }
+  function capturarLocalizacaoCompleta(origem) {
+    var btnEnd = document.getElementById('btnEndGps');
+    var btnLink = document.getElementById('btnGps');
+    var campoEndereco = document.getElementById('endereco_ponta_a');
+    var campoMaps = document.getElementById('link_maps');
+
+    if (!navigator.geolocation) {
+      alert('Seu navegador não suporta captura de GPS.');
+      return;
+    }
+
+    btnEnd.disabled = true;
+    btnLink.disabled = true;
+    if (origem === 'endereco') btnEnd.textContent = '⏳...';
+    if (origem === 'link') btnLink.textContent = '⏳ Buscando...';
+
+    navigator.geolocation.getCurrentPosition(
+      async function(pos) {
+        var lat = pos.coords.latitude.toFixed(6);
+        var lng = pos.coords.longitude.toFixed(6);
+        var precisao = Math.round(pos.coords.accuracy);
+
+        if (origem === 'link' || !campoMaps.value.trim()) {
+          campoMaps.value = 'https://google.com' + '/maps?q=' + lat + ',' + lng;
+        }
+
+        if (origem === 'endereco' || !campoEndereco.value.trim()) {
+          var enderecoEncontrado = '';
+          try {
+            var urlOsm = 'https://nominatim.' + 'openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng;
+            var resp = await fetch(urlOsm);
+            var data = await resp.json();
+            if (data && data.address) {
+              var a = data.address;
+              var rua = a.road || a.pedestrian || a.street || a.highway || '';
+              var numero = a.house_number ? ', ' + a.house_number : '';
+              var bairro = a.suburb || a.neighbourhood || a.district || a.city_district || '';
+              var cidade = a.city || a.town || a.village || a.municipality || '';
+              var estado = a.state || '';
+              var partes = [];
+              if (rua) partes.push(rua + numero);
+              if (bairro) partes.push(bairro);
+              if (cidade && estado) partes.push(cidade + ' - ' + estado);
+              else if (cidade || estado) partes.push(cidade || estado);
+              if (partes.length > 0) enderecoEncontrado = partes.join(', ');
+            }
+          } catch (e1) {}
+
+          if (!enderecoEncontrado) {
+            try {
+              var urlBdc = 'https://api.' + 'bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=pt';
+              var resp2 = await fetch(urlBdc);
+              var data2 = await resp2.json();
+              if (data2) {
+                var partes2 = [data2.locality || '', data2.city || '', data2.principalSubdivision || ''].filter(Boolean);
+                if (partes2.length > 0) enderecoEncontrado = partes2.join(', ') + ' (' + lat + ', ' + lng + ')';
+              }
+            } catch (e2) {}
+          }
+          campoEndereco.value = enderecoEncontrado || ('Coord: ' + lat + ', ' + lng);
+        }
+
+        btnEnd.textContent = '📍 GPS';
+        btnLink.textContent = '📍 Pegar GPS';
+        btnEnd.disabled = false;
+        btnLink.disabled = false;
+        atualizarPreview();
+        mostrarBanner('📍 Localização e endereço capturados via GPS! (~' + precisao + 'm)', 'status-found');
+      },
+      function() {
+        btnEnd.textContent = '📍 GPS';
+        btnLink.textContent = '📍 Pegar GPS';
+        btnEnd.disabled = false;
+        btnLink.disabled = false;
+        alert('Não foi possível obter o GPS. Verifique a permissão de localização.');
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
+  function preencherCamposComSite(d) {
+    document.getElementById('site').value = d.site || '';
+    espelharSite();
+    document.getElementById('rota').value = d.rota || '';
+    document.getElementById('ponta_a').value = d.ponta_a || '';
+    document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a || '';
+    document.getElementById('detentora').value = d.detentora || '';
+    document.getElementById('id_acesso').value = d.id_acesso || '';
+    document.getElementById('portao').value = d.portao || '';
+    document.getElementById('gabinete').value = d.gabinete || '';
+    document.getElementById('medidor').value = d.medidor || '';
+    document.getElementById('uc').value = d.uc || '';
+    document.getElementById('link_maps').value = d.link_maps || '';
+    document.getElementById('obs').value = d.obs || '';
+    document.getElementById('rodape').value = d.rodape || '';
+    document.getElementById('equip1').value = d.equip1 || '';
+    atualizarPreview();
+  }
+
+  async function buscarSiteNoBanco() {
+    var site = document.getElementById('site').value.trim().toUpperCase();
+    if (!site) return;
+    mostrarBanner('Pesquisando site ' + site + '...', 'status-info');
+    try {
+      var res = await fetch('/api/sites?site=' + encodeURIComponent(site));
+      var json = await res.json();
+      if (json.encontrado && json.dados) {
+        preencherCamposComSite(json.dados);
+        var quem = json.dados.atualizado_por ? ' (Última melhoria por: ' + json.dados.atualizado_por + ')' : '';
+        mostrarBanner('✅ Site ' + site + ' carregado!' + quem, 'status-found');
+      } else {
+        mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado. Preencha para salvar como novo.', 'status-warn');
+      }
+    } catch (e) {
+      mostrarBanner('⚠️ Erro ao consultar o banco.', 'status-warn');
+    }
+  }
+  async function gerarESalvar() {
+    var v = function(id) { return document.getElementById(id).value.trim(); };
+    var site = v('site').toUpperCase();
+    if (!site) { alert('Informe o código do Site.'); document.getElementById('site').focus(); return; }
+
+    var textoCarimbo = montarTextoCarimbo();
+    document.getElementById('carimboPreview').textContent = textoCarimbo;
+    try { await navigator.clipboard.writeText(textoCarimbo); } catch (e) {}
+
+    var payload = {
+      site: site, rota: v('rota'), ponta_a: v('ponta_a'), endereco_ponta_a: v('endereco_ponta_a'),
+      detentora: v('detentora'), id_acesso: v('id_acesso'), portao: v('portao'), gabinete: v('gabinete'),
+      medidor: v('medidor'), uc: v('uc'), link_maps: v('link_maps'), obs: v('obs'),
+      rodape: v('rodape'), equip1: v('equip1'),
+      atualizado_por: usuarioLogado ? usuarioLogado.nome_completo : 'Técnico',
+      forcarAtualizacao: false
+    };
+
+    try {
+      var res = await fetch('/api/sites', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      if (res.status === 409) {
+        if (confirm('O site ' + site + ' já existe no banco!\n\nDeseja ATUALIZAR o cadastro com as melhorias preenchidas agora?')) {
+          payload.forcarAtualizacao = true;
+          res = await fetch('/api/sites', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+          });
+          if (res.ok) mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado e carimbo copiado!', 'status-found');
+        } else {
+          mostrarBanner('📋 Carimbo copiado! Cadastro original mantido.', 'status-info');
+        }
+      } else if (res.ok) {
+        mostrarBanner('✅ Novo site ' + site + ' salvo no banco e carimbo copiado!', 'status-found');
+      }
+    } catch (e) {
+      mostrarBanner('📋 Carimbo gerado e copiado!', 'status-warn');
+    }
+  }
+
+  async function abrirListaSites() {
+    document.getElementById('modalSites').style.display = 'flex';
+    document.getElementById('listaSitesConteudo').innerHTML = 'Carregando sites...';
+    try {
+      var res = await fetch('/api/sites?acao=listar');
+      var json = await res.json();
+      cacheSites = json.sites || [];
+      renderizarListaSites();
+    } catch (e) {
+      document.getElementById('listaSitesConteudo').innerHTML = 'Erro ao carregar lista.';
+    }
+  }
+
+  function renderizarListaSites() {
+    var termo = document.getElementById('filtroSites').value.trim().toLowerCase();
+    var filtrados = cacheSites.filter(function(s) {
+      return (s.site || '').toLowerCase().includes(termo) ||
+             (s.detentora || '').toLowerCase().includes(termo) ||
+             (s.rota || '').toLowerCase().includes(termo) ||
+             (s.endereco_ponta_a || '').toLowerCase().includes(termo);
+    });
+
+    if (filtrados.length === 0) {
+      document.getElementById('listaSitesConteudo').innerHTML = '<p style="color:var(--muted);">Nenhum site encontrado.</p>';
+      return;
+    }
+
+    var html = '';
+    filtrados.forEach(function(s) {
+      html += '<div class="site-item">' +
+        '<div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(\'' + s.site + '\')">' +
+          '<strong style="color:#60a5fa; font-size:1rem;">' + s.site + '</strong> ' +
+          '<span style="color:#94a3b8; font-size:0.82rem;">(' + (s.detentora || 'Sem detentora') + ')</span><br>' +
+          '<span style="font-size:0.8rem; color:#cbd5e1;">' + (s.endereco_ponta_a || s.rota || 'Sem endereço') + '</span>' +
+        '</div>' +
+        '<div style="display:flex; gap:6px;">' +
+          '<button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(\'' + s.site + '\')">Abrir</button>' +
+          '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(\'' + s.site + '\')">🗑️</button>' +
+        '</div>' +
+      '</div>';
+    });
+    document.getElementById('listaSitesConteudo').innerHTML = html;
+  }
+
+  function selecionarSiteDaLista(codigo) {
+    var encontrado = cacheSites.find(function(s) { return s.site === codigo; });
+    if (encontrado) {
+      preencherCamposComSite(encontrado);
+      fecharModal('modalSites');
+      mostrarBanner('✅ Site ' + codigo + ' carregado da lista!', 'status-found');
+    }
+  }
+
+  async function excluirSiteComSenha(siteCodigo) {
+    var site = (siteCodigo || '').trim().toUpperCase();
+    if (!site) { alert('Informe ou selecione um site para excluir.'); return; }
+
+    var senha = prompt('⚠️ EXCLUSÃO DE SITE (' + site + ')\n\nDigite a SENHA DE ADMINISTRADOR para confirmar:');
+    if (!senha) return;
+
+    try {
+      var res = await fetch('/api/sites?site=' + encodeURIComponent(site) + '&senha=' + encodeURIComponent(senha), {
+        method: 'DELETE'
+      });
+      var json = await res.json();
+      if (res.ok && json.sucesso) {
+        alert('🗑️ Site ' + site + ' excluído com sucesso!');
+        if (document.getElementById('modalSites').style.display === 'flex') abrirListaSites();
+        if (document.getElementById('site').value.toUpperCase() === site) limparFormulario();
+      } else {
+        alert('❌ ' + (json.erro || 'Senha incorreta. Exclusão negada.'));
+      }
+    } catch (e) {
+      alert('Erro ao conectar com o servidor.');
+    }
+  }
+
+  async function exportarCSV() {
+    try {
+      var res = await fetch('/api/sites?acao=listar');
+      var json = await res.json();
+      var lista = json.sites || [];
+      if (lista.length === 0) { alert('Nenhum site salvo para exportar.'); return; }
+
+      var cabecalho = ['Site', 'Rota', 'Ponta A', 'Endereco', 'Detentora', 'ID', 'Portao', 'Gabinete', 'Medidor', 'UC', 'Maps', 'OBS', 'Rodape', 'Atualizado Por'];
+      var linhas = [cabecalho.join(';')];
+      lista.forEach(function(s) {
+        var row = [s.site, s.rota, s.ponta_a, s.endereco_ponta_a, s.detentora, s.id_acesso, s.portao, s.gabinete, s.medidor, s.uc, s.link_maps, s.obs, s.rodape, s.atualizado_por]
+          .map(function(val) { return '"' + String(val || '').replace(/"/g, '""').replace(/\n/g, ' ') + '"'; });
+        linhas.push(row.join(';'));
+      });
+
+      var blob = new Blob(['\uFEFF' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'base-sites-cire.csv';
+      link.click();
+    } catch (e) {
+      alert('Erro ao exportar planilha.');
+    }
+  }
+
+  async function abrirPainelAdmin() {
+    document.getElementById('modalAdmin').style.display = 'flex';
+    carregarListaUsuarios();
+  }
+
+  async function carregarListaUsuarios() {
+    var res = await fetch('/api/sites?acao=usuarios');
+    var json = await res.json();
+    var html = '';
+    (json.usuarios || []).forEach(function(u) {
+      html += '<div class="site-item"><div><strong>' + u.nome_completo + '</strong> (' + u.usuario + ')<br><span style="font-size:0.8rem; color:var(--muted);">' + (u.contato || '') + '</span></div>' +
+        (u.is_admin === 0 ? '<button type="button" class="btn-danger btn-sm" onclick="removerTecnico(' + u.id + ')">Remover</button>' : '<span style="color:#6ee7b7; font-size:0.8rem;">Admin</span>') +
+      '</div>';
+    });
+    document.getElementById('listaUsuariosConteudo').innerHTML = html;
+  }
+
+  async function criarTecnico() {
+    var u = document.getElementById('novoUser').value.trim();
+    var s = document.getElementById('novaSenha').value.trim();
+    var n = document.getElementById('novoNome').value.trim();
+    var c = document.getElementById('novoContato').value.trim();
+    if (!u || !s || !n) { alert('Preencha login, senha e nome.'); return; }
+
+    var senhaAdmin = prompt('Confirme a SENHA DE ADMINISTRADOR para criar o técnico:');
+    if (!senhaAdmin) return;
+
+    var res = await fetch('/api/sites', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ acao: 'criar_usuario', novoUsuario: u, novaSenha: s, nomeCompleto: n, contato: c, senhaAdmin: senhaAdmin })
+    });
+    var json = await res.json();
+    if (res.ok && json.sucesso) {
+      document.getElementById('novoUser').value = '';
+      document.getElementById('novaSenha').value = '';
+      document.getElementById('novoNome').value = '';
+      document.getElementById('novoContato').value = '';
+      carregarListaUsuarios();
+      alert('✅ Técnico cadastrado com sucesso!');
+    } else {
+      alert('❌ ' + (json.erro || 'Erro ao cadastrar técnico.'));
+    }
+  }
+
+  async function removerTecnico(id) {
+    var senhaAdmin = prompt('Digite a SENHA DE ADMINISTRADOR para remover este técnico:');
+    if (!senhaAdmin) return;
+    var res = await fetch('/api/sites?usuarioId=' + id + '&senha=' + encodeURIComponent(senhaAdmin), { method: 'DELETE' });
+    if (res.ok) carregarListaUsuarios();
+    else alert('Senha incorreta.');
+  }
+
+  function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+
+  function baixarImagem() {
+    var el = document.getElementById('carimboPreview');
+    html2canvas(el, { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
+      var link = document.createElement('a');
+      link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  }
+
+  function limparFormulario() {
+    document.querySelectorAll('input, textarea').forEach(function(el) {
+      if (el.type !== 'date' && el.id !== 'tecnico' && el.id !== 'contato') el.value = '';
+    });
+    atualizarPreview();
+    document.getElementById('dbBanner').style.display = 'none';
+  }
+</script>
+</body>
+</html>
