@@ -320,6 +320,12 @@
   }
 
 
+    function formatarMetros(valor, padrao) {
+    if (!valor) return padrao;
+    if (/mts|m$/i.test(valor)) return valor;
+    return valor + ' mts';
+  }
+
   function montarTextoCarimbo() {
     var v = function(id) { return document.getElementById(id).value.trim(); };
     var site = v('site').toUpperCase();
@@ -341,9 +347,9 @@
       '*Alça 1*\n' +
       '*Cabo:* ' + (v('cabo1') || 'X') + '\n' +
       '*Fibra:* ' + (v('fibra1') || 'XX') + '\n' +
-      '*Distância de A_ B:* ' + (v('dist_ab1') || 'xxx mts') + '\n' +
-      '*Distância de B_ A:* ' + (v('dist_ba1') || 'xxx mts') + '\n' +
-      '*Distância  total:* ' + (v('dist_tot1') || 'XXX mts') + '\n' +
+      '*Distância de A_ B:* ' + formatarMetros(v('dist_ab1'), 'xxx mts') + '\n' +
+      '*Distância de B_ A:* ' + formatarMetros(v('dist_ba1'), 'xxx mts') + '\n' +
+      '*Distância  total:* ' + formatarMetros(v('dist_tot1'), 'XXX mts') + '\n' +
       (v('equip1') ? v('equip1') + '\n' : '');
 
     if (v('cabo2') || v('fibra2') || v('dist_ab2') || v('dist_ba2') || v('dist_tot2') || v('equip2')) {
@@ -351,9 +357,9 @@
         '*Alça 2*\n' +
         '*Cabo:* ' + (v('cabo2') || 'X') + '\n' +
         '*Fibra:* ' + (v('fibra2') || 'XX') + '\n' +
-        '*Distância de A_ B:* ' + (v('dist_ab2') || 'xxx mts') + '\n' +
-        '*Distância de B_ A:* ' + (v('dist_ba2') || 'xxx mts') + '\n' +
-        '*Distância  total:* ' + (v('dist_tot2') || 'XXX mts') + '\n' +
+        '*Distância de A_ B:* ' + formatarMetros(v('dist_ab2'), 'xxx mts') + '\n' +
+        '*Distância de B_ A:* ' + formatarMetros(v('dist_ba2'), 'xxx mts') + '\n' +
+        '*Distância  total:* ' + formatarMetros(v('dist_tot2'), 'XXX mts') + '\n' +
         (v('equip2') ? v('equip2') + '\n' : '');
     }
 
@@ -373,6 +379,7 @@
     if (v('rodape')) texto += '\n\n' + v('rodape');
     return texto;
   }
+
 
   function atualizarPreview() {
     document.getElementById('carimboPreview').textContent = montarTextoCarimbo();
