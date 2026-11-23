@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Carimbo CIRE</title>
+  <script src="https://cloudflare.com"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+    header h1 { margin: 0; font-size: 1.8rem; color: #60a5fa; }
+    header p { margin: 4px 0; color: var(--muted); font-size: 0.9rem; }
+    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+    @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+    .card h3 { margin-top: 0; font-size: 1.05rem; color: #93c5fd; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .full { margin-bottom: 12px; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    input, textarea {
+      width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text);
+      padding: 9px 11px; border-radius: 6px; font-size: 0.9rem;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+    .status-banner {
+      padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; display: none; font-weight: 600;
+    }
+    .status-info { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--primary); color: #93c5fd; }
+    .status-found { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); color: #6ee7b7; }
+    .status-warn { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warning); color: #fcd34d; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    button {
+      padding: 11px 16px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
+      font-size: 0.9rem; transition: 0.2s; flex: 1;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #334155; color: white; }
+    .btn-secondary:hover { background: #475569; }
+    .btn-success { background: var(--success); color: #064e3b; }
+    .btn-gps { background: #0284c7; color: white; white-space: nowrap; }
+    .btn-gps:hover { background: #0369a1; }
+    .preview-box {
+      background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+      white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.45;
+      min-height: 320px; color: #e2e8f0;
+    }
+    .input-with-btn { display: flex; gap: 8px; }
+    .input-with-btn button { flex: 0 0 auto; padding: 9px 12px; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Gerador de Carimbos CIRE</h1>
+    <p>Layout Operacional Técnico - Envio Rápido WhatsApp</p>
+    <p>By: Hamilton Batista (19)99950-5858</p>
+  </header>
+
+  <div class="grid">
+    <!-- COLUNA DO FORMULÁRIO -->
+    <div>
+      <div id="dbBanner" class="status-banner"></div>
+
+      <div class="card">
+        <h3>Dados Gerais do Chamado</h3>
+        <div class="row">
+          <div>
+            <label>Site (Pesquisa Automática no Banco)</label>
+            <div class="input-with-btn">
+              <input type="text" id="site" placeholder="Ex: SPO01" oninput="this.value = this.value.toUpperCase(); espelharSite();" onblur="buscarSiteNoBanco()" />
+              <button type="button" class="btn-secondary" onclick="buscarSiteNoBanco()" title="Pesquisar Site">🔍</button>
+            </div>
+          </div>
+          <div>
+            <label>Data</label>
+            <input type="date" id="data" />
+          </div>
+        </div>
+        <div class="row">
+          <div><label>TA</label><input type="text" id="ta" /></div>
+          <div><label>Rota</label><input type="text" id="rota" /></div>
+        </div>
+        <div class="row">
+          <div><label>Técnico</label><input type="text" id="tecnico" /></div>
+          <div><label>Contato</label><input type="text" id="contato" /></div>
+        </div>
+        <div class="row">
+          <div><label>Ponta A</label><input type="text" id="ponta_a" /></div>
+          <div>
+            <label>Endereço Ponta A</label>
+            <div class="input-with-btn">
+              <input type="text" id="endereco_ponta_a" placeholder="Digite ou puxe pelo GPS..." />
+              <button type="button" id="btnEndGps" class="btn-gps" onclick="capturarLocalizacaoCompleta('endereco')" title="Preencher endereço pelo GPS atual">📍 GPS</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div><label>Ponta B</label><input type="text" id="ponta_b" /></div>
+          <div><label>Endereço Ponta B</label><input type="text" id="endereco_ponta_b" /></div>
+        </div>
+        <div class="full">
+          <label>Afetação</label>
+          <input type="text" id="afetacao" />
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Configurações - Alça 1</h3>
+        <div class="row">
+          <div><label>Cabo</label><input type="text" id="cabo1" placeholder="XXX" /></div>
+          <div><label>Fibra</label><input type="text" id="fibra1" placeholder="XX-XX" /></div>
+        </div>
+        <div class="row-3">
+          <div><label>Dist. A → B (mts)</label><input type="text" id="dist_ab1" placeholder="xxx mts" /></div>
+          <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba1" placeholder="xxx mts" /></div>
+          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot1" placeholder="xxx mts" /></div>
+        </div>
+        <div class="full"><label>Equipamentos / Cluster</label><input type="text" id="equip1" /></div>
+      </div>
+
+      <div class="card">
+        <h3>Configurações - Alça 2</h3>
+        <div class="row">
+          <div><label>Cabo</label><input type="text" id="cabo2" placeholder="XXX" /></div>
+          <div><label>Fibra</label><input type="text" id="fibra2" placeholder="XX-XX" /></div>
+        </div>
+        <div class="row-3">
+          <div><label>Dist. A → B (mts)</label><input type="text" id="dist_ab2" placeholder="xxx mts" /></div>
+          <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba2" placeholder="xxx mts" /></div>
+          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot2" placeholder="xxx mts" /></div>
+        </div>
+        <div class="full"><label>Equipamentos / Cluster</label><input type="text" id="equip2" /></div>
+      </div>
+
+      <div class="card">
+        <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
+        <div class="row">
+          <div><label>Site (Acesso)</label><input type="text" id="site_acesso" readonly /></div>
+          <div><label>Detentora</label><input type="text" id="detentora" /></div>
+        </div>
+        <div class="row-3">
+          <div><label>ID</label><input type="text" id="id_acesso" /></div>
+          <div><label>Portão</label><input type="text" id="portao" /></div>
+          <div><label>Gabinete</label><input type="text" id="gabinete" /></div>
+        </div>
+        <div class="row">
+          <div><label>Medidor</label><input type="text" id="medidor" /></div>
+          <div><label>UC</label><input type="text" id="uc" /></div>
+        </div>
+        <div class="full"><label>Instrução Alfa (Rodapé)</label><input type="text" id="rodape" /></div>
+      </div>
+
+      <div class="card">
+        <h3>Notas e Localização</h3>
+        <div class="full">
+          <label>Link de Localização (Use o GPS no local ou cole do Google Maps)</label>
+          <div class="input-with-btn">
+            <input type="text" id="link_maps" placeholder="Clique em Pegar GPS ou cole o link aqui..." />
+            <button type="button" id="btnGps" class="btn-gps" onclick="capturarLocalizacaoCompleta('link')">📍 Pegar GPS</button>
+          </div>
+        </div>
+        <div class="full"><label>OBS</label><textarea id="obs" rows="3"></textarea></div>
+      </div>
+    </div>
+
+    <!-- COLUNA DO CARIMBO GERADO -->
+    <div>
+      <div class="card" style="position: sticky; top: 20px;">
+        <h3>Pré-visualização do Carimbo</h3>
+        <div id="carimboPreview" class="preview-box">Aguardando geração...</div>
+
+        <div class="actions">
+          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar, Salvar e Copiar</button>
+          <button type="button" class="btn-success" onclick="baixarImagem()">📷 Baixar Imagem</button>
+          <button type="button" class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let siteJaExisteNoBanco = false;
+
+  document.getElementById('data').valueAsDate = new Date();
+
+  function espelharSite() {
+    document.getElementById('site_acesso').value = document.getElementById('site').value;
+  }
+
+  function mostrarBanner(texto, tipo) {
+    const banner = document.getElementById('dbBanner');
+    banner.textContent = texto;
+    banner.className = 'status-banner ' + tipo;
+    banner.style.display = 'block';
+  }
+
