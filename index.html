@@ -7,16 +7,9 @@
   <script src="https://cloudflare.com"></script>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --border: #334155;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
+      --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f8fafc;
+      --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -37,17 +30,12 @@
       padding: 9px 11px; border-radius: 6px; font-size: 0.9rem;
     }
     input:focus, textarea:focus { outline: none; border-color: var(--primary); }
-    .status-banner {
-      padding: 12px 14px; border-radius: 6px; font-size: 0.88rem; margin-bottom: 14px; display: none; font-weight: 600;
-    }
+    .status-banner { padding: 12px 14px; border-radius: 6px; font-size: 0.88rem; margin-bottom: 14px; display: none; font-weight: 600; }
     .status-info { background: rgba(59, 130, 246, 0.2); border: 1px solid var(--primary); color: #93c5fd; }
     .status-found { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #6ee7b7; }
     .status-warn { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warning); color: #fcd34d; }
     .actions { display: grid; grid-template-columns: 1.4fr 1fr 0.8fr; gap: 8px; margin-top: 14px; }
-    button {
-      padding: 11px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
-      font-size: 0.85rem; transition: 0.2s; white-space: nowrap;
-    }
+    button { padding: 11px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.2s; white-space: nowrap; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-secondary { background: #334155; color: white; }
@@ -86,10 +74,7 @@
               <button type="button" class="btn-secondary" onclick="buscarSiteNoBanco()" title="Pesquisar Site">🔍</button>
             </div>
           </div>
-          <div>
-            <label>Data</label>
-            <input type="date" id="data" />
-          </div>
+          <div><label>Data</label><input type="date" id="data" /></div>
         </div>
         <div class="row">
           <div><label>TA</label><input type="text" id="ta" /></div>
@@ -113,10 +98,7 @@
           <div><label>Ponta B</label><input type="text" id="ponta_b" /></div>
           <div><label>Endereço Ponta B</label><input type="text" id="endereco_ponta_b" /></div>
         </div>
-        <div class="full">
-          <label>Afetação</label>
-          <input type="text" id="afetacao" placeholder="Ex: HL5G-02 ou SMALL CELL" />
-        </div>
+        <div class="full"><label>Afetação</label><input type="text" id="afetacao" placeholder="Ex: HL5G-02 ou SMALL CELL" /></div>
       </div>
 
       <div class="card">
@@ -130,14 +112,11 @@
           <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba1" placeholder="xxx mts" /></div>
           <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot1" placeholder="XXX mts" /></div>
         </div>
-        <div class="full">
-          <label>Equipamentos / Cluster (Pode colar várias linhas)</label>
-          <textarea id="equip1" rows="3" placeholder="Ex: i-br-sp-aga-0ae-hl5g-01#1/1/c1"></textarea>
-        </div>
+        <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip1" rows="3"></textarea></div>
       </div>
 
       <div class="card">
-        <h3>Configurações - Alça 2 (Opcional - só aparece se preenchida)</h3>
+        <h3>Configurações - Alça 2 (Opcional)</h3>
         <div class="row">
           <div><label>Cabo</label><input type="text" id="cabo2" placeholder="X" /></div>
           <div><label>Fibra</label><input type="text" id="fibra2" placeholder="XX" /></div>
@@ -147,10 +126,7 @@
           <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba2" placeholder="xxx mts" /></div>
           <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot2" placeholder="XXX mts" /></div>
         </div>
-        <div class="full">
-          <label>Equipamentos / Cluster (Pode colar várias linhas)</label>
-          <textarea id="equip2" rows="3"></textarea>
-        </div>
+        <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip2" rows="3"></textarea></div>
       </div>
       <div class="card">
         <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
@@ -279,7 +255,6 @@
     el.addEventListener('change', atualizarPreview);
   });
   atualizarPreview();
-
   function capturarLocalizacaoCompleta(origem) {
     var btnEnd = document.getElementById('btnEndGps');
     var btnLink = document.getElementById('btnGps');
@@ -342,11 +317,7 @@
               var resp2 = await fetch(urlBdc);
               var data2 = await resp2.json();
               if (data2) {
-                var partes2 = [
-                  data2.locality || '',
-                  data2.city || '',
-                  data2.principalSubdivision || ''
-                ].filter(Boolean);
+                var partes2 = [data2.locality || '', data2.city || '', data2.principalSubdivision || ''].filter(Boolean);
                 if (partes2.length > 0) {
                   enderecoEncontrado = partes2.join(', ') + ' (' + lat + ', ' + lng + ')';
                 }
@@ -379,13 +350,10 @@
   async function buscarSiteNoBanco() {
     var site = document.getElementById('site').value.trim().toUpperCase();
     if (!site) return;
-
     mostrarBanner('Pesquisando site ' + site + ' no banco de dados...', 'status-info');
-
     try {
       var res = await fetch('/api/sites?site=' + encodeURIComponent(site));
       var json = await res.json();
-
       if (json.encontrado && json.dados) {
         var d = json.dados;
         if (d.rota) document.getElementById('rota').value = d.rota;
@@ -397,5 +365,70 @@
         if (d.gabinete) document.getElementById('gabinete').value = d.gabinete;
         if (d.medidor) document.getElementById('medidor').value = d.medidor;
         if (d.uc) document.getElementById('uc').value = d.uc;
+        if (d.link_maps) document.getElementById('link_maps').value = d.link_maps;
+        if (d.obs) document.getElementById('obs').value = d.obs;
+        atualizarPreview();
+        mostrarBanner('✅ Site ' + site + ' já cadastrado! Dados carregados.', 'status-found');
+      } else {
+        mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado. Preencha os dados para salvar como novo.', 'status-warn');
+      }
+    } catch (e) {
+      mostrarBanner('⚠️ Banco não conectado.', 'status-warn');
+    }
+  }
 
-      
+  async function gerarESalvar() {
+    var v = function(id) { return document.getElementById(id).value.trim(); };
+    var site = v('site').toUpperCase();
+    if (!site) { alert('Informe o código do Site.'); document.getElementById('site').focus(); return; }
+
+    var textoCarimbo = montarTextoCarimbo();
+    document.getElementById('carimboPreview').textContent = textoCarimbo;
+    try { await navigator.clipboard.writeText(textoCarimbo); } catch (e) {}
+
+    var payload = {
+      site: site, rota: v('rota'), ponta_a: v('ponta_a'), endereco_ponta_a: v('endereco_ponta_a'),
+      detentora: v('detentora'), id_acesso: v('id_acesso'), portao: v('portao'), gabinete: v('gabinete'),
+      medidor: v('medidor'), uc: v('uc'), link_maps: v('link_maps'), obs: v('obs'), forcarAtualizacao: false
+    };
+
+    try {
+      var res = await fetch('/api/sites', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      if (res.status === 409) {
+        if (confirm('O site ' + site + ' já existe!\n\nDeseja ATUALIZAR o cadastro com as melhorias preenchidas agora?')) {
+          payload.forcarAtualizacao = true;
+          res = await fetch('/api/sites', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+          });
+          if (res.ok) mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado e carimbo copiado!', 'status-found');
+        } else {
+          mostrarBanner('📋 Carimbo copiado! Cadastro original mantido.', 'status-info');
+        }
+      } else if (res.ok) {
+        mostrarBanner('✅ Novo site ' + site + ' salvo no banco e carimbo copiado!', 'status-found');
+      }
+    } catch (e) {
+      mostrarBanner('📋 Carimbo gerado e copiado!', 'status-warn');
+    }
+  }
+
+  function baixarImagem() {
+    var el = document.getElementById('carimboPreview');
+    html2canvas(el, { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
+      var link = document.createElement('a');
+      link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  }
+
+  function limparFormulario() {
+    document.querySelectorAll('input, textarea').forEach(function(el) { if (el.type !== 'date') el.value = ''; });
+    atualizarPreview();
+    document.getElementById('dbBanner').style.display = 'none';
+  }
+</script>
+</body>
+</html>
