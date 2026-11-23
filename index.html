@@ -20,11 +20,11 @@
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-    .container { max-width: 1100px; margin: 0 auto; }
+    .container { max-width: 1150px; margin: 0 auto; }
     header { text-align: center; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
     header h1 { margin: 0; font-size: 1.8rem; color: #60a5fa; }
     header p { margin: 4px 0; color: var(--muted); font-size: 0.9rem; }
-    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+    .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
     @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
     .card h3 { margin-top: 0; font-size: 1.05rem; color: #93c5fd; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
@@ -38,22 +38,22 @@
     }
     input:focus, textarea:focus { outline: none; border-color: var(--primary); }
     .status-banner {
-      padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; display: none; font-weight: 600;
+      padding: 12px 14px; border-radius: 6px; font-size: 0.88rem; margin-bottom: 14px; display: none; font-weight: 600;
     }
-    .status-info { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--primary); color: #93c5fd; }
-    .status-found { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); color: #6ee7b7; }
-    .status-warn { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warning); color: #fcd34d; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .status-info { background: rgba(59, 130, 246, 0.2); border: 1px solid var(--primary); color: #93c5fd; }
+    .status-found { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #6ee7b7; }
+    .status-warn { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warning); color: #fcd34d; }
+    .actions { display: grid; grid-template-columns: 1.4fr 1fr 0.8fr; gap: 8px; margin-top: 14px; }
     button {
-      padding: 11px 16px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
-      font-size: 0.9rem; transition: 0.2s; flex: 1;
+      padding: 11px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
+      font-size: 0.85rem; transition: 0.2s; white-space: nowrap;
     }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-secondary { background: #334155; color: white; }
     .btn-secondary:hover { background: #475569; }
     .btn-success { background: var(--success); color: #064e3b; }
-    .btn-gps { background: #0284c7; color: white; white-space: nowrap; }
+    .btn-gps { background: #0284c7; color: white; }
     .btn-gps:hover { background: #0369a1; }
     .preview-box {
       background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 16px;
@@ -61,7 +61,7 @@
       min-height: 320px; color: #e2e8f0;
     }
     .input-with-btn { display: flex; gap: 8px; }
-    .input-with-btn button { flex: 0 0 auto; padding: 9px 12px; font-size: 0.85rem; }
+    .input-with-btn button { flex: 0 0 auto; padding: 9px 12px; }
   </style>
 </head>
 <body>
@@ -73,7 +73,6 @@
   </header>
 
   <div class="grid">
-    <!-- COLUNA DO FORMULÁRIO -->
     <div>
       <div id="dbBanner" class="status-banner"></div>
 
@@ -106,7 +105,7 @@
             <label>Endereço Ponta A</label>
             <div class="input-with-btn">
               <input type="text" id="endereco_ponta_a" placeholder="Digite ou puxe pelo GPS..." />
-              <button type="button" id="btnEndGps" class="btn-gps" onclick="capturarLocalizacaoCompleta('endereco')" title="Preencher endereço pelo GPS atual">📍 GPS</button>
+              <button type="button" id="btnEndGps" class="btn-gps" onclick="capturarLocalizacaoCompleta('endereco')">📍 GPS</button>
             </div>
           </div>
         </div>
@@ -179,15 +178,14 @@
       </div>
     </div>
 
-    <!-- COLUNA DO CARIMBO GERADO -->
     <div>
       <div class="card" style="position: sticky; top: 20px;">
         <h3>Pré-visualização do Carimbo</h3>
         <div id="carimboPreview" class="preview-box">Aguardando geração...</div>
 
         <div class="actions">
-          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar, Salvar e Copiar</button>
-          <button type="button" class="btn-success" onclick="baixarImagem()">📷 Baixar Imagem</button>
+          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar e Salvar</button>
+          <button type="button" class="btn-success" onclick="baixarImagem()">📷 Imagem</button>
           <button type="button" class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar</button>
         </div>
       </div>
@@ -196,8 +194,6 @@
 </div>
 
 <script>
-  let siteJaExisteNoBanco = false;
-
   document.getElementById('data').valueAsDate = new Date();
 
   function espelharSite() {
@@ -211,3 +207,6 @@
     banner.style.display = 'block';
   }
 
+  function capturarLocalizacaoCompleta(origem) {
+    const btnEnd = document.getElementById('btnEndGps');
+    const btnLink = document.getElementById('btnGps');
