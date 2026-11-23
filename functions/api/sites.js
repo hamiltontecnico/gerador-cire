@@ -1,4 +1,4 @@
-// Senha master para confirmar exclusão de sites (você pode alterar aqui se quiser)
+// Senha master para confirmar exclusão de sites e gerenciar técnicos
 const SENHA_EXCLUSAO_ADMIN = "cire2026";
 
 export async function onRequestGet(context) {
@@ -7,7 +7,7 @@ export async function onRequestGet(context) {
     const acao = searchParams.get('acao');
     const site = searchParams.get('site')?.trim().toUpperCase();
 
-    // Listar todos os sites cadastrados
+    // 1. Listar todos os sites cadastrados
     if (acao === 'listar') {
       const { results } = await context.env.DB.prepare(
         "SELECT * FROM sites_cire ORDER BY site ASC"
@@ -15,7 +15,7 @@ export async function onRequestGet(context) {
       return Response.json({ sites: results || [] });
     }
 
-    // Listar técnicos (apenas para admin)
+    // 2. Listar técnicos (apenas para admin)
     if (acao === 'usuarios') {
       const { results } = await context.env.DB.prepare(
         "SELECT id, usuario, nome_completo, contato, is_admin FROM usuarios ORDER BY nome_completo ASC"
@@ -23,7 +23,7 @@ export async function onRequestGet(context) {
       return Response.json({ usuarios: results || [] });
     }
 
-        // Pesquisar um site específico (busca exata primeiro, depois parcial)
+    // 3. Pesquisar um site específico (busca exata primeiro, depois parcial: ex. 0AE acha "0AE ( ZERO AE)")
     if (!site) {
       return Response.json({ error: "Informe o nome do site" }, { status: 400 });
     }
@@ -45,7 +45,8 @@ export async function onRequestGet(context) {
     }
 
     return Response.json({ encontrado: !!registro, dados: registro || null });
-
+  } catch (err) {
+    return Response.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -82,20 +83,32 @@ export async function onRequestPost(context) {
     }
 
     // 3. ROTA PARA SALVAR OU MELHORAR SITE
-    const siteNome = dados.site?.trim().toUpperCase();
+    let siteNome = dados.site?.trim().toUpperCase();
     if (!siteNome) {
       return Response.json({ error: "O campo Site é obrigatório." }, { status: 400 });
     }
 
-    const existe = await context.env.DB.prepare(
+    // Verifica se já existe exato ou com complemento (ex: 0AE vs "0AE ( ZERO AE)")
+    let existe = await context.env.DB.prepare(
       "SELECT * FROM sites_cire WHERE site = ? COLLATE NOCASE"
     ).bind(siteNome).first();
 
+    if (!existe) {
+      existe = await context.env.DB.prepare(
+        "SELECT * FROM sites_cire WHERE site LIKE ? COLLATE NOCASE ORDER BY LENGTH(site) ASC LIMIT 1"
+      ).bind(siteNome + ' (%').first();
+    }
+
     if (existe && !dados.forcarAtualizacao) {
       return Response.json(
-        { erro: "DUPLICADO", mensagem: "Este site já existe no banco de dados!" },
+        { erro: "DUPLICADO", mensagem: "Este site já existe no banco de dados como: " + existe.site },
         { status: 409 }
       );
+    }
+
+    // Se já existia com complemento e o usuário digitou só a sigla curta, mantém o nome completo salvo no banco
+    if (existe && existe.site.length > siteNome.length && !siteNome.includes('(')) {
+      siteNome = existe.site;
     }
 
     await context.env.DB.prepare(`
