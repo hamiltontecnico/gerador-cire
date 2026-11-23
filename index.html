@@ -643,13 +643,22 @@
   function carregarScriptExcel() {
     return new Promise(function(resolve, reject) {
       if (typeof ExcelJS !== 'undefined') return resolve();
-      var s = document.createElement('script');
-      s.src = 'https://cdnjs.' + '://cloudflare.com';
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
+      var urls = [
+        'https://cdn.jsdelivr.' + 'net/npm/exceljs@4.4.0/dist/exceljs.min.js',
+        'https://unpkg.' + 'com/exceljs@4.4.0/dist/exceljs.min.js'
+      ];
+      var tentar = function(i) {
+        if (i >= urls.length) return reject(new Error('Bloqueio de rede ao baixar biblioteca ExcelJS.'));
+        var s = document.createElement('script');
+        s.src = urls[i];
+        s.onload = resolve;
+        s.onerror = function() { tentar(i + 1); };
+        document.head.appendChild(s);
+      };
+      tentar(0);
     });
   }
+
 
   function extrairCidadeDoEndereco(endereco) {
     if (!endereco) return 'NÃO INFORMADA';
