@@ -361,8 +361,10 @@
 
   function enviarWhatsApp() {
     var texto = montarTextoCarimbo();
-    window.open('https://api.' + '://whatsapp.com' + encodeURIComponent(texto), '_blank');
+    var urlZap = 'https://wa.me' + '?text=' + encodeURIComponent(texto);
+    window.location.href = urlZap;
   }
+
   function capturarLocalizacaoCompleta(origem) {
     var btnEnd = document.getElementById('btnEndGps');
     var btnLink = document.getElementById('btnGps');
@@ -480,7 +482,7 @@
       mostrarBanner('⚠️ Erro ao consultar o banco.', 'status-warn');
     }
   }
-  async function gerarESalvar() {
+    async function gerarESalvar() {
     var v = function(id) { return document.getElementById(id).value.trim(); };
     var site = v('site').toUpperCase();
     if (!site) { alert('Informe o código do Site.'); document.getElementById('site').focus(); return; }
@@ -488,6 +490,8 @@
     var textoCarimbo = montarTextoCarimbo();
     document.getElementById('carimboPreview').textContent = textoCarimbo;
     try { await navigator.clipboard.writeText(textoCarimbo); } catch (e) {}
+
+    mostrarBanner('⏳ Salvando site ' + site + ' no banco de dados...', 'status-info');
 
     var payload = {
       site: site, rota: v('rota'), ponta_a: v('ponta_a'), endereco_ponta_a: v('endereco_ponta_a'),
@@ -502,23 +506,32 @@
       var res = await fetch('/api/sites', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
       });
+      var json = await res.json();
+
       if (res.status === 409) {
         if (confirm('O site ' + site + ' já existe no banco!\n\nDeseja ATUALIZAR o cadastro com as melhorias preenchidas agora?')) {
           payload.forcarAtualizacao = true;
           res = await fetch('/api/sites', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
           });
-          if (res.ok) mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado e carimbo copiado!', 'status-found');
+          if (res.ok) {
+            mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado e carimbo copiado!', 'status-found');
+          } else {
+            mostrarBanner('❌ Erro ao atualizar: ' + (json.error || res.status), 'status-warn');
+          }
         } else {
           mostrarBanner('📋 Carimbo copiado! Cadastro original mantido.', 'status-info');
         }
       } else if (res.ok) {
         mostrarBanner('✅ Novo site ' + site + ' salvo no banco e carimbo copiado!', 'status-found');
+      } else {
+        mostrarBanner('❌ Erro ao salvar no banco: ' + (json.error || json.erro || res.status), 'status-warn');
       }
     } catch (e) {
-      mostrarBanner('📋 Carimbo gerado e copiado!', 'status-warn');
+      mostrarBanner('⚠️ Falha de rede ao salvar: ' + e.message, 'status-warn');
     }
   }
+
 
   async function abrirListaSites() {
     document.getElementById('modalSites').style.display = 'flex';
