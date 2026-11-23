@@ -13,10 +13,11 @@
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-    .container { max-width: 1150px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
-    header h1 { margin: 0; font-size: 1.8rem; color: #60a5fa; }
-    header p { margin: 4px 0; color: var(--muted); font-size: 0.9rem; }
+    .container { max-width: 1180px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+    header h1 { margin: 0; font-size: 1.6rem; color: #60a5fa; }
+    header p { margin: 2px 0; color: var(--muted); font-size: 0.85rem; }
+    .top-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
     @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
@@ -34,30 +35,101 @@
     .status-info { background: rgba(59, 130, 246, 0.2); border: 1px solid var(--primary); color: #93c5fd; }
     .status-found { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #6ee7b7; }
     .status-warn { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warning); color: #fcd34d; }
-    .actions { display: grid; grid-template-columns: 1.4fr 1fr 0.8fr; gap: 8px; margin-top: 14px; }
-    button { padding: 11px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.2s; white-space: nowrap; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+    button { padding: 10px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.2s; white-space: nowrap; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-secondary { background: #334155; color: white; }
     .btn-secondary:hover { background: #475569; }
     .btn-success { background: var(--success); color: #064e3b; }
+    .btn-whatsapp { background: #22c55e; color: #052e16; }
+    .btn-danger { background: var(--danger); color: white; }
     .btn-gps { background: #0284c7; color: white; }
-    .btn-gps:hover { background: #0369a1; }
     .preview-box {
       background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 16px;
       white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.45;
       min-height: 360px; color: #e2e8f0;
     }
-    .input-with-btn { display: flex; gap: 8px; }
-    .input-with-btn button { flex: 0 0 auto; padding: 9px 12px; }
+    .input-with-btn { display: flex; gap: 6px; }
+    .input-with-btn button { flex: 0 0 auto; padding: 9px 11px; }
+    /* Tela de Login e Modais */
+    .overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.92); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 100%; max-width: 750px; max-height: 85vh; overflow-y: auto; }
+    .login-box { max-width: 380px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); }
+    th { color: #93c5fd; }
+    tr:hover { background: rgba(255,255,255,0.03); }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-<div class="container">
+
+<!-- TELA DE LOGIN -->
+<div id="loginOverlay" class="overlay">
+  <div class="modal-box login-box">
+    <h2 style="margin-top:0; color:#60a5fa; text-align:center;">🔐 Acesso Restrito CIRE</h2>
+    <p style="color:var(--muted); font-size:0.85rem; text-align:center;">Entre com seu usuário e senha cadastrados</p>
+    <div class="full"><label>Usuário</label><input type="text" id="loginUser" placeholder="Ex: hamilton" /></div>
+    <div class="full"><label>Senha</label><input type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter') fazerLogin()" /></div>
+    <p id="loginErro" style="color:#f87171; font-size:0.82rem; display:none; margin:6px 0;"></p>
+    <button type="button" class="btn-primary" style="width:100%; margin-top:8px;" onclick="fazerLogin()">Entrar no Sistema</button>
+  </div>
+</div>
+
+<!-- MODAL LISTA DE SITES SALVOS -->
+<div id="modalSites" class="overlay hidden">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; color:#60a5fa;">📋 Sites Cadastrados no Banco</h3>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="btn-success" onclick="exportarCsv()">📊 Baixar Excel</button>
+        <button type="button" class="btn-secondary" onclick="fecharModais()">✖ Fechar</button>
+      </div>
+    </div>
+    <input type="text" id="filtroSites" placeholder="🔍 Filtrar por código do site, rota, detentora ou endereço..." oninput="filtrarTabelaSites()" />
+    <table>
+      <thead>
+        <tr><th>Site</th><th>Rota</th><th>Detentora</th><th>Atualizado por</th><th>Ações</th></tr>
+      </thead>
+      <tbody id="tabelaSitesBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL ADMIN GERENCIAR TÉCNICOS -->
+<div id="modalAdmin" class="overlay hidden">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; color:#60a5fa;">👥 Gerenciar Logins dos Técnicos</h3>
+      <button type="button" class="btn-secondary" onclick="fecharModais()">✖ Fechar</button>
+    </div>
+    <div class="row">
+      <div><label>Login (sem espaço)</label><input type="text" id="novoUser" placeholder="ex: joao.silva" /></div>
+      <div><label>Senha</label><input type="text" id="novaSenhaUser" placeholder="ex: tel123" /></div>
+    </div>
+    <div class="row">
+      <div><label>Nome Completo</label><input type="text" id="novoNomeUser" placeholder="Ex: João Silva" /></div>
+      <div><label>Telefone / WhatsApp</label><input type="text" id="novoTelUser" placeholder="(19) 99999-9999" /></div>
+    </div>
+    <button type="button" class="btn-primary" style="width:100%; margin-bottom:16px;" onclick="criarTecnico()">➕ Cadastrar Novo Técnico</button>
+    <table>
+      <thead><tr><th>Usuário</th><th>Nome</th><th>Contato</th><th>Ação</th></tr></thead>
+      <tbody id="tabelaUsuariosBody"></tbody>
+    </table>
+  </div>
+</div>
+<div id="appPrincipal" class="container hidden">
   <header>
-    <h1>Gerador de Carimbos CIRE</h1>
-    <p>Layout Operacional Técnico - Envio Rápido WhatsApp</p>
-    <p>By: Hamilton Batista (19)99950-5858</p>
+    <div>
+      <h1>Gerador de Carimbos CIRE</h1>
+      <p>Logado como: <strong id="lblUsuarioLogado" style="color:#6ee7b7;"></strong></p>
+    </div>
+    <div class="top-bar">
+      <button type="button" class="btn-primary" onclick="abrirListaSites()">📋 Sites Salvos</button>
+      <button type="button" id="btnAdminMenu" class="btn-secondary hidden" onclick="abrirPainelAdmin()">👥 Técnicos</button>
+      <button type="button" class="btn-danger" onclick="sairSistema()">Sair</button>
+    </div>
   </header>
 
   <div class="grid">
@@ -72,6 +144,7 @@
             <div class="input-with-btn">
               <input type="text" id="site" placeholder="Ex: 0AE ou 7SS" oninput="this.value = this.value.toUpperCase(); espelharSite();" onblur="buscarSiteNoBanco()" />
               <button type="button" class="btn-secondary" onclick="buscarSiteNoBanco()" title="Pesquisar Site">🔍</button>
+              <button type="button" id="btnExcluirSite" class="btn-danger hidden" onclick="excluirSiteAtual()" title="Excluir Site">🗑️</button>
             </div>
           </div>
           <div><label>Data</label><input type="date" id="data" /></div>
@@ -128,6 +201,7 @@
         </div>
         <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip2" rows="3"></textarea></div>
       </div>
+
       <div class="card">
         <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
         <div class="row">
@@ -165,9 +239,10 @@
         <div id="carimboPreview" class="preview-box"></div>
 
         <div class="actions">
-          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar e Salvar</button>
-          <button type="button" class="btn-success" onclick="baixarImagem()">📷 Imagem</button>
-          <button type="button" class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar</button>
+          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Salvar e Copiar</button>
+          <button type="button" class="btn-whatsapp" onclick="enviarWhatsApp()">📲 Enviar WhatsApp</button>
+          <button type="button" class="btn-success" onclick="baixarImagem()">📷 Baixar Imagem</button>
+          <button type="button" class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar Campos</button>
         </div>
       </div>
     </div>
@@ -175,260 +250,92 @@
 </div>
 
 <script>
+  var usuarioAtual = null;
+  var listaSitesCache = [];
   document.getElementById('data').valueAsDate = new Date();
-
-  function espelharSite() {
-    document.getElementById('site_acesso').value = document.getElementById('site').value;
-    atualizarPreview();
-  }
-
-  function mostrarBanner(texto, tipo) {
-    var banner = document.getElementById('dbBanner');
-    banner.textContent = texto;
-    banner.className = 'status-banner ' + tipo;
-    banner.style.display = 'block';
-  }
-
-  function montarTextoCarimbo() {
-    var v = function(id) { return document.getElementById(id).value.trim(); };
-    var site = v('site').toUpperCase();
-    var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
-
-    var texto =
-      '***ABRIR CARIMBO CIRE***\n\n' +
-      '*Site:* ' + site + '\n' +
-      '*Data:* ' + dataFormatada + '\n' +
-      '*TA:* ' + v('ta') + '\n' +
-      '*Técnico:* ' + v('tecnico') + '\n' +
-      '*Contato:* ' + v('contato') + '\n' +
-      '*Rota:* ' + v('rota') + '\n' +
-      '*Ponta A:* ' + v('ponta_a') + '\n' +
-      '*Endereço:* ' + v('endereco_ponta_a') + '\n' +
-      '*Ponta B:* ' + v('ponta_b') + '\n' +
-      '*Endereço:* ' + v('endereco_ponta_b') + '\n' +
-      '*Afetação:* ' + v('afetacao') + '\n\n' +
-      '*Alça 1*\n' +
-      '*Cabo:* ' + (v('cabo1') || 'X') + '\n' +
-      '*Fibra:* ' + (v('fibra1') || 'XX') + '\n' +
-      '*Distância de A_ B:* ' + (v('dist_ab1') || 'xxx mts') + '\n' +
-      '*Distância de B_ A:* ' + (v('dist_ba1') || 'xxx mts') + '\n' +
-      '*Distância  total:* ' + (v('dist_tot1') || 'XXX mts') + '\n' +
-      (v('equip1') ? v('equip1') + '\n' : '');
-
-    if (v('cabo2') || v('fibra2') || v('dist_ab2') || v('dist_ba2') || v('dist_tot2') || v('equip2')) {
-      texto += '\n' +
-        '*Alça 2*\n' +
-        '*Cabo:* ' + (v('cabo2') || 'X') + '\n' +
-        '*Fibra:* ' + (v('fibra2') || 'XX') + '\n' +
-        '*Distância de A_ B:* ' + (v('dist_ab2') || 'xxx mts') + '\n' +
-        '*Distância de B_ A:* ' + (v('dist_ba2') || 'xxx mts') + '\n' +
-        '*Distância  total:* ' + (v('dist_tot2') || 'XXX mts') + '\n' +
-        (v('equip2') ? v('equip2') + '\n' : '');
+  <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Carimbo CIRE</title>
+  <script src="https://cloudflare.com"></script>
+  <style>
+    :root {
+      --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f8fafc;
+      --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
     }
-
-    texto += '\n\n' +
-      '*OBS:* ' + v('obs') + '\n\n' +
-      '*Localização*\n' +
-      v('link_maps') + '\n\n' +
-      '*### CARIMBO DE ACESSO AO SITE  ###*\n' +
-      '*Site:* ' + site + '\n' +
-      '*Detentora:* ' + v('detentora') + '\n' +
-      '*ID :* ' + v('id_acesso') + '\n' +
-      '*Portão:* ' + v('portao') + '\n' +
-      '*Gabinete:* ' + v('gabinete') + '\n' +
-      '*Medidor:* ' + v('medidor') + '\n' +
-      '*UC:* ' + v('uc');
-
-    if (v('rodape')) {
-      texto += '\n\n' + v('rodape');
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); margin: 0; padding: 16px; }
+    .container { max-width: 1180px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+    header h1 { margin: 0; font-size: 1.5rem; color: #60a5fa; }
+    header p { margin: 2px 0 0; color: var(--muted); font-size: 0.82rem; }
+    .top-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
+    @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+    .card h3 { margin-top: 0; font-size: 1rem; color: #93c5fd; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .full { margin-bottom: 10px; }
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    input, textarea {
+      width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text);
+      padding: 8px 10px; border-radius: 6px; font-size: 0.88rem;
     }
-
-    return texto;
-  }
-
-  function atualizarPreview() {
-    document.getElementById('carimboPreview').textContent = montarTextoCarimbo();
-  }
-
-  document.querySelectorAll('input, textarea').forEach(function(el) {
-    el.addEventListener('input', atualizarPreview);
-    el.addEventListener('change', atualizarPreview);
-  });
-  atualizarPreview();
-  function capturarLocalizacaoCompleta(origem) {
-    var btnEnd = document.getElementById('btnEndGps');
-    var btnLink = document.getElementById('btnGps');
-    var campoEndereco = document.getElementById('endereco_ponta_a');
-    var campoMaps = document.getElementById('link_maps');
-
-    if (!navigator.geolocation) {
-      alert('Seu navegador não suporta captura de GPS.');
-      return;
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+    .status-banner { padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; display: none; font-weight: 600; }
+    .status-info { background: rgba(59, 130, 246, 0.2); border: 1px solid var(--primary); color: #93c5fd; }
+    .status-found { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #6ee7b7; }
+    .status-warn { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warning); color: #fcd34d; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    button { padding: 10px 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.83rem; transition: 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: #334155; color: white; }
+    .btn-success { background: var(--success); color: #064e3b; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-gps { background: #0284c7; color: white; white-space: nowrap; }
+    .btn-sm { padding: 7px 11px; font-size: 0.8rem; }
+    .preview-box {
+      background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+      white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.83rem; line-height: 1.45;
+      min-height: 360px; color: #e2e8f0;
     }
+    .input-with-btn { display: flex; gap: 6px; }
+    .input-with-btn button { flex: 0 0 auto; padding: 8px 10px; }
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; padding: 16px; }
+    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 720px; max-height: 85vh; overflow-y: auto; padding: 20px; }
+    .login-screen { max-width: 380px; margin: 60px auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .site-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); gap: 10px; }
+    .site-item:hover { background: rgba(255,255,255,0.03); }
+  </style>
+</head>
+<body>
 
-    btnEnd.disabled = true;
-    btnLink.disabled = true;
-    if (origem === 'endereco') btnEnd.textContent = '⏳...';
-    if (origem === 'link') btnLink.textContent = '⏳ Buscando...';
+<!-- TELA DE LOGIN -->
+<div id="loginBox" class="login-screen">
+  <h2 style="margin-top:0; color:#60a5fa; text-align:center;">🔐 Acesso CIRE</h2>
+  <p style="color:var(--muted); font-size:0.85rem; text-align:center;">Entre com seu usuário técnico</p>
+  <div class="full"><label>Usuário</label><input type="text" id="loginUser" placeholder="Ex: hamilton" /></div>
+  <div class="full"><label>Senha</label><input type="password" id="loginPass" placeholder="••••••" onkeyup="if(event.key==='Enter') fazerLogin()" /></div>
+  <button type="button" class="btn-primary" style="width:100%; margin-top:8px;" onclick="fazerLogin()">Entrar no Sistema</button>
+  <p id="loginErro" style="color:#f87171; font-size:0.82rem; text-align:center; display:none; margin-top:10px;"></p>
+</div>
 
-    navigator.geolocation.getCurrentPosition(
-      async function(pos) {
-        var lat = pos.coords.latitude.toFixed(6);
-        var lng = pos.coords.longitude.toFixed(6);
-        var precisao = Math.round(pos.coords.accuracy);
+<!-- SISTEMA PRINCIPAL (OCULTO ATÉ LOGAR) -->
+<div id="appBox" class="container" style="display:none;">
+  <header>
+    <div>
+      <h1>Gerador de Carimbos CIRE</h1>
+      <p id="userInfo" style="color:#6ee7b7;"></p>
+    </div>
+    <div class="top-bar">
+      <button type="button" class="btn-secondary btn-sm" onclick="abrirListaSites()">📋 Sites Salvos</button>
+      <button type="button" class="btn-secondary btn-sm" onclick="exportarCSV()">📊 Baixar Excel</button>
+      <button type="button" id="btnAdmin" class="btn-secondary btn-sm" style="display:none;" onclick="abrirPainelAdmin()">👥 Técnicos</button>
+      <button type="button" class="btn-danger btn-sm" onclick="sair()">Sair</button>
+    </div>
+  </header>
 
-        if (origem === 'link' || !campoMaps.value.trim()) {
-          campoMaps.value = 'https://google.com' + '/maps?q=' + lat + ',' + lng;
-        }
-
-        if (origem === 'endereco' || !campoEndereco.value.trim()) {
-          var enderecoEncontrado = '';
-
-          try {
-            var urlOsm = 'https://nominatim.' + 'openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng;
-            var resp = await fetch(urlOsm);
-            var data = await resp.json();
-
-            if (data && data.address) {
-              var a = data.address;
-              var rua = a.road || a.pedestrian || a.street || a.highway || '';
-              var numero = a.house_number ? ', ' + a.house_number : '';
-              var bairro = a.suburb || a.neighbourhood || a.district || a.city_district || '';
-              var cidade = a.city || a.town || a.village || a.municipality || '';
-              var estado = a.state || '';
-
-              var partes = [];
-              if (rua) partes.push(rua + numero);
-              if (bairro) partes.push(bairro);
-              if (cidade && estado) partes.push(cidade + ' - ' + estado);
-              else if (cidade || estado) partes.push(cidade || estado);
-
-              if (partes.length > 0) {
-                enderecoEncontrado = partes.join(', ');
-              } else if (data.display_name) {
-                enderecoEncontrado = data.display_name.split(',').slice(0, 4).join(',');
-              }
-            }
-          } catch (e1) {}
-
-          if (!enderecoEncontrado) {
-            try {
-              var urlBdc = 'https://api.' + 'bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=pt';
-              var resp2 = await fetch(urlBdc);
-              var data2 = await resp2.json();
-              if (data2) {
-                var partes2 = [data2.locality || '', data2.city || '', data2.principalSubdivision || ''].filter(Boolean);
-                if (partes2.length > 0) {
-                  enderecoEncontrado = partes2.join(', ') + ' (' + lat + ', ' + lng + ')';
-                }
-              }
-            } catch (e2) {}
-          }
-
-          campoEndereco.value = enderecoEncontrado || ('Coord: ' + lat + ', ' + lng);
-        }
-
-        btnEnd.textContent = '📍 GPS';
-        btnLink.textContent = '📍 Pegar GPS';
-        btnEnd.disabled = false;
-        btnLink.disabled = false;
-
-        atualizarPreview();
-        mostrarBanner('📍 Localização e endereço capturados via GPS! (Precisão de ~' + precisao + 'm)', 'status-found');
-      },
-      function() {
-        btnEnd.textContent = '📍 GPS';
-        btnLink.textContent = '📍 Pegar GPS';
-        btnEnd.disabled = false;
-        btnLink.disabled = false;
-        alert('Não foi possível obter o GPS. Verifique se a localização está ativada no aparelho.');
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-  }
-
-  async function buscarSiteNoBanco() {
-    var site = document.getElementById('site').value.trim().toUpperCase();
-    if (!site) return;
-    mostrarBanner('Pesquisando site ' + site + ' no banco de dados...', 'status-info');
-    try {
-      var res = await fetch('/api/sites?site=' + encodeURIComponent(site));
-      var json = await res.json();
-      if (json.encontrado && json.dados) {
-        var d = json.dados;
-        if (d.rota) document.getElementById('rota').value = d.rota;
-        if (d.ponta_a) document.getElementById('ponta_a').value = d.ponta_a;
-        if (d.endereco_ponta_a) document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a;
-        if (d.detentora) document.getElementById('detentora').value = d.detentora;
-        if (d.id_acesso) document.getElementById('id_acesso').value = d.id_acesso;
-        if (d.portao) document.getElementById('portao').value = d.portao;
-        if (d.gabinete) document.getElementById('gabinete').value = d.gabinete;
-        if (d.medidor) document.getElementById('medidor').value = d.medidor;
-        if (d.uc) document.getElementById('uc').value = d.uc;
-        if (d.link_maps) document.getElementById('link_maps').value = d.link_maps;
-        if (d.obs) document.getElementById('obs').value = d.obs;
-        atualizarPreview();
-        mostrarBanner('✅ Site ' + site + ' já cadastrado! Dados carregados.', 'status-found');
-      } else {
-        mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado. Preencha os dados para salvar como novo.', 'status-warn');
-      }
-    } catch (e) {
-      mostrarBanner('⚠️ Banco não conectado.', 'status-warn');
-    }
-  }
-
-  async function gerarESalvar() {
-    var v = function(id) { return document.getElementById(id).value.trim(); };
-    var site = v('site').toUpperCase();
-    if (!site) { alert('Informe o código do Site.'); document.getElementById('site').focus(); return; }
-
-    var textoCarimbo = montarTextoCarimbo();
-    document.getElementById('carimboPreview').textContent = textoCarimbo;
-    try { await navigator.clipboard.writeText(textoCarimbo); } catch (e) {}
-
-    var payload = {
-      site: site, rota: v('rota'), ponta_a: v('ponta_a'), endereco_ponta_a: v('endereco_ponta_a'),
-      detentora: v('detentora'), id_acesso: v('id_acesso'), portao: v('portao'), gabinete: v('gabinete'),
-      medidor: v('medidor'), uc: v('uc'), link_maps: v('link_maps'), obs: v('obs'), forcarAtualizacao: false
-    };
-
-    try {
-      var res = await fetch('/api/sites', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-      });
-      if (res.status === 409) {
-        if (confirm('O site ' + site + ' já existe!\n\nDeseja ATUALIZAR o cadastro com as melhorias preenchidas agora?')) {
-          payload.forcarAtualizacao = true;
-          res = await fetch('/api/sites', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-          });
-          if (res.ok) mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado e carimbo copiado!', 'status-found');
-        } else {
-          mostrarBanner('📋 Carimbo copiado! Cadastro original mantido.', 'status-info');
-        }
-      } else if (res.ok) {
-        mostrarBanner('✅ Novo site ' + site + ' salvo no banco e carimbo copiado!', 'status-found');
-      }
-    } catch (e) {
-      mostrarBanner('📋 Carimbo gerado e copiado!', 'status-warn');
-    }
-  }
-
-  function baixarImagem() {
-    var el = document.getElementById('carimboPreview');
-    html2canvas(el, { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
-      var link = document.createElement('a');
-      link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    });
-  }
-
-  function limparFormulario() {
-    document.querySelectorAll('input, textarea').forEach(function(el) { if (el.type !== 'date') el.value = ''; });
-    atualizarPreview();
-    document.getElementById('dbBanner').style.display = 'none';
-  }
-</script>
-</body>
-</html>
