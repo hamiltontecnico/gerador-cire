@@ -58,7 +58,7 @@
     .preview-box {
       background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 16px;
       white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.45;
-      min-height: 320px; color: #e2e8f0;
+      min-height: 360px; color: #e2e8f0;
     }
     .input-with-btn { display: flex; gap: 8px; }
     .input-with-btn button { flex: 0 0 auto; padding: 9px 12px; }
@@ -82,7 +82,7 @@
           <div>
             <label>Site (Pesquisa Automática no Banco)</label>
             <div class="input-with-btn">
-              <input type="text" id="site" placeholder="Ex: SPO01" oninput="this.value = this.value.toUpperCase(); espelharSite();" onblur="buscarSiteNoBanco()" />
+              <input type="text" id="site" placeholder="Ex: 0AE ou 7SS" oninput="this.value = this.value.toUpperCase(); espelharSite();" onblur="buscarSiteNoBanco()" />
               <button type="button" class="btn-secondary" onclick="buscarSiteNoBanco()" title="Pesquisar Site">🔍</button>
             </div>
           </div>
@@ -93,7 +93,7 @@
         </div>
         <div class="row">
           <div><label>TA</label><input type="text" id="ta" /></div>
-          <div><label>Rota</label><input type="text" id="rota" /></div>
+          <div><label>Rota</label><input type="text" id="rota" placeholder="Ex: 0AE <> ATG (AGA.DC)" /></div>
         </div>
         <div class="row">
           <div><label>Técnico</label><input type="text" id="tecnico" /></div>
@@ -115,38 +115,43 @@
         </div>
         <div class="full">
           <label>Afetação</label>
-          <input type="text" id="afetacao" />
+          <input type="text" id="afetacao" placeholder="Ex: HL5G-02 ou SMALL CELL" />
         </div>
       </div>
 
       <div class="card">
         <h3>Configurações - Alça 1</h3>
         <div class="row">
-          <div><label>Cabo</label><input type="text" id="cabo1" placeholder="XXX" /></div>
-          <div><label>Fibra</label><input type="text" id="fibra1" placeholder="XX-XX" /></div>
+          <div><label>Cabo</label><input type="text" id="cabo1" placeholder="X" /></div>
+          <div><label>Fibra</label><input type="text" id="fibra1" placeholder="XX" /></div>
         </div>
         <div class="row-3">
           <div><label>Dist. A → B (mts)</label><input type="text" id="dist_ab1" placeholder="xxx mts" /></div>
           <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba1" placeholder="xxx mts" /></div>
-          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot1" placeholder="xxx mts" /></div>
+          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot1" placeholder="XXX mts" /></div>
         </div>
-        <div class="full"><label>Equipamentos / Cluster</label><input type="text" id="equip1" /></div>
+        <div class="full">
+          <label>Equipamentos / Cluster (Pode colar várias linhas)</label>
+          <textarea id="equip1" rows="3" placeholder="Ex: i-br-sp-aga-0ae-hl5g-01#1/1/c1"></textarea>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Configurações - Alça 2</h3>
+        <h3>Configurações - Alça 2 (Opcional - só aparece se preenchida)</h3>
         <div class="row">
-          <div><label>Cabo</label><input type="text" id="cabo2" placeholder="XXX" /></div>
-          <div><label>Fibra</label><input type="text" id="fibra2" placeholder="XX-XX" /></div>
+          <div><label>Cabo</label><input type="text" id="cabo2" placeholder="X" /></div>
+          <div><label>Fibra</label><input type="text" id="fibra2" placeholder="XX" /></div>
         </div>
         <div class="row-3">
           <div><label>Dist. A → B (mts)</label><input type="text" id="dist_ab2" placeholder="xxx mts" /></div>
           <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba2" placeholder="xxx mts" /></div>
-          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot2" placeholder="xxx mts" /></div>
+          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot2" placeholder="XXX mts" /></div>
         </div>
-        <div class="full"><label>Equipamentos / Cluster</label><input type="text" id="equip2" /></div>
+        <div class="full">
+          <label>Equipamentos / Cluster (Pode colar várias linhas)</label>
+          <textarea id="equip2" rows="3"></textarea>
+        </div>
       </div>
-
       <div class="card">
         <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
         <div class="row">
@@ -162,7 +167,7 @@
           <div><label>Medidor</label><input type="text" id="medidor" /></div>
           <div><label>UC</label><input type="text" id="uc" /></div>
         </div>
-        <div class="full"><label>Instrução Alfa (Rodapé)</label><input type="text" id="rodape" /></div>
+        <div class="full"><label>Instrução / Rodapé (Ex: LEVAR ESCADA)</label><input type="text" id="rodape" /></div>
       </div>
 
       <div class="card">
@@ -180,8 +185,8 @@
 
     <div>
       <div class="card" style="position: sticky; top: 20px;">
-        <h3>Pré-visualização do Carimbo</h3>
-        <div id="carimboPreview" class="preview-box">Aguardando geração...</div>
+        <h3>Pré-visualização do Carimbo (Ao Vivo)</h3>
+        <div id="carimboPreview" class="preview-box"></div>
 
         <div class="actions">
           <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar e Salvar</button>
@@ -198,6 +203,7 @@
 
   function espelharSite() {
     document.getElementById('site_acesso').value = document.getElementById('site').value;
+    atualizarPreview();
   }
 
   function mostrarBanner(texto, tipo) {
@@ -206,6 +212,73 @@
     banner.className = 'status-banner ' + tipo;
     banner.style.display = 'block';
   }
+
+  function montarTextoCarimbo() {
+    var v = function(id) { return document.getElementById(id).value.trim(); };
+    var site = v('site').toUpperCase();
+    var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
+
+    var texto =
+      '***ABRIR CARIMBO CIRE***\n\n' +
+      '*Site:* ' + site + '\n' +
+      '*Data:* ' + dataFormatada + '\n' +
+      '*TA:* ' + v('ta') + '\n' +
+      '*Técnico:* ' + v('tecnico') + '\n' +
+      '*Contato:* ' + v('contato') + '\n' +
+      '*Rota:* ' + v('rota') + '\n' +
+      '*Ponta A:* ' + v('ponta_a') + '\n' +
+      '*Endereço:* ' + v('endereco_ponta_a') + '\n' +
+      '*Ponta B:* ' + v('ponta_b') + '\n' +
+      '*Endereço:* ' + v('endereco_ponta_b') + '\n' +
+      '*Afetação:* ' + v('afetacao') + '\n\n' +
+      '*Alça 1*\n' +
+      '*Cabo:* ' + (v('cabo1') || 'X') + '\n' +
+      '*Fibra:* ' + (v('fibra1') || 'XX') + '\n' +
+      '*Distância de A_ B:* ' + (v('dist_ab1') || 'xxx mts') + '\n' +
+      '*Distância de B_ A:* ' + (v('dist_ba1') || 'xxx mts') + '\n' +
+      '*Distância  total:* ' + (v('dist_tot1') || 'XXX mts') + '\n' +
+      (v('equip1') ? v('equip1') + '\n' : '');
+
+    if (v('cabo2') || v('fibra2') || v('dist_ab2') || v('dist_ba2') || v('dist_tot2') || v('equip2')) {
+      texto += '\n' +
+        '*Alça 2*\n' +
+        '*Cabo:* ' + (v('cabo2') || 'X') + '\n' +
+        '*Fibra:* ' + (v('fibra2') || 'XX') + '\n' +
+        '*Distância de A_ B:* ' + (v('dist_ab2') || 'xxx mts') + '\n' +
+        '*Distância de B_ A:* ' + (v('dist_ba2') || 'xxx mts') + '\n' +
+        '*Distância  total:* ' + (v('dist_tot2') || 'XXX mts') + '\n' +
+        (v('equip2') ? v('equip2') + '\n' : '');
+    }
+
+    texto += '\n\n' +
+      '*OBS:* ' + v('obs') + '\n\n' +
+      '*Localização*\n' +
+      v('link_maps') + '\n\n' +
+      '*### CARIMBO DE ACESSO AO SITE  ###*\n' +
+      '*Site:* ' + site + '\n' +
+      '*Detentora:* ' + v('detentora') + '\n' +
+      '*ID :* ' + v('id_acesso') + '\n' +
+      '*Portão:* ' + v('portao') + '\n' +
+      '*Gabinete:* ' + v('gabinete') + '\n' +
+      '*Medidor:* ' + v('medidor') + '\n' +
+      '*UC:* ' + v('uc');
+
+    if (v('rodape')) {
+      texto += '\n\n' + v('rodape');
+    }
+
+    return texto;
+  }
+
+  function atualizarPreview() {
+    document.getElementById('carimboPreview').textContent = montarTextoCarimbo();
+  }
+
+  document.querySelectorAll('input, textarea').forEach(function(el) {
+    el.addEventListener('input', atualizarPreview);
+    el.addEventListener('change', atualizarPreview);
+  });
+  atualizarPreview();
 
   function capturarLocalizacaoCompleta(origem) {
     var btnEnd = document.getElementById('btnEndGps');
@@ -230,20 +303,22 @@
         var precisao = Math.round(pos.coords.accuracy);
 
         if (origem === 'link' || !campoMaps.value.trim()) {
-          campoMaps.value = 'https://google.com' + lat + ',' + lng;
+          campoMaps.value = 'https://google.com' + '/maps?q=' + lat + ',' + lng;
         }
 
         if (origem === 'endereco' || !campoEndereco.value.trim()) {
+          var enderecoEncontrado = '';
+
           try {
-            var urlOsm = 'https://openstreetmap.org' + lat + '&lon=' + lng + '&addressdetails=1';
-            var resp = await fetch(urlOsm, { headers: { 'Accept-Language': 'pt-BR' } });
+            var urlOsm = 'https://openstreetmap.org' + '/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng;
+            var resp = await fetch(urlOsm);
             var data = await resp.json();
 
             if (data && data.address) {
               var a = data.address;
-              var rua = a.road || a.pedestrian || a.street || '';
-              var numero = a.house_number ? ', ' + a.house_number : ', S/N';
-              var bairro = a.suburb || a.neighbourhood || a.district || '';
+              var rua = a.road || a.pedestrian || a.street || a.highway || '';
+              var numero = a.house_number ? ', ' + a.house_number : '';
+              var bairro = a.suburb || a.neighbourhood || a.district || a.city_district || '';
               var cidade = a.city || a.town || a.village || a.municipality || '';
               var estado = a.state || '';
 
@@ -254,14 +329,32 @@
               else if (cidade || estado) partes.push(cidade || estado);
 
               if (partes.length > 0) {
-                campoEndereco.value = partes.join(', ');
+                enderecoEncontrado = partes.join(', ');
               } else if (data.display_name) {
-                campoEndereco.value = data.display_name;
+                enderecoEncontrado = data.display_name.split(',').slice(0, 4).join(',');
               }
             }
-          } catch (err) {
-            console.error(err);
+          } catch (e1) {}
+
+          if (!enderecoEncontrado) {
+            try {
+              var urlBdc = 'https://bigdatacloud.net' + '/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=pt';
+              var resp2 = await fetch(urlBdc);
+              var data2 = await resp2.json();
+              if (data2) {
+                var partes2 = [
+                  data2.locality || '',
+                  data2.city || '',
+                  data2.principalSubdivision || ''
+                ].filter(Boolean);
+                if (partes2.length > 0) {
+                  enderecoEncontrado = partes2.join(', ') + ' (' + lat + ', ' + lng + ')';
+                }
+              }
+            } catch (e2) {}
           }
+
+          campoEndereco.value = enderecoEncontrado || ('Coord: ' + lat + ', ' + lng);
         }
 
         btnEnd.textContent = '📍 GPS';
@@ -269,6 +362,7 @@
         btnEnd.disabled = false;
         btnLink.disabled = false;
 
+        atualizarPreview();
         mostrarBanner('📍 Localização e endereço capturados via GPS! (Precisão de ~' + precisao + 'm)', 'status-found');
       },
       function() {
@@ -303,128 +397,5 @@
         if (d.gabinete) document.getElementById('gabinete').value = d.gabinete;
         if (d.medidor) document.getElementById('medidor').value = d.medidor;
         if (d.uc) document.getElementById('uc').value = d.uc;
-        if (d.link_maps) document.getElementById('link_maps').value = d.link_maps;
-        if (d.obs) document.getElementById('obs').value = d.obs;
 
-        mostrarBanner('✅ Site ' + site + ' já cadastrado! Dados carregados. Edite qualquer campo para melhorar o cadastro.', 'status-found');
-      } else {
-        mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado. Preencha os dados para salvar como novo.', 'status-warn');
-      }
-    } catch (e) {
-      mostrarBanner('⚠️ Banco não conectado (verifique a Associação DB na Cloudflare).', 'status-warn');
-    }
-  }
-
-  async function gerarESalvar() {
-    var v = function(id) { return document.getElementById(id).value.trim(); };
-    var site = v('site').toUpperCase();
-
-    if (!site) {
-      alert('Por favor, informe o código do Site.');
-      document.getElementById('site').focus();
-      return;
-    }
-
-    var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
-    var textoCarimbo =
-      '*CARIMBO OPERACIONAL CIRE*\n' +
-      '*Site:* ' + site + ' | *Data:* ' + dataFormatada + '\n' +
-      '*TA:* ' + v('ta') + ' | *Rota:* ' + v('rota') + '\n' +
-      '*Técnico:* ' + v('tecnico') + ' (' + v('contato') + ')\n' +
-      '*Ponta A:* ' + v('ponta_a') + ' - ' + v('endereco_ponta_a') + '\n' +
-      '*Ponta B:* ' + v('ponta_b') + ' - ' + v('endereco_ponta_b') + '\n' +
-      '*Afetação:* ' + v('afetacao') + '\n\n' +
-      '*--- ALÇA 1 ---*\n' +
-      '*Cabo:* ' + v('cabo1') + ' | *Fibra:* ' + v('fibra1') + '\n' +
-      '*Dist. A->B:* ' + v('dist_ab1') + ' | *B->A:* ' + v('dist_ba1') + ' | *Total:* ' + v('dist_tot1') + '\n' +
-      '*Equip/Cluster:* ' + v('equip1') + '\n\n' +
-      '*--- ALÇA 2 ---*\n' +
-      '*Cabo:* ' + v('cabo2') + ' | *Fibra:* ' + v('fibra2') + '\n' +
-      '*Dist. A->B:* ' + v('dist_ab2') + ' | *B->A:* ' + v('dist_ba2') + ' | *Total:* ' + v('dist_tot2') + '\n' +
-      '*Equip/Cluster:* ' + v('equip2') + '\n\n' +
-      '*--- ACESSO AO SITE ---*\n' +
-      '*Site:* ' + site + ' | *Detentora:* ' + v('detentora') + '\n' +
-      '*ID:* ' + v('id_acesso') + ' | *Portão:* ' + v('portao') + ' | *Gabinete:* ' + v('gabinete') + '\n' +
-      '*Medidor:* ' + v('medidor') + ' | *UC:* ' + v('uc') + '\n' +
-      '*Maps:* ' + v('link_maps') + '\n' +
-      '*OBS:* ' + v('obs') + '\n' +
-      '_' + v('rodape') + '_';
-
-    document.getElementById('carimboPreview').textContent = textoCarimbo;
-
-    try {
-      await navigator.clipboard.writeText(textoCarimbo);
-    } catch (e) {}
-
-    var payload = {
-      site: site,
-      rota: v('rota'),
-      ponta_a: v('ponta_a'),
-      endereco_ponta_a: v('endereco_ponta_a'),
-      detentora: v('detentora'),
-      id_acesso: v('id_acesso'),
-      portao: v('portao'),
-      gabinete: v('gabinete'),
-      medidor: v('medidor'),
-      uc: v('uc'),
-      link_maps: v('link_maps'),
-      obs: v('obs'),
-      forcarAtualizacao: false
-    };
-
-    try {
-      var res = await fetch('/api/sites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.status === 409) {
-        var confirmar = confirm('O site ' + site + ' já existe no banco de dados!\n\nDeseja ATUALIZAR este cadastro com as melhorias preenchidas agora (sem criar duplicado)?');
-        if (confirmar) {
-          payload.forcarAtualizacao = true;
-          res = await fetch('/api/sites', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if (res.ok) {
-            mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado com sucesso e carimbo copiado!', 'status-found');
-          }
-        } else {
-          mostrarBanner('📋 Carimbo copiado! Cadastro original de ' + site + ' mantido sem alterações.', 'status-info');
-        }
-      } else if (res.ok) {
-        mostrarBanner('✅ Novo site ' + site + ' salvo no banco e carimbo copiado para o WhatsApp!', 'status-found');
-      } else {
-        mostrarBanner('📋 Carimbo gerado e copiado! (Erro ao salvar no banco: verifique a tabela SQL).', 'status-warn');
-      }
-    } catch (e) {
-      mostrarBanner('📋 Carimbo gerado e copiado! (Sem conexão com o banco).', 'status-warn');
-    }
-  }
-
-  function baixarImagem() {
-    var el = document.getElementById('carimboPreview');
-    if (typeof html2canvas === 'undefined') {
-      alert('Aguarde o carregamento da biblioteca de imagem e tente novamente.');
-      return;
-    }
-    html2canvas(el, { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
-      var link = document.createElement('a');
-      link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    });
-  }
-
-  function limparFormulario() {
-    document.querySelectorAll('input, textarea').forEach(function(el) {
-      if (el.type !== 'date') el.value = '';
-    });
-    document.getElementById('carimboPreview').textContent = 'Aguardando geração...';
-    document.getElementById('dbBanner').style.display = 'none';
-  }
-</script>
-</body>
-</html>
+      
