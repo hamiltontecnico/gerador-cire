@@ -640,6 +640,210 @@
       alert('Erro ao conectar com o servidor.');
     }
   }
+  function carregarScriptExcel() {
+    return new Promise(function(resolve, reject) {
+      if (typeof ExcelJS !== 'undefined') return resolve();
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.' + '://cloudflare.com';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  function extrairCidadeDoEndereco(endereco) {
+    if (!endereco) return 'NÃO INFORMADA';
+    var limpo = endereco.replace(/\d{5}-?\d{3}/g, '').replace(/\(Coord:.*?\)/gi, '').trim();
+    var partes = limpo.split(',').map(function(p) { return p.trim(); }).filter(Boolean);
+
+    for (var i = partes.length - 1; i >= 0; i--) {
+      var trecho = partes[i];
+      if (trecho.indexOf(' - ') !== -1) {
+        var cidade = trecho.split(' - ').trim();
+        if (cidade && cidade.length > 2) return cidade.toUpperCase();
+      }
+    }
+    if (partes.length >= 2) {
+      var ultima = partes[partes.length - 1];
+      if (ultima && ultima.length > 2 && !/^\d+$/.test(ultima)) {
+        return ultima.toUpperCase();
+      }
+    }
+    return 'NÃO INFORMADA';
+  }
+
+  async function exportarCSV() {
+    mostrarBanner('📊 Gerando planilha Excel executiva com 3 abas...', 'status-info');
+
+    try {
+      await carregarScriptExcel();
+
+      var res = await fetch('/api/sites?acao=listar');
+      var json = await res.json();
+      var lista = json.sites || [];
+      if (lista.length === 0) {
+        mostrarBanner('⚠️ Nenhum site salvo no banco para exportar.', 'status-warn');
+        return;
+      }
+
+      var dadosTratados = lista.map(function(s) {
+        return Object.assign({}, s, { cidade: extrairCidadeDoEndereco(s.endereco_ponta_a) });
+      });
+
+      var mapaCidades = {};
+      dadosTratados.forEach(function(s) {
+        mapaCidades[s.cidade] = (mapaCidades[s.cidade] || 0) + 1;
+      });
+
+      var resumoCidades = Object.keys(mapaCidades).map(function(cid) {
+        return { cidade: cid, qtd: mapaCidades[cid] };
+      }).sort(function(a, b) {
+        return b.qtd - a.qtd || a.cidade.localeCompare(b.cidade);
+      });
+
+      var wb = new ExcelJS.Workbook();
+      wb.creator = 'Gerador de Carimbos CIRE';
+      wb.created = new Date();
+
+      var estiloCabecalho = {
+        font: { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } },
+        alignment: { vertical: 'middle', horizontal: 'center' },
+        border: {
+          top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          bottom: { style: 'medium', color: { argb: 'FF0F172A' } },
+          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+        }
+      };
+
+      var aplicarEstiloLinha = function(row, idx) {
+        var corFundo = idx % 2 === 0 ? 'FFF8FAFC' : 'FFFFFFFF';
+        row.eachCell(function(cell) {
+          cell.font = { name: 'Calibri', size: 10, color: { argb: 'FF1E293B' } };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: corFundo } };
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+          };
+          cell.alignment = { vertical: 'middle' };
+        });
+      };
+
+      // ABA 1: RESUMO POR CIDADE (QUANTIDADE)
+      var wsResumo = wb.addWorksheet('Resumo por Cidade', { views: [{ showGridLines: true }] });
+      wsResumo.columns = [
+        { header: 'CIDADE', key: 'cidade', width: 32 },
+        { header: 'QTD. DE SITES', key: 'qtd', width: 18 },
+        { header: '% DO TOTAL', key: 'perc', width: 16 }
+      ];
+      wsResumo.getRow(1).height = 28;
+      wsResumo.getRow(1).eachCell(function(c) { Object.assign(c, estiloCabecalho); });
+
+      var totalSites = dadosTratados.length;
+      resumoCidades.forEach(function(item, i) {
+        var r = wsResumo.addRow({
+          cidade: item.cidade,
+          qtd: item.qtd,
+          perc: ((item.qtd / totalSites) * 100).toFixed(1) + '%'
+        });
+        r.height = 22;
+        aplicarEstiloLinha(r, i);
+        r.getCell('qtd').alignment = { vertical: 'middle', horizontal: 'center' };
+        r.getCell('perc').alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+
+      var rowTotal = wsResumo.addRow({ cidade: 'TOTAL GERAL', qtd: totalSites, perc: '100%' });
+      rowTotal.height = 26;
+      rowTotal.eachCell(function(c) {
+        c.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
+        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+        c.border = { top: { style: 'medium', color: { argb: 'FF1E3A8A' } }, bottom: { style: 'double', color: { argb: 'FF1E3A8A' } } };
+      });
+      rowTotal.getCell('qtd').alignment = { vertical: 'middle', horizontal: 'center' };
+      rowTotal.getCell('perc').alignment = { vertical: 'middle', horizontal: 'center' };
+
+      // ABA 2: SITES ORDENADOS POR CIDADE
+      var wsPorCidade = wb.addWorksheet('Sites por Cidade');
+      wsPorCidade.columns = [
+        { header: 'CIDADE', key: 'cidade', width: 24 },
+        { header: 'SITE', key: 'site', width: 20 },
+        { header: 'DETENTORA', key: 'detentora', width: 18 },
+        { header: 'ID ACESSO', key: 'id_acesso', width: 16 },
+        { header: 'PORTÃO', key: 'portao', width: 18 },
+        { header: 'GABINETE', key: 'gabinete', width: 18 },
+        { header: 'ROTA', key: 'rota', width: 24 },
+        { header: 'ENDEREÇO', key: 'endereco', width: 45 },
+        { header: 'RODAPÉ / OBS', key: 'rodape', width: 28 }
+      ];
+      wsPorCidade.getRow(1).height = 28;
+      wsPorCidade.getRow(1).eachCell(function(c) { Object.assign(c, estiloCabecalho); });
+
+      var ordenadosCidade = dadosTratados.slice().sort(function(a, b) {
+        return a.cidade.localeCompare(b.cidade) || (a.site || '').localeCompare(b.site || '');
+      });
+
+      ordenadosCidade.forEach(function(s, i) {
+        var r = wsPorCidade.addRow({
+          cidade: s.cidade, site: s.site, detentora: s.detentora || '', id_acesso: s.id_acesso || '',
+          portao: s.portao || '', gabinete: s.gabinete || '', rota: s.rota || '',
+          endereco: s.endereco_ponta_a || '', rodape: [s.rodape, s.obs].filter(Boolean).join(' | ')
+        });
+        r.height = 22;
+        aplicarEstiloLinha(r, i);
+        r.getCell('site').font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF1E3A8A' } };
+      });
+
+      // ABA 3: BASE COMPLETA
+      var wsGeral = wb.addWorksheet('Base Completa');
+      wsGeral.columns = [
+        { header: 'SITE', key: 'site', width: 20 },
+        { header: 'CIDADE', key: 'cidade', width: 22 },
+        { header: 'ROTA', key: 'rota', width: 24 },
+        { header: 'PONTA A', key: 'ponta_a', width: 14 },
+        { header: 'ENDEREÇO', key: 'endereco', width: 45 },
+        { header: 'DETENTORA', key: 'detentora', width: 18 },
+        { header: 'ID', key: 'id_acesso', width: 15 },
+        { header: 'PORTÃO', key: 'portao', width: 18 },
+        { header: 'GABINETE', key: 'gabinete', width: 18 },
+        { header: 'MEDIDOR', key: 'medidor', width: 15 },
+        { header: 'UC', key: 'uc', width: 15 },
+        { header: 'LINK MAPS', key: 'link_maps', width: 35 },
+        { header: 'EQUIPAMENTOS', key: 'equip1', width: 35 },
+        { header: 'RODAPÉ', key: 'rodape', width: 22 },
+        { header: 'OBS', key: 'obs', width: 30 },
+        { header: 'ATUALIZADO POR', key: 'atualizado_por', width: 22 }
+      ];
+      wsGeral.getRow(1).height = 28;
+      wsGeral.getRow(1).eachCell(function(c) { Object.assign(c, estiloCabecalho); });
+
+      dadosTratados.forEach(function(s, i) {
+        var r = wsGeral.addRow({
+          site: s.site, cidade: s.cidade, rota: s.rota || '', ponta_a: s.ponta_a || '',
+          endereco: s.endereco_ponta_a || '', detentora: s.detentora || '', id_acesso: s.id_acesso || '',
+          portao: s.portao || '', gabinete: s.gabinete || '', medidor: s.medidor || '', uc: s.uc || '',
+          link_maps: s.link_maps || '', equip1: (s.equip1 || '').replace(/\n/g, ' | '),
+          rodape: s.rodape || '', obs: s.obs || '', atualizado_por: s.atualizado_por || ''
+        });
+        r.height = 22;
+        aplicarEstiloLinha(r, i);
+      });
+
+      var buffer = await wb.xlsx.writeBuffer();
+      var blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      var hoje = new Date().toISOString().slice(0, 10);
+      link.download = 'Base_Sites_CIRE_' + hoje + '.xlsx';
+      link.click();
+
+      mostrarBanner('✅ Planilha Excel (3 abas) gerada e baixada com sucesso!', 'status-found');
+    } catch (e) {
+      mostrarBanner('❌ Erro ao gerar Excel: ' + e.message, 'status-warn');
+    }
+  }
 
   
 
