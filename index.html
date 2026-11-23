@@ -648,52 +648,69 @@
     carregarListaUsuarios();
   }
 
+    var cacheUsuarios = [];
+
   async function carregarListaUsuarios() {
     var res = await fetch('/api/sites?acao=usuarios');
     var json = await res.json();
+    cacheUsuarios = json.usuarios || [];
     var html = '';
-    (json.usuarios || []).forEach(function(u) {
-      html += '<div class="site-item"><div><strong>' + u.nome_completo + '</strong> (' + u.usuario + ')<br><span style="font-size:0.8rem; color:var(--muted);">' + (u.contato || '') + '</span></div>' +
-        (u.is_admin === 0 ? '<button type="button" class="btn-danger btn-sm" onclick="removerTecnico(' + u.id + ')">Remover</button>' : '<span style="color:#6ee7b7; font-size:0.8rem;">Admin</span>') +
+    cacheUsuarios.forEach(function(u) {
+      html += '<div class="site-item">' +
+        '<div><strong>' + u.nome_completo + '</strong> (' + u.usuario + ')<br>' +
+        '<span style="font-size:0.8rem; color:var(--muted);">' + (u.contato || 'Sem telefone') + '</span></div>' +
+        '<div style="display:flex; gap:6px; align-items:center;">' +
+          '<button type="button" class="btn-primary btn-sm" onclick="editarTecnico(' + u.id + ')">✏️ Editar</button>' +
+          (u.is_admin === 0
+            ? '<button type="button" class="btn-danger btn-sm" onclick="removerTecnico(' + u.id + ')">Remover</button>'
+            : '<span style="color:#6ee7b7; font-size:0.8rem; padding:0 6px;">Admin</span>') +
+        '</div>' +
       '</div>';
     });
     document.getElementById('listaUsuariosConteudo').innerHTML = html;
   }
 
-  async function criarTecnico() {
-    var u = document.getElementById('novoUser').value.trim();
-    var s = document.getElementById('novaSenha').value.trim();
-    var n = document.getElementById('novoNome').value.trim();
-    var c = document.getElementById('novoContato').value.trim();
-    if (!u || !s || !n) { alert('Preencha login, senha e nome.'); return; }
+  async function editarTecnico(id) {
+    var u = cacheUsuarios.find(function(item) { return item.id === id; });
+    if (!u) return;
 
-    var senhaAdmin = prompt('Confirme a SENHA DE ADMINISTRADOR para criar o técnico:');
+    var novoNome = prompt('Nome Completo do técnico:', u.nome_completo);
+    if (novoNome === null) return;
+
+    var novoUser = prompt('Login de acesso:', u.usuario);
+    if (novoUser === null) return;
+
+    var novoContato = prompt('Telefone / Contato:', u.contato || '');
+    if (novoContato === null) return;
+
+    var novaSenha = prompt('Nova Senha (deixe em branco para manter a senha atual):', '');
+    if (novaSenha === null) return;
+
+    var senhaAdmin = prompt('Digite a SENHA DE ADMINISTRADOR para salvar as alterações:');
     if (!senhaAdmin) return;
 
     var res = await fetch('/api/sites', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ acao: 'criar_usuario', novoUsuario: u, novaSenha: s, nomeCompleto: n, contato: c, senhaAdmin: senhaAdmin })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        acao: 'editar_usuario',
+        usuarioId: id,
+        novoUsuario: novoUser,
+        novaSenha: novaSenha,
+        nomeCompleto: novoNome,
+        contato: novoContato,
+        senhaAdmin: senhaAdmin
+      })
     });
     var json = await res.json();
     if (res.ok && json.sucesso) {
-      document.getElementById('novoUser').value = '';
-      document.getElementById('novaSenha').value = '';
-      document.getElementById('novoNome').value = '';
-      document.getElementById('novoContato').value = '';
       carregarListaUsuarios();
-      alert('✅ Técnico cadastrado com sucesso!');
+      alert('✅ Cadastro do técnico atualizado com sucesso!');
     } else {
-      alert('❌ ' + (json.erro || 'Erro ao cadastrar técnico.'));
+      alert('❌ ' + (json.erro || 'Erro ao editar técnico.'));
     }
   }
 
-  async function removerTecnico(id) {
-    var senhaAdmin = prompt('Digite a SENHA DE ADMINISTRADOR para remover este técnico:');
-    if (!senhaAdmin) return;
-    var res = await fetch('/api/sites?usuarioId=' + id + '&senha=' + encodeURIComponent(senhaAdmin), { method: 'DELETE' });
-    if (res.ok) carregarListaUsuarios();
-    else alert('Senha incorreta.');
-  }
 
   function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
 
