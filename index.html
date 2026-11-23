@@ -4,12 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gerador de Carimbo CIRE</title>
-      <script>
-    document.write('<scr' + 'ipt src="https://cdnjs.' + '://cloudflare.com"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="https://cdnjs.' + '://cloudflare.com"></scr' + 'ipt>');
-      </script>
-
-
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f8fafc;
@@ -63,7 +57,6 @@
   </style>
 </head>
 <body>
-
 <div id="loginBox" class="login-screen">
   <h2 style="margin-top:0; color:#60a5fa; text-align:center;">🔐 Acesso CIRE</h2>
   <p style="color:var(--muted); font-size:0.85rem; text-align:center;">Entre com seu usuário técnico</p>
@@ -86,6 +79,7 @@
       <button type="button" class="btn-danger btn-sm" onclick="sair()">Sair</button>
     </div>
   </header>
+
   <div class="grid">
     <div>
       <div id="dbBanner" class="status-banner"></div>
@@ -135,9 +129,9 @@
           <div><label>Fibra</label><input type="text" id="fibra1" placeholder="XX" /></div>
         </div>
         <div class="row-3">
-          <div><label>Dist. A → B (mts)</label><input type="text" id="dist_ab1" placeholder="xxx mts" /></div>
-          <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba1" placeholder="xxx mts" /></div>
-          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot1" placeholder="XXX mts" /></div>
+          <div><label>Dist. A → B (mts)</label><input type="text" id="dist_ab1" placeholder="xxx" /></div>
+          <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba1" placeholder="xxx" /></div>
+          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot1" placeholder="XXX" /></div>
         </div>
         <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip1" rows="3"></textarea></div>
       </div>
@@ -149,13 +143,12 @@
           <div><label>Fibra</label><input type="text" id="fibra2" placeholder="XX" /></div>
         </div>
         <div class="row-3">
-          <div><label>Dist. A → B (mts)</label><input type="text" id="dist_ab2" placeholder="xxx mts" /></div>
-          <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba2" placeholder="xxx mts" /></div>
-          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot2" placeholder="XXX mts" /></div>
+          <div><label>Dist. A → B (mts)</label><input type="text" id="dist_ab2" placeholder="xxx" /></div>
+          <div><label>Dist. B → A (mts)</label><input type="text" id="dist_ba2" placeholder="xxx" /></div>
+          <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot2" placeholder="XXX" /></div>
         </div>
         <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip2" rows="3"></textarea></div>
       </div>
-
       <div class="card">
         <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
         <div class="row">
@@ -235,13 +228,11 @@
 <script>
   var usuarioLogado = null;
   var cacheSites = [];
+  var cacheUsuarios = [];
 
   (function init() {
     var salvo = localStorage.getItem('cire_user');
-    if (salvo) {
-      usuarioLogado = JSON.parse(salvo);
-      entrarNoApp();
-    }
+    if (salvo) { usuarioLogado = JSON.parse(salvo); entrarNoApp(); }
   })();
 
   async function fazerLogin() {
@@ -249,11 +240,9 @@
     var s = document.getElementById('loginPass').value.trim();
     var errEl = document.getElementById('loginErro');
     errEl.style.display = 'none';
-
     try {
       var res = await fetch('/api/sites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ acao: 'login', usuario: u, senha: s })
       });
       var json = await res.json();
@@ -277,50 +266,36 @@
     document.getElementById('userInfo').textContent = '👤 Logado como: ' + usuarioLogado.nome_completo;
     document.getElementById('tecnico').value = usuarioLogado.nome_completo || '';
     document.getElementById('contato').value = usuarioLogado.contato || '';
-    if (usuarioLogado.is_admin === 1) {
-      document.getElementById('btnAdmin').style.display = 'inline-block';
-    }
+    if (usuarioLogado.is_admin === 1) document.getElementById('btnAdmin').style.display = 'inline-block';
     document.getElementById('data').valueAsDate = new Date();
     atualizarPreview();
   }
 
-  function sair() {
-    localStorage.removeItem('cire_user');
-    location.reload();
-  }
+  function sair() { localStorage.removeItem('cire_user'); location.reload(); }
+  function espelharSite() { document.getElementById('site_acesso').value = document.getElementById('site').value; atualizarPreview(); }
 
-  function espelharSite() {
-    document.getElementById('site_acesso').value = document.getElementById('site').value;
-    atualizarPreview();
-  }
-
-   function mostrarBanner(texto, tipo) {
+  function mostrarBanner(texto, tipo) {
     var banner = document.getElementById('dbBanner');
     banner.textContent = texto;
     banner.className = 'status-banner ' + tipo;
     banner.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
     var toast = document.getElementById('toastAviso');
     if (!toast) {
       toast = document.createElement('div');
       toast.id = 'toastAviso';
-      toast.style.cssText = 'position:fixed; top:20px; right:20px; z-index:9999; padding:14px 20px; border-radius:8px; font-weight:700; font-size:0.92rem; box-shadow:0 10px 25px rgba(0,0,0,0.5); transition:0.3s;';
+      toast.style.cssText = 'position:fixed; top:20px; right:20px; z-index:9999; padding:14px 20px; border-radius:8px; font-weight:700; font-size:0.92rem; box-shadow:0 10px 25px rgba(0,0,0,0.5);';
       document.body.appendChild(toast);
     }
     toast.textContent = texto;
     toast.style.background = tipo === 'status-found' ? '#059669' : (tipo === 'status-warn' ? '#d97706' : '#2563eb');
     toast.style.color = '#ffffff';
     toast.style.display = 'block';
-
     clearTimeout(window.toastTimer);
-    window.toastTimer = setTimeout(function() {
-      toast.style.display = 'none';
-    }, 5000);
+    window.toastTimer = setTimeout(function() { toast.style.display = 'none'; }, 5000);
   }
 
-
-    function formatarMetros(valor, padrao) {
+  function formatarMetros(valor, padrao) {
     if (!valor) return padrao;
     if (/mts|m$/i.test(valor)) return valor;
     return valor + ' mts';
@@ -330,168 +305,98 @@
     var v = function(id) { return document.getElementById(id).value.trim(); };
     var site = v('site').toUpperCase();
     var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
-
-    var texto =
-      '***ABRIR CARIMBO CIRE***\n\n' +
-      '*Site:* ' + site + '\n' +
-      '*Data:* ' + dataFormatada + '\n' +
-      '*TA:* ' + v('ta') + '\n' +
-      '*Técnico:* ' + v('tecnico') + '\n' +
-      '*Contato:* ' + v('contato') + '\n' +
-      '*Rota:* ' + v('rota') + '\n' +
-      '*Ponta A:* ' + v('ponta_a') + '\n' +
-      '*Endereço:* ' + v('endereco_ponta_a') + '\n' +
-      '*Ponta B:* ' + v('ponta_b') + '\n' +
-      '*Endereço:* ' + v('endereco_ponta_b') + '\n' +
-      '*Afetação:* ' + v('afetacao') + '\n\n' +
-      '*Alça 1*\n' +
-      '*Cabo:* ' + (v('cabo1') || 'X') + '\n' +
-      '*Fibra:* ' + (v('fibra1') || 'XX') + '\n' +
-      '*Distância de A_ B:* ' + formatarMetros(v('dist_ab1'), 'xxx mts') + '\n' +
-      '*Distância de B_ A:* ' + formatarMetros(v('dist_ba1'), 'xxx mts') + '\n' +
-      '*Distância  total:* ' + formatarMetros(v('dist_tot1'), 'XXX mts') + '\n' +
-      (v('equip1') ? v('equip1') + '\n' : '');
+    var texto = '***ABRIR CARIMBO CIRE***\n\n*Site:* ' + site + '\n*Data:* ' + dataFormatada + '\n*TA:* ' + v('ta') +
+      '\n*Técnico:* ' + v('tecnico') + '\n*Contato:* ' + v('contato') + '\n*Rota:* ' + v('rota') +
+      '\n*Ponta A:* ' + v('ponta_a') + '\n*Endereço:* ' + v('endereco_ponta_a') +
+      '\n*Ponta B:* ' + v('ponta_b') + '\n*Endereço:* ' + v('endereco_ponta_b') + '\n*Afetação:* ' + v('afetacao') +
+      '\n\n*Alça 1*\n*Cabo:* ' + (v('cabo1') || 'X') + '\n*Fibra:* ' + (v('fibra1') || 'XX') +
+      '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab1'), 'xxx mts') +
+      '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba1'), 'xxx mts') +
+      '\n*Distância  total:* ' + formatarMetros(v('dist_tot1'), 'XXX mts') + '\n' + (v('equip1') ? v('equip1') + '\n' : '');
 
     if (v('cabo2') || v('fibra2') || v('dist_ab2') || v('dist_ba2') || v('dist_tot2') || v('equip2')) {
-      texto += '\n' +
-        '*Alça 2*\n' +
-        '*Cabo:* ' + (v('cabo2') || 'X') + '\n' +
-        '*Fibra:* ' + (v('fibra2') || 'XX') + '\n' +
-        '*Distância de A_ B:* ' + formatarMetros(v('dist_ab2'), 'xxx mts') + '\n' +
-        '*Distância de B_ A:* ' + formatarMetros(v('dist_ba2'), 'xxx mts') + '\n' +
-        '*Distância  total:* ' + formatarMetros(v('dist_tot2'), 'XXX mts') + '\n' +
-        (v('equip2') ? v('equip2') + '\n' : '');
+      texto += '\n*Alça 2*\n*Cabo:* ' + (v('cabo2') || 'X') + '\n*Fibra:* ' + (v('fibra2') || 'XX') +
+        '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab2'), 'xxx mts') +
+        '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba2'), 'xxx mts') +
+        '\n*Distância  total:* ' + formatarMetros(v('dist_tot2'), 'XXX mts') + '\n' + (v('equip2') ? v('equip2') + '\n' : '');
     }
 
-    texto += '\n\n' +
-      '*OBS:* ' + v('obs') + '\n\n' +
-      '*Localização*\n' +
-      v('link_maps') + '\n\n' +
-      '*### CARIMBO DE ACESSO AO SITE  ###*\n' +
-      '*Site:* ' + site + '\n' +
-      '*Detentora:* ' + v('detentora') + '\n' +
-      '*ID :* ' + v('id_acesso') + '\n' +
-      '*Portão:* ' + v('portao') + '\n' +
-      '*Gabinete:* ' + v('gabinete') + '\n' +
-      '*Medidor:* ' + v('medidor') + '\n' +
-      '*UC:* ' + v('uc');
-
+    texto += '\n\n*OBS:* ' + v('obs') + '\n\n*Localização*\n' + v('link_maps') +
+      '\n\n*### CARIMBO DE ACESSO AO SITE  ###*\n*Site:* ' + site + '\n*Detentora:* ' + v('detentora') +
+      '\n*ID :* ' + v('id_acesso') + '\n*Portão:* ' + v('portao') + '\n*Gabinete:* ' + v('gabinete') +
+      '\n*Medidor:* ' + v('medidor') + '\n*UC:* ' + v('uc');
     if (v('rodape')) texto += '\n\n' + v('rodape');
     return texto;
   }
 
-
-  function atualizarPreview() {
-    document.getElementById('carimboPreview').textContent = montarTextoCarimbo();
-  }
-
+  function atualizarPreview() { document.getElementById('carimboPreview').textContent = montarTextoCarimbo(); }
   document.querySelectorAll('input, textarea').forEach(function(el) {
     el.addEventListener('input', atualizarPreview);
     el.addEventListener('change', atualizarPreview);
   });
-
-  function enviarWhatsApp() {
-    var texto = montarTextoCarimbo();
-    var urlZap = 'https://wa.me' + '?text=' + encodeURIComponent(texto);
-    window.location.href = urlZap;
-  }
-
+  function enviarWhatsApp() { window.location.href = 'https://wa.me' + '?text=' + encodeURIComponent(montarTextoCarimbo()); }
   function capturarLocalizacaoCompleta(origem) {
     var btnEnd = document.getElementById('btnEndGps');
     var btnLink = document.getElementById('btnGps');
     var campoEndereco = document.getElementById('endereco_ponta_a');
     var campoMaps = document.getElementById('link_maps');
-
-    if (!navigator.geolocation) {
-      alert('Seu navegador não suporta captura de GPS.');
-      return;
-    }
-
-    btnEnd.disabled = true;
-    btnLink.disabled = true;
+    if (!navigator.geolocation) { alert('Navegador sem suporte a GPS.'); return; }
+    btnEnd.disabled = true; btnLink.disabled = true;
     if (origem === 'endereco') btnEnd.textContent = '⏳...';
-    if (origem === 'link') btnLink.textContent = '⏳ Buscando...';
+    if (origem === 'link') btnLink.textContent = '⏳...';
 
     navigator.geolocation.getCurrentPosition(
       async function(pos) {
         var lat = pos.coords.latitude.toFixed(6);
         var lng = pos.coords.longitude.toFixed(6);
         var precisao = Math.round(pos.coords.accuracy);
-
-        if (origem === 'link' || !campoMaps.value.trim()) {
-          campoMaps.value = 'https://google.com' + '/maps?q=' + lat + ',' + lng;
-        }
+        if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://google.com' + '/maps?q=' + lat + ',' + lng;
 
         if (origem === 'endereco' || !campoEndereco.value.trim()) {
           var enderecoEncontrado = '';
           try {
-            var urlOsm = 'https://nominatim.' + 'openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng;
-            var resp = await fetch(urlOsm);
+            var resp = await fetch('https://nominatim.' + 'openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng);
             var data = await resp.json();
             if (data && data.address) {
               var a = data.address;
               var rua = a.road || a.pedestrian || a.street || a.highway || '';
-              var numero = a.house_number ? ', ' + a.house_number : '';
-              var bairro = a.suburb || a.neighbourhood || a.district || a.city_district || '';
+              var num = a.house_number ? ', ' + a.house_number : '';
+              var bairro = a.suburb || a.neighbourhood || a.district || '';
               var cidade = a.city || a.town || a.village || a.municipality || '';
               var estado = a.state || '';
               var partes = [];
-              if (rua) partes.push(rua + numero);
+              if (rua) partes.push(rua + num);
               if (bairro) partes.push(bairro);
               if (cidade && estado) partes.push(cidade + ' - ' + estado);
               else if (cidade || estado) partes.push(cidade || estado);
               if (partes.length > 0) enderecoEncontrado = partes.join(', ');
             }
           } catch (e1) {}
-
-          if (!enderecoEncontrado) {
-            try {
-              var urlBdc = 'https://api.' + 'bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=pt';
-              var resp2 = await fetch(urlBdc);
-              var data2 = await resp2.json();
-              if (data2) {
-                var partes2 = [data2.locality || '', data2.city || '', data2.principalSubdivision || ''].filter(Boolean);
-                if (partes2.length > 0) enderecoEncontrado = partes2.join(', ') + ' (' + lat + ', ' + lng + ')';
-              }
-            } catch (e2) {}
-          }
           campoEndereco.value = enderecoEncontrado || ('Coord: ' + lat + ', ' + lng);
         }
-
-        btnEnd.textContent = '📍 GPS';
-        btnLink.textContent = '📍 Pegar GPS';
-        btnEnd.disabled = false;
-        btnLink.disabled = false;
+        btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS';
+        btnEnd.disabled = false; btnLink.disabled = false;
         atualizarPreview();
-        mostrarBanner('📍 Localização e endereço capturados via GPS! (~' + precisao + 'm)', 'status-found');
+        mostrarBanner('📍 GPS capturado! (~' + precisao + 'm)', 'status-found');
       },
       function() {
-        btnEnd.textContent = '📍 GPS';
-        btnLink.textContent = '📍 Pegar GPS';
-        btnEnd.disabled = false;
-        btnLink.disabled = false;
-        alert('Não foi possível obter o GPS. Verifique a permissão de localização.');
+        btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS';
+        btnEnd.disabled = false; btnLink.disabled = false;
+        alert('Não foi possível obter o GPS.');
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }
 
   function preencherCamposComSite(d) {
-    document.getElementById('site').value = d.site || '';
-    espelharSite();
-    document.getElementById('rota').value = d.rota || '';
-    document.getElementById('ponta_a').value = d.ponta_a || '';
+    document.getElementById('site').value = d.site || ''; espelharSite();
+    document.getElementById('rota').value = d.rota || ''; document.getElementById('ponta_a').value = d.ponta_a || '';
     document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a || '';
-    document.getElementById('detentora').value = d.detentora || '';
-    document.getElementById('id_acesso').value = d.id_acesso || '';
-    document.getElementById('portao').value = d.portao || '';
-    document.getElementById('gabinete').value = d.gabinete || '';
-    document.getElementById('medidor').value = d.medidor || '';
-    document.getElementById('uc').value = d.uc || '';
-    document.getElementById('link_maps').value = d.link_maps || '';
-    document.getElementById('obs').value = d.obs || '';
-    document.getElementById('rodape').value = d.rodape || '';
-    document.getElementById('equip1').value = d.equip1 || '';
+    document.getElementById('detentora').value = d.detentora || ''; document.getElementById('id_acesso').value = d.id_acesso || '';
+    document.getElementById('portao').value = d.portao || ''; document.getElementById('gabinete').value = d.gabinete || '';
+    document.getElementById('medidor').value = d.medidor || ''; document.getElementById('uc').value = d.uc || '';
+    document.getElementById('link_maps').value = d.link_maps || ''; document.getElementById('obs').value = d.obs || '';
+    document.getElementById('rodape').value = d.rodape || ''; document.getElementById('equip1').value = d.equip1 || '';
     atualizarPreview();
   }
 
@@ -504,373 +409,156 @@
       var json = await res.json();
       if (json.encontrado && json.dados) {
         preencherCamposComSite(json.dados);
-        var quem = json.dados.atualizado_por ? ' (Última melhoria por: ' + json.dados.atualizado_por + ')' : '';
-        mostrarBanner('✅ Site ' + site + ' carregado!' + quem, 'status-found');
+        var quem = json.dados.atualizado_por ? ' (Última melhoria: ' + json.dados.atualizado_por + ')' : '';
+        mostrarBanner('✅ Site ' + json.dados.site + ' carregado!' + quem, 'status-found');
       } else {
-        mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado. Preencha para salvar como novo.', 'status-warn');
+        mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado.', 'status-warn');
       }
-    } catch (e) {
-      mostrarBanner('⚠️ Erro ao consultar o banco.', 'status-warn');
-    }
+    } catch (e) { mostrarBanner('⚠️ Erro ao consultar banco.', 'status-warn'); }
   }
-    async function gerarESalvar() {
+
+  async function gerarESalvar() {
     var v = function(id) { return document.getElementById(id).value.trim(); };
     var site = v('site').toUpperCase();
-    if (!site) { alert('Informe o código do Site.'); document.getElementById('site').focus(); return; }
-
+    if (!site) { alert('Informe o código do Site.'); return; }
     var textoCarimbo = montarTextoCarimbo();
     document.getElementById('carimboPreview').textContent = textoCarimbo;
     try { await navigator.clipboard.writeText(textoCarimbo); } catch (e) {}
-
-    mostrarBanner('⏳ Salvando site ' + site + ' no banco de dados...', 'status-info');
 
     var payload = {
       site: site, rota: v('rota'), ponta_a: v('ponta_a'), endereco_ponta_a: v('endereco_ponta_a'),
       detentora: v('detentora'), id_acesso: v('id_acesso'), portao: v('portao'), gabinete: v('gabinete'),
       medidor: v('medidor'), uc: v('uc'), link_maps: v('link_maps'), obs: v('obs'),
       rodape: v('rodape'), equip1: v('equip1'),
-      atualizado_por: usuarioLogado ? usuarioLogado.nome_completo : 'Técnico',
-      forcarAtualizacao: false
+      atualizado_por: usuarioLogado ? usuarioLogado.nome_completo : 'Técnico', forcarAtualizacao: false
     };
 
     try {
-      var res = await fetch('/api/sites', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-      });
-      var json = await res.json();
-
+      var res = await fetch('/api/sites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (res.status === 409) {
-        if (confirm('O site ' + site + ' já existe no banco!\n\nDeseja ATUALIZAR o cadastro com as melhorias preenchidas agora?')) {
+        if (confirm('O site ' + site + ' já existe!\n\nDeseja ATUALIZAR o cadastro com as melhorias?')) {
           payload.forcarAtualizacao = true;
-          res = await fetch('/api/sites', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-          });
-          if (res.ok) {
-            mostrarBanner('🔄 Cadastro do site ' + site + ' atualizado e carimbo copiado!', 'status-found');
-          } else {
-            mostrarBanner('❌ Erro ao atualizar: ' + (json.error || res.status), 'status-warn');
-          }
-        } else {
-          mostrarBanner('📋 Carimbo copiado! Cadastro original mantido.', 'status-info');
-        }
-      } else if (res.ok) {
-        mostrarBanner('✅ Novo site ' + site + ' salvo no banco e carimbo copiado!', 'status-found');
-      } else {
-        mostrarBanner('❌ Erro ao salvar no banco: ' + (json.error || json.erro || res.status), 'status-warn');
-      }
-    } catch (e) {
-      mostrarBanner('⚠️ Falha de rede ao salvar: ' + e.message, 'status-warn');
-    }
+          res = await fetch('/api/sites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          if (res.ok) mostrarBanner('🔄 Site ' + site + ' atualizado e carimbo copiado!', 'status-found');
+        } else { mostrarBanner('📋 Carimbo copiado!', 'status-info'); }
+      } else if (res.ok) { mostrarBanner('✅ Novo site ' + site + ' salvo e carimbo copiado!', 'status-found'); }
+    } catch (e) { mostrarBanner('📋 Carimbo copiado!', 'status-warn'); }
   }
-
-
   async function abrirListaSites() {
     document.getElementById('modalSites').style.display = 'flex';
-    document.getElementById('listaSitesConteudo').innerHTML = 'Carregando sites...';
-    try {
-      var res = await fetch('/api/sites?acao=listar');
-      var json = await res.json();
-      cacheSites = json.sites || [];
-      renderizarListaSites();
-    } catch (e) {
-      document.getElementById('listaSitesConteudo').innerHTML = 'Erro ao carregar lista.';
-    }
+    document.getElementById('listaSitesConteudo').innerHTML = 'Carregando...';
+    var res = await fetch('/api/sites?acao=listar');
+    var json = await res.json();
+    cacheSites = json.sites || [];
+    renderizarListaSites();
   }
 
   function renderizarListaSites() {
     var termo = document.getElementById('filtroSites').value.trim().toLowerCase();
     var filtrados = cacheSites.filter(function(s) {
-      return (s.site || '').toLowerCase().includes(termo) ||
-             (s.detentora || '').toLowerCase().includes(termo) ||
-             (s.rota || '').toLowerCase().includes(termo) ||
-             (s.endereco_ponta_a || '').toLowerCase().includes(termo);
+      return (s.site || '').toLowerCase().includes(termo) || (s.detentora || '').toLowerCase().includes(termo) ||
+             (s.rota || '').toLowerCase().includes(termo) || (s.endereco_ponta_a || '').toLowerCase().includes(termo);
     });
-
-    if (filtrados.length === 0) {
-      document.getElementById('listaSitesConteudo').innerHTML = '<p style="color:var(--muted);">Nenhum site encontrado.</p>';
-      return;
-    }
-
     var html = '';
     filtrados.forEach(function(s) {
-      html += '<div class="site-item">' +
-        '<div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(\'' + s.site + '\')">' +
-          '<strong style="color:#60a5fa; font-size:1rem;">' + s.site + '</strong> ' +
-          '<span style="color:#94a3b8; font-size:0.82rem;">(' + (s.detentora || 'Sem detentora') + ')</span><br>' +
-          '<span style="font-size:0.8rem; color:#cbd5e1;">' + (s.endereco_ponta_a || s.rota || 'Sem endereço') + '</span>' +
-        '</div>' +
-        '<div style="display:flex; gap:6px;">' +
-          '<button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(\'' + s.site + '\')">Abrir</button>' +
-          '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(\'' + s.site + '\')">🗑️</button>' +
-        '</div>' +
-      '</div>';
+      html += '<div class="site-item"><div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(\'' + s.site + '\')">' +
+        '<strong style="color:#60a5fa;">' + s.site + '</strong> <span style="color:#94a3b8; font-size:0.82rem;">(' + (s.detentora || '-') + ')</span><br>' +
+        '<span style="font-size:0.8rem; color:#cbd5e1;">' + (s.endereco_ponta_a || s.rota || '') + '</span></div>' +
+        '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(\'' + s.site + '\')">Abrir</button>' +
+        '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(\'' + s.site + '\')">🗑️</button></div></div>';
     });
-    document.getElementById('listaSitesConteudo').innerHTML = html;
+    document.getElementById('listaSitesConteudo').innerHTML = html || '<p>Nenhum site encontrado.</p>';
   }
 
   function selecionarSiteDaLista(codigo) {
-    var encontrado = cacheSites.find(function(s) { return s.site === codigo; });
-    if (encontrado) {
-      preencherCamposComSite(encontrado);
-      fecharModal('modalSites');
-      mostrarBanner('✅ Site ' + codigo + ' carregado da lista!', 'status-found');
-    }
+    var s = cacheSites.find(function(item) { return item.site === codigo; });
+    if (s) { preencherCamposComSite(s); fecharModal('modalSites'); mostrarBanner('✅ Site ' + codigo + ' carregado!', 'status-found'); }
   }
 
   async function excluirSiteComSenha(siteCodigo) {
     var site = (siteCodigo || '').trim().toUpperCase();
-    if (!site) { alert('Informe ou selecione um site para excluir.'); return; }
-
-    var senha = prompt('⚠️ EXCLUSÃO DE SITE (' + site + ')\n\nDigite a SENHA DE ADMINISTRADOR para confirmar:');
+    if (!site) return;
+    var senha = prompt('Digite a SENHA DE ADMINISTRADOR para excluir ' + site + ':');
     if (!senha) return;
-
-    try {
-      var res = await fetch('/api/sites?site=' + encodeURIComponent(site) + '&senha=' + encodeURIComponent(senha), {
-        method: 'DELETE'
-      });
-      var json = await res.json();
-      if (res.ok && json.sucesso) {
-        alert('🗑️ Site ' + site + ' excluído com sucesso!');
-        if (document.getElementById('modalSites').style.display === 'flex') abrirListaSites();
-        if (document.getElementById('site').value.toUpperCase() === site) limparFormulario();
-      } else {
-        alert('❌ ' + (json.erro || 'Senha incorreta. Exclusão negada.'));
-      }
-    } catch (e) {
-      alert('Erro ao conectar com o servidor.');
-    }
+    var res = await fetch('/api/sites?site=' + encodeURIComponent(site) + '&senha=' + encodeURIComponent(senha), { method: 'DELETE' });
+    if (res.ok) { alert('🗑️ Site excluído!'); if (document.getElementById('modalSites').style.display === 'flex') abrirListaSites(); }
+    else alert('❌ Senha incorreta.');
   }
-  function carregarScriptExcel() {
+
+  function carregarLib(url) {
     return new Promise(function(resolve, reject) {
-      if (typeof ExcelJS !== 'undefined') return resolve();
-      var urls = [
-        'https://cdn.jsdelivr.' + 'net/npm/exceljs@4.4.0/dist/exceljs.min.js',
-        'https://unpkg.' + 'com/exceljs@4.4.0/dist/exceljs.min.js'
-      ];
-      var tentar = function(i) {
-        if (i >= urls.length) return reject(new Error('Bloqueio de rede ao baixar biblioteca ExcelJS.'));
-        var s = document.createElement('script');
-        s.src = urls[i];
-        s.onload = resolve;
-        s.onerror = function() { tentar(i + 1); };
-        document.head.appendChild(s);
-      };
-      tentar(0);
+      var s = document.createElement('script'); s.src = url; s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
     });
   }
 
-
-    function extrairCidadeDoEndereco(endereco) {
-    if (!endereco) return 'NÃO INFORMADA';
-    var limpo = endereco.replace(/\d{5}-?\d{3}/g, '').replace(/\(Coord:.*?\)/gi, '').trim();
-    var partes = limpo.split(',').map(function(p) { return p.trim(); }).filter(Boolean);
-
+  function extrairCidade(end) {
+    if (!end) return 'NÃO INFORMADA';
+    var partes = end.replace(/\d{5}-?\d{3}/g, '').split(',').map(function(p) { return p.trim(); }).filter(Boolean);
     for (var i = partes.length - 1; i >= 0; i--) {
-      var trecho = partes.slice(i, i + 1).join('');
-      if (trecho.indexOf(' - ') !== -1) {
-        var cidade = trecho.split(' - ').shift().trim();
-        if (cidade && cidade.length > 2) return cidade.toUpperCase();
-      }
+      var t = partes.slice(i, i + 1).join('');
+      if (t.indexOf(' - ') !== -1) return t.split(' - ').shift().trim().toUpperCase();
     }
-    if (partes.length >= 2) {
-      var ultima = partes.slice(-1).join('');
-      if (ultima && ultima.length > 2 && !/^\d+$/.test(ultima)) {
-        return ultima.toUpperCase();
-      }
-    }
-    return 'NÃO INFORMADA';
-  }
-
-    if (partes.length >= 2) {
-      var ultima = partes[partes.length - 1];
-      if (ultima && ultima.length > 2 && !/^\d+$/.test(ultima)) {
-        return ultima.toUpperCase();
-      }
-    }
-    return 'NÃO INFORMADA';
+    return partes.length >= 2 ? partes.slice(-1).join('').toUpperCase() : 'NÃO INFORMADA';
   }
 
   async function exportarCSV() {
-    mostrarBanner('📊 Gerando planilha Excel executiva com 3 abas...', 'status-info');
-
+    mostrarBanner('📊 Gerando Excel com 3 abas...', 'status-info');
     try {
-      await carregarScriptExcel();
-
+      if (typeof ExcelJS === 'undefined') await carregarLib('https://cdn.jsdelivr.' + 'net/npm/exceljs@4.4.0/dist/exceljs.min.js');
       var res = await fetch('/api/sites?acao=listar');
       var json = await res.json();
-      var lista = json.sites || [];
-      if (lista.length === 0) {
-        mostrarBanner('⚠️ Nenhum site salvo no banco para exportar.', 'status-warn');
-        return;
-      }
+      var dados = (json.sites || []).map(function(s) { return Object.assign({}, s, { cidade: extrairCidade(s.endereco_ponta_a) }); });
+      if (!dados.length) { mostrarBanner('⚠️ Base vazia.', 'status-warn'); return; }
 
-      var dadosTratados = lista.map(function(s) {
-        return Object.assign({}, s, { cidade: extrairCidadeDoEndereco(s.endereco_ponta_a) });
-      });
-
-      var mapaCidades = {};
-      dadosTratados.forEach(function(s) {
-        mapaCidades[s.cidade] = (mapaCidades[s.cidade] || 0) + 1;
-      });
-
-      var resumoCidades = Object.keys(mapaCidades).map(function(cid) {
-        return { cidade: cid, qtd: mapaCidades[cid] };
-      }).sort(function(a, b) {
-        return b.qtd - a.qtd || a.cidade.localeCompare(b.cidade);
-      });
+      var mapa = {}; dados.forEach(function(s) { mapa[s.cidade] = (mapa[s.cidade] || 0) + 1; });
+      var resumo = Object.keys(mapa).map(function(c) { return { cidade: c, qtd: mapa[c] }; }).sort(function(a, b) { return b.qtd - a.qtd || a.cidade.localeCompare(b.cidade); });
 
       var wb = new ExcelJS.Workbook();
-      wb.creator = 'Gerador de Carimbos CIRE';
-      wb.created = new Date();
+      var hStyle = { font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } } };
 
-      var estiloCabecalho = {
-        font: { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } },
-        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } },
-        alignment: { vertical: 'middle', horizontal: 'center' },
-        border: {
-          top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-          bottom: { style: 'medium', color: { argb: 'FF0F172A' } },
-          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-          right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
-        }
-      };
-
-      var aplicarEstiloLinha = function(row, idx) {
-        var corFundo = idx % 2 === 0 ? 'FFF8FAFC' : 'FFFFFFFF';
-        row.eachCell(function(cell) {
-          cell.font = { name: 'Calibri', size: 10, color: { argb: 'FF1E293B' } };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: corFundo } };
-          cell.border = {
-            top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-            bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-            left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-            right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
-          };
-          cell.alignment = { vertical: 'middle' };
-        });
-      };
-
-      // ABA 1: RESUMO POR CIDADE (QUANTIDADE)
-      var wsResumo = wb.addWorksheet('Resumo por Cidade', { views: [{ showGridLines: true }] });
-      wsResumo.columns = [
-        { header: 'CIDADE', key: 'cidade', width: 32 },
-        { header: 'QTD. DE SITES', key: 'qtd', width: 18 },
-        { header: '% DO TOTAL', key: 'perc', width: 16 }
+      var ws1 = wb.addWorksheet('Resumo por Cidade');
+      ws1.columns = [{ header: 'CIDADE', key: 'cidade', width: 32 }, { header: 'QTD. SITES', key: 'qtd', width: 16 }, { header: '% TOTAL', key: 'perc', width: 14 }];
+      ws1.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
+      resumo.forEach(function(item) { ws1.addRow({ cidade: item.cidade, qtd: item.qtd, perc: ((item.qtd / dados.length) * 100).toFixed(1) + '%' }); });
+      ws1.addRow({ cidade: 'TOTAL GERAL', qtd: dados.length, perc: '100%' }).font = { bold: true };
+      var ws2 = wb.addWorksheet('Sites por Cidade');
+      ws2.columns = [
+        { header: 'CIDADE', key: 'cidade', width: 24 }, { header: 'SITE', key: 'site', width: 20 },
+        { header: 'DETENTORA', key: 'detentora', width: 18 }, { header: 'ID', key: 'id_acesso', width: 15 },
+        { header: 'PORTÃO', key: 'portao', width: 18 }, { header: 'GABINETE', key: 'gabinete', width: 18 },
+        { header: 'ROTA', key: 'rota', width: 24 }, { header: 'ENDEREÇO', key: 'endereco', width: 45 }
       ];
-      wsResumo.getRow(1).height = 28;
-      wsResumo.getRow(1).eachCell(function(c) { Object.assign(c, estiloCabecalho); });
-
-      var totalSites = dadosTratados.length;
-      resumoCidades.forEach(function(item, i) {
-        var r = wsResumo.addRow({
-          cidade: item.cidade,
-          qtd: item.qtd,
-          perc: ((item.qtd / totalSites) * 100).toFixed(1) + '%'
+      ws2.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
+      dados.slice().sort(function(a, b) { return a.cidade.localeCompare(b.cidade) || (a.site || '').localeCompare(b.site || ''); })
+        .forEach(function(s) {
+          ws2.addRow({ cidade: s.cidade, site: s.site, detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '', rota: s.rota || '', endereco: s.endereco_ponta_a || '' });
         });
-        r.height = 22;
-        aplicarEstiloLinha(r, i);
-        r.getCell('qtd').alignment = { vertical: 'middle', horizontal: 'center' };
-        r.getCell('perc').alignment = { vertical: 'middle', horizontal: 'center' };
-      });
 
-      var rowTotal = wsResumo.addRow({ cidade: 'TOTAL GERAL', qtd: totalSites, perc: '100%' });
-      rowTotal.height = 26;
-      rowTotal.eachCell(function(c) {
-        c.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
-        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
-        c.border = { top: { style: 'medium', color: { argb: 'FF1E3A8A' } }, bottom: { style: 'double', color: { argb: 'FF1E3A8A' } } };
-      });
-      rowTotal.getCell('qtd').alignment = { vertical: 'middle', horizontal: 'center' };
-      rowTotal.getCell('perc').alignment = { vertical: 'middle', horizontal: 'center' };
-
-      // ABA 2: SITES ORDENADOS POR CIDADE
-      var wsPorCidade = wb.addWorksheet('Sites por Cidade');
-      wsPorCidade.columns = [
-        { header: 'CIDADE', key: 'cidade', width: 24 },
-        { header: 'SITE', key: 'site', width: 20 },
-        { header: 'DETENTORA', key: 'detentora', width: 18 },
-        { header: 'ID ACESSO', key: 'id_acesso', width: 16 },
-        { header: 'PORTÃO', key: 'portao', width: 18 },
-        { header: 'GABINETE', key: 'gabinete', width: 18 },
-        { header: 'ROTA', key: 'rota', width: 24 },
-        { header: 'ENDEREÇO', key: 'endereco', width: 45 },
-        { header: 'RODAPÉ / OBS', key: 'rodape', width: 28 }
+      var ws3 = wb.addWorksheet('Base Completa');
+      ws3.columns = [
+        { header: 'SITE', key: 'site', width: 20 }, { header: 'CIDADE', key: 'cidade', width: 22 },
+        { header: 'ROTA', key: 'rota', width: 24 }, { header: 'ENDEREÇO', key: 'endereco', width: 45 },
+        { header: 'DETENTORA', key: 'detentora', width: 18 }, { header: 'ID', key: 'id_acesso', width: 15 },
+        { header: 'PORTÃO', key: 'portao', width: 18 }, { header: 'GABINETE', key: 'gabinete', width: 18 },
+        { header: 'MEDIDOR', key: 'medidor', width: 15 }, { header: 'UC', key: 'uc', width: 15 },
+        { header: 'MAPS', key: 'link_maps', width: 32 }, { header: 'OBS', key: 'obs', width: 28 },
+        { header: 'ATUALIZADO POR', key: 'atualizado_por', width: 20 }
       ];
-      wsPorCidade.getRow(1).height = 28;
-      wsPorCidade.getRow(1).eachCell(function(c) { Object.assign(c, estiloCabecalho); });
-
-      var ordenadosCidade = dadosTratados.slice().sort(function(a, b) {
-        return a.cidade.localeCompare(b.cidade) || (a.site || '').localeCompare(b.site || '');
+      ws3.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
+      dados.forEach(function(s) {
+        ws3.addRow({ site: s.site, cidade: s.cidade, rota: s.rota || '', endereco: s.endereco_ponta_a || '', detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '', medidor: s.medidor || '', uc: s.uc || '', link_maps: s.link_maps || '', obs: s.obs || '', atualizado_por: s.atualizado_por || '' });
       });
 
-      ordenadosCidade.forEach(function(s, i) {
-        var r = wsPorCidade.addRow({
-          cidade: s.cidade, site: s.site, detentora: s.detentora || '', id_acesso: s.id_acesso || '',
-          portao: s.portao || '', gabinete: s.gabinete || '', rota: s.rota || '',
-          endereco: s.endereco_ponta_a || '', rodape: [s.rodape, s.obs].filter(Boolean).join(' | ')
-        });
-        r.height = 22;
-        aplicarEstiloLinha(r, i);
-        r.getCell('site').font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF1E3A8A' } };
-      });
-
-      // ABA 3: BASE COMPLETA
-      var wsGeral = wb.addWorksheet('Base Completa');
-      wsGeral.columns = [
-        { header: 'SITE', key: 'site', width: 20 },
-        { header: 'CIDADE', key: 'cidade', width: 22 },
-        { header: 'ROTA', key: 'rota', width: 24 },
-        { header: 'PONTA A', key: 'ponta_a', width: 14 },
-        { header: 'ENDEREÇO', key: 'endereco', width: 45 },
-        { header: 'DETENTORA', key: 'detentora', width: 18 },
-        { header: 'ID', key: 'id_acesso', width: 15 },
-        { header: 'PORTÃO', key: 'portao', width: 18 },
-        { header: 'GABINETE', key: 'gabinete', width: 18 },
-        { header: 'MEDIDOR', key: 'medidor', width: 15 },
-        { header: 'UC', key: 'uc', width: 15 },
-        { header: 'LINK MAPS', key: 'link_maps', width: 35 },
-        { header: 'EQUIPAMENTOS', key: 'equip1', width: 35 },
-        { header: 'RODAPÉ', key: 'rodape', width: 22 },
-        { header: 'OBS', key: 'obs', width: 30 },
-        { header: 'ATUALIZADO POR', key: 'atualizado_por', width: 22 }
-      ];
-      wsGeral.getRow(1).height = 28;
-      wsGeral.getRow(1).eachCell(function(c) { Object.assign(c, estiloCabecalho); });
-
-      dadosTratados.forEach(function(s, i) {
-        var r = wsGeral.addRow({
-          site: s.site, cidade: s.cidade, rota: s.rota || '', ponta_a: s.ponta_a || '',
-          endereco: s.endereco_ponta_a || '', detentora: s.detentora || '', id_acesso: s.id_acesso || '',
-          portao: s.portao || '', gabinete: s.gabinete || '', medidor: s.medidor || '', uc: s.uc || '',
-          link_maps: s.link_maps || '', equip1: (s.equip1 || '').replace(/\n/g, ' | '),
-          rodape: s.rodape || '', obs: s.obs || '', atualizado_por: s.atualizado_por || ''
-        });
-        r.height = 22;
-        aplicarEstiloLinha(r, i);
-      });
-
-      var buffer = await wb.xlsx.writeBuffer();
-      var blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      var buf = await wb.xlsx.writeBuffer();
       var link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      var hoje = new Date().toISOString().slice(0, 10);
-      link.download = 'Base_Sites_CIRE_' + hoje + '.xlsx';
+      link.href = URL.createObjectURL(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      link.download = 'Base_Sites_CIRE_' + new Date().toISOString().slice(0, 10) + '.xlsx';
       link.click();
-
-      mostrarBanner('✅ Planilha Excel (3 abas) gerada e baixada com sucesso!', 'status-found');
-    } catch (e) {
-      mostrarBanner('❌ Erro ao gerar Excel: ' + e.message, 'status-warn');
-    }
+      mostrarBanner('✅ Planilha Excel (3 abas) baixada com sucesso!', 'status-found');
+    } catch (e) { mostrarBanner('❌ Erro Excel: ' + e.message, 'status-warn'); }
   }
 
-  
-
-  async function abrirPainelAdmin() {
-    document.getElementById('modalAdmin').style.display = 'flex';
-    carregarListaUsuarios();
-  }
-
-    var cacheUsuarios = [];
+  function abrirPainelAdmin() { document.getElementById('modalAdmin').style.display = 'flex'; carregarListaUsuarios(); }
 
   async function carregarListaUsuarios() {
     var res = await fetch('/api/sites?acao=usuarios');
@@ -878,16 +566,9 @@
     cacheUsuarios = json.usuarios || [];
     var html = '';
     cacheUsuarios.forEach(function(u) {
-      html += '<div class="site-item">' +
-        '<div><strong>' + u.nome_completo + '</strong> (' + u.usuario + ')<br>' +
-        '<span style="font-size:0.8rem; color:var(--muted);">' + (u.contato || 'Sem telefone') + '</span></div>' +
-        '<div style="display:flex; gap:6px; align-items:center;">' +
-          '<button type="button" class="btn-primary btn-sm" onclick="editarTecnico(' + u.id + ')">✏️ Editar</button>' +
-          (u.is_admin === 0
-            ? '<button type="button" class="btn-danger btn-sm" onclick="removerTecnico(' + u.id + ')">Remover</button>'
-            : '<span style="color:#6ee7b7; font-size:0.8rem; padding:0 6px;">Admin</span>') +
-        '</div>' +
-      '</div>';
+      html += '<div class="site-item"><div><strong>' + u.nome_completo + '</strong> (' + u.usuario + ')<br><span style="font-size:0.8rem; color:var(--muted);">' + (u.contato || '') + '</span></div>' +
+        '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="editarTecnico(' + u.id + ')">✏️ Editar</button>' +
+        (u.is_admin === 0 ? '<button type="button" class="btn-danger btn-sm" onclick="removerTecnico(' + u.id + ')">Remover</button>' : '<span style="color:#6ee7b7; font-size:0.8rem;">Admin</span>') + '</div></div>';
     });
     document.getElementById('listaUsuariosConteudo').innerHTML = html;
   }
@@ -895,63 +576,44 @@
   async function editarTecnico(id) {
     var u = cacheUsuarios.find(function(item) { return item.id === id; });
     if (!u) return;
-
-    var novoNome = prompt('Nome Completo do técnico:', u.nome_completo);
-    if (novoNome === null) return;
-
-    var novoUser = prompt('Login de acesso:', u.usuario);
-    if (novoUser === null) return;
-
-    var novoContato = prompt('Telefone / Contato:', u.contato || '');
-    if (novoContato === null) return;
-
-    var novaSenha = prompt('Nova Senha (deixe em branco para manter a senha atual):', '');
-    if (novaSenha === null) return;
-
-    var senhaAdmin = prompt('Digite a SENHA DE ADMINISTRADOR para salvar as alterações:');
-    if (!senhaAdmin) return;
-
-    var res = await fetch('/api/sites', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        acao: 'editar_usuario',
-        usuarioId: id,
-        novoUsuario: novoUser,
-        novaSenha: novaSenha,
-        nomeCompleto: novoNome,
-        contato: novoContato,
-        senhaAdmin: senhaAdmin
-      })
-    });
-    var json = await res.json();
-    if (res.ok && json.sucesso) {
-      carregarListaUsuarios();
-      alert('✅ Cadastro do técnico atualizado com sucesso!');
-    } else {
-      alert('❌ ' + (json.erro || 'Erro ao editar técnico.'));
-    }
+    var nome = prompt('Nome Completo:', u.nome_completo); if (nome === null) return;
+    var user = prompt('Login:', u.usuario); if (user === null) return;
+    var tel = prompt('Telefone:', u.contato || ''); if (tel === null) return;
+    var senha = prompt('Nova Senha (vazio para manter):', ''); if (senha === null) return;
+    var adm = prompt('Senha Admin para confirmar:'); if (!adm) return;
+    var res = await fetch('/api/sites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'editar_usuario', usuarioId: id, novoUsuario: user, novaSenha: senha, nomeCompleto: nome, contato: tel, senhaAdmin: adm }) });
+    if (res.ok) { carregarListaUsuarios(); alert('✅ Técnico atualizado!'); } else alert('❌ Senha admin incorreta.');
   }
 
+  async function criarTecnico() {
+    var u = document.getElementById('novoUser').value.trim(), s = document.getElementById('novaSenha').value.trim(), n = document.getElementById('novoNome').value.trim(), c = document.getElementById('novoContato').value.trim();
+    if (!u || !s || !n) { alert('Preencha login, senha e nome.'); return; }
+    var adm = prompt('Senha Admin para criar técnico:'); if (!adm) return;
+    var res = await fetch('/api/sites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'criar_usuario', novoUsuario: u, novaSenha: s, nomeCompleto: n, contato: c, senhaAdmin: adm }) });
+    if (res.ok) { document.getElementById('novoUser').value = ''; document.getElementById('novaSenha').value = ''; document.getElementById('novoNome').value = ''; document.getElementById('novoContato').value = ''; carregarListaUsuarios(); alert('✅ Cadastrado!'); }
+    else alert('❌ Senha admin incorreta.');
+  }
+
+  async function removerTecnico(id) {
+    var adm = prompt('Senha Admin para remover:'); if (!adm) return;
+    var res = await fetch('/api/sites?usuarioId=' + id + '&senha=' + encodeURIComponent(adm), { method: 'DELETE' });
+    if (res.ok) carregarListaUsuarios(); else alert('Senha incorreta.');
+  }
 
   function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
 
-  function baixarImagem() {
-    var el = document.getElementById('carimboPreview');
-    html2canvas(el, { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
+  async function baixarImagem() {
+    if (typeof html2canvas === 'undefined') await carregarLib('https://cdn.jsdelivr.' + 'net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+    html2canvas(document.getElementById('carimboPreview'), { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
       var link = document.createElement('a');
       link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
-      link.href = canvas.toDataURL();
-      link.click();
+      link.href = canvas.toDataURL(); link.click();
     });
   }
 
   function limparFormulario() {
-    document.querySelectorAll('input, textarea').forEach(function(el) {
-      if (el.type !== 'date' && el.id !== 'tecnico' && el.id !== 'contato') el.value = '';
-    });
-    atualizarPreview();
-    document.getElementById('dbBanner').style.display = 'none';
+    document.querySelectorAll('input, textarea').forEach(function(el) { if (el.type !== 'date' && el.id !== 'tecnico' && el.id !== 'contato') el.value = ''; });
+    atualizarPreview(); document.getElementById('dbBanner').style.display = 'none';
   }
 </script>
 </body>
