@@ -81,6 +81,34 @@ export async function onRequestPost(context) {
       ).run();
       return Response.json({ sucesso: true });
     }
+        // 2B. ROTA PARA ADMIN EDITAR TÉCNICO EXISTENTE
+    if (dados.acao === 'editar_usuario') {
+      if (dados.senhaAdmin !== SENHA_EXCLUSAO_ADMIN) {
+        return Response.json({ erro: "Senha de administrador incorreta." }, { status: 403 });
+      }
+      if (dados.novaSenha && dados.novaSenha.trim() !== '') {
+        await context.env.DB.prepare(
+          "UPDATE usuarios SET usuario = ?, senha = ?, nome_completo = ?, contato = ? WHERE id = ?"
+        ).bind(
+          dados.novoUsuario.trim().toLowerCase(),
+          dados.novaSenha.trim(),
+          dados.nomeCompleto.trim(),
+          dados.contato?.trim() || '',
+          dados.usuarioId
+        ).run();
+      } else {
+        await context.env.DB.prepare(
+          "UPDATE usuarios SET usuario = ?, nome_completo = ?, contato = ? WHERE id = ?"
+        ).bind(
+          dados.novoUsuario.trim().toLowerCase(),
+          dados.nomeCompleto.trim(),
+          dados.contato?.trim() || '',
+          dados.usuarioId
+        ).run();
+      }
+      return Response.json({ sucesso: true });
+    }
+
 
     // 3. ROTA PARA SALVAR OU MELHORAR SITE
     let siteNome = dados.site?.trim().toUpperCase();
