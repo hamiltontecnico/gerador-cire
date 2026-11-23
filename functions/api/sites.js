@@ -23,18 +23,29 @@ export async function onRequestGet(context) {
       return Response.json({ usuarios: results || [] });
     }
 
-    // Pesquisar um site específico
+        // Pesquisar um site específico (busca exata primeiro, depois parcial)
     if (!site) {
       return Response.json({ error: "Informe o nome do site" }, { status: 400 });
     }
 
-    const registro = await context.env.DB.prepare(
+    let registro = await context.env.DB.prepare(
       "SELECT * FROM sites_cire WHERE site = ? COLLATE NOCASE"
     ).bind(site).first();
 
+    if (!registro) {
+      registro = await context.env.DB.prepare(
+        "SELECT * FROM sites_cire WHERE site LIKE ? COLLATE NOCASE ORDER BY LENGTH(site) ASC LIMIT 1"
+      ).bind(site + '%').first();
+    }
+
+    if (!registro) {
+      registro = await context.env.DB.prepare(
+        "SELECT * FROM sites_cire WHERE site LIKE ? COLLATE NOCASE ORDER BY LENGTH(site) ASC LIMIT 1"
+      ).bind('%' + site + '%').first();
+    }
+
     return Response.json({ encontrado: !!registro, dados: registro || null });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+
   }
 }
 
