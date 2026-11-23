@@ -660,18 +660,27 @@
   }
 
 
-  function extrairCidadeDoEndereco(endereco) {
+    function extrairCidadeDoEndereco(endereco) {
     if (!endereco) return 'NÃO INFORMADA';
     var limpo = endereco.replace(/\d{5}-?\d{3}/g, '').replace(/\(Coord:.*?\)/gi, '').trim();
     var partes = limpo.split(',').map(function(p) { return p.trim(); }).filter(Boolean);
 
     for (var i = partes.length - 1; i >= 0; i--) {
-      var trecho = partes[i];
+      var trecho = partes.slice(i, i + 1).join('');
       if (trecho.indexOf(' - ') !== -1) {
-        var cidade = trecho.split(' - ').trim();
+        var cidade = trecho.split(' - ').shift().trim();
         if (cidade && cidade.length > 2) return cidade.toUpperCase();
       }
     }
+    if (partes.length >= 2) {
+      var ultima = partes.slice(-1).join('');
+      if (ultima && ultima.length > 2 && !/^\d+$/.test(ultima)) {
+        return ultima.toUpperCase();
+      }
+    }
+    return 'NÃO INFORMADA';
+  }
+
     if (partes.length >= 2) {
       var ultima = partes[partes.length - 1];
       if (ultima && ultima.length > 2 && !/^\d+$/.test(ultima)) {
