@@ -137,3 +137,5 @@ export async function onRequestDelete(context) {
     return Response.json({ sucesso: true, mensagem: "Site removido com sucesso." });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
+  }
+}
