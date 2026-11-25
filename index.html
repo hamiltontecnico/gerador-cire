@@ -702,7 +702,7 @@
     var link = document.getElementById('link_maps').value.trim();
     if (!link) { alert('Nenhum link de localização preenchido.'); return; }
     // Corrige caso tenha link antigo sem /maps?q=
-    link = link.replace(/^https?:\/\/(www\.)?google\.com(-?\d)/i, 'https://google.com$2');
+    link = link.replace(/^https?:\/\/(www\.)?google\.com(-?\d)/i, 'https://google.com');
     if (!/^https?:\/\//i.test(link)) {
       link = 'https:' + '//://google.com' + encodeURIComponent(link);
     }
