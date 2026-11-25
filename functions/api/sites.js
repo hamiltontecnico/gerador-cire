@@ -91,15 +91,23 @@ export async function onRequestPost(context) {
         atualizado_em = CURRENT_TIMESTAMP
     `;
 
-    if (dados.acao === 'importar_lote') {
+      if (dados.acao === 'importar_lote') {
       if (dados.senhaAdmin !== SENHA_EXCLUSAO_ADMIN) return Response.json({ erro: "Senha de administrador incorreta." }, { status: 403 });
       const lista = dados.sites || [];
       if (!Array.isArray(lista) || lista.length === 0) return Response.json({ erro: "Nenhum site válido encontrado." }, { status: 400 });
+      const txt = (v) => Array.isArray(v) ? String(v[0] || '').trim() : String(v || '').trim();
       const stmt = context.env.DB.prepare(SQL_UPSERT_SITE);
-      const batch = lista.map((s) => stmt.bind((s.site || '').trim().toUpperCase(), s.rota || '', s.ponta_a || '', s.endereco_ponta_a || '', s.ponta_b || '', s.endereco_ponta_b || '', s.afetacao || '', s.cabo1 || '', s.fibra1 || '', s.dist_ab1 || '', s.dist_ba1 || '', s.dist_total1 || '', s.equip1 || '', s.cabo2 || '', s.fibra2 || '', s.dist_ab2 || '', s.dist_ba2 || '', s.dist_total2 || '', s.equip2 || '', s.detentora || '', s.id_acesso || '', s.portao || '', s.gabinete || '', s.medidor || '', s.uc || '', s.link_maps || '', s.obs || '', s.rodape || '', dados.atualizado_por || 'Admin (Importação)'));
+      const batch = lista.map((s) => stmt.bind(
+        txt(s.site).toUpperCase(), txt(s.rota), txt(s.ponta_a), txt(s.endereco_ponta_a), txt(s.ponta_b), txt(s.endereco_ponta_b), txt(s.afetacao),
+        txt(s.cabo1), txt(s.fibra1), txt(s.dist_ab1), txt(s.dist_ba1), txt(s.dist_total1), txt(s.equip1),
+        txt(s.cabo2), txt(s.fibra2), txt(s.dist_ab2), txt(s.dist_ba2), txt(s.dist_total2), txt(s.equip2),
+        txt(s.detentora), txt(s.id_acesso), txt(s.portao), txt(s.gabinete), txt(s.medidor), txt(s.uc), txt(s.link_maps), txt(s.obs), txt(s.rodape),
+        txt(dados.atualizado_por || 'Admin (Importação)')
+      ));
       await context.env.DB.batch(batch);
       return Response.json({ sucesso: true, total: batch.length });
     }
+
 
     let siteNome = dados.site?.trim().toUpperCase();
     if (!siteNome) return Response.json({ error: "O campo Site é obrigatório." }, { status: 400 });
