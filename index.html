@@ -160,7 +160,7 @@
           <div><label>Medidor</label><input type="text" id="medidor" /></div>
           <div><label>UC</label><input type="text" id="uc" /></div>
         </div>
-        <div class="full"><label>Instrução / Rodapé (Ex: LEVAR ESCADA)</label><input type="text" id="rodape" /></div>
+        <div class="full"><label>Instrução / Rodapé (Ex: LEVAR ESCADA)</label><textarea id="rodape" rows="3" placeholder="Ex: LEVAR ESCADA&#10;CHAVE COM PORTEIRO..."></textarea></div>
       </div>
 
       <div class="card">
@@ -170,6 +170,7 @@
           <div class="input-with-btn">
             <input type="text" id="link_maps" placeholder="Clique em Pegar GPS ou cole o link..." />
             <button type="button" id="btnGps" class="btn-gps" onclick="capturarLocalizacaoCompleta('link')">📍 Pegar GPS</button>
+            <button type="button" class="btn-secondary" onclick="abrirLinkMaps()" title="Abrir no Google Maps">🗺️ Abrir</button>
           </div>
         </div>
         <div class="full"><label>OBS</label><textarea id="obs" rows="3"></textarea></div>
@@ -696,6 +697,17 @@
     atualizarPreview(); document.getElementById('dbBanner').style.display = 'none';
   }
 
+
+  function abrirLinkMaps() {
+    var link = document.getElementById('link_maps').value.trim();
+    if (!link) { alert('Nenhum link de localização preenchido.'); return; }
+    // Corrige caso tenha link antigo sem /maps?q=
+    link = link.replace(/^https?:\/\/(www\.)?google\.com(-?\d)/i, 'https://google.com$2');
+    if (!/^https?:\/\//i.test(link)) {
+      link = 'https:' + '//://google.com' + encodeURIComponent(link);
+    }
+    window.open(link, '_blank');
+  }
 </script>
 </body>
 </html>
