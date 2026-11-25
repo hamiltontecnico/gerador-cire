@@ -493,11 +493,12 @@
     var senhaAdmin = prompt('Digite a SENHA DE ADMINISTRADOR para importar ' + files.length + ' arquivo(s):');
     if (!senhaAdmin) return;
 
-    var pegarCampo = function(texto, chave) {
-      var regex = new RegExp('\\*' + chave + '\\s*:\\*\\s*(.*)', 'i');
+     var pegarCampo = function(texto, chave) {
+      var regex = new RegExp('\\*' + chave + '[ \\t]*:\\*[ \\t]*([^\\r\\n]*)', 'i');
       var m = String(texto || '').match(regex);
-      return m && m ? m.trim() : '';
+      return m && m[1] ? m[1].trim() : '';
     };
+
     var limparDist = function(v) {
       var s = String(v || '').replace(/\s*mts/i, '').trim();
       return /^x+$/i.test(s) ? '' : s;
