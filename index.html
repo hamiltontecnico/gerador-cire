@@ -320,30 +320,76 @@
   function enviarWhatsApp() { window.location.href = 'https://wa.me' + encodeURIComponent(montarTextoCarimbo()); }
 
   function capturarLocalizacaoCompleta(origem) {
-    var btnEnd = document.getElementById('btnEndGps'), btnLink = document.getElementById('btnGps'), campoEndereco = document.getElementById('endereco_ponta_a'), campoMaps = document.getElementById('link_maps');
+    var btnEnd = document.getElementById('btnEndGps'), btnLink = document.getElementById('btnGps');
+    var campoEndereco = document.getElementById('endereco_ponta_a'), campoMaps = document.getElementById('link_maps');
     if (!navigator.geolocation) { alert('Navegador sem suporte a GPS.'); return; }
     btnEnd.disabled = true; btnLink.disabled = true;
-    if (origem === 'endereco') btnEnd.textContent = '⏳...'; if (origem === 'link') btnLink.textContent = '⏳...';
+    if (origem === 'endereco') btnEnd.textContent = '⏳...';
+    if (origem === 'link') btnLink.textContent = '⏳...';
+
     navigator.geolocation.getCurrentPosition(async function(pos) {
       var lat = pos.coords.latitude.toFixed(6), lng = pos.coords.longitude.toFixed(6), precisao = Math.round(pos.coords.accuracy);
-      if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://google.com' + lat + ',' + lng;
+      var urlMaps = 'https:' + '//://google.com' + lat + ',' + lng;
+      if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = urlMaps;
+
       if (origem === 'endereco' || !campoEndereco.value.trim()) {
         var enderecoEncontrado = '';
+
+        // 1. Tenta Nominatim com parâmetros limpos
         try {
-          var resp = await fetch('https://openstreetmap.org' + lat + '&lon=' + lng);
-          var data = await resp.json();
-          if (data && data.address) {
-            var a = data.address, rua = a.road || a.pedestrian || a.street || a.highway || '', num = a.house_number ? ', ' + a.house_number : '', bairro = a.suburb || a.neighbourhood || a.district || '', cidade = a.city || a.town || a.village || a.municipality || '', estado = a.state || '', partes = [];
-            if (rua) partes.push(rua + num); if (bairro) partes.push(bairro);
-            if (cidade && estado) partes.push(cidade + ' - ' + estado); else if (cidade || estado) partes.push(cidade || estado);
-            if (partes.length > 0) enderecoEncontrado = partes.join(', ');
+          var r1 = await fetch('https:' + '//nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&accept-language=pt-BR&lat=' + lat + '&lon=' + lng);
+          if (r1.ok) {
+            var d1 = await r1.json();
+            if (d1 && d1.address) {
+              var a = d1.address;
+              var rua = a.road || a.pedestrian || a.street || a.avenue || a.highway || '';
+              var num = a.house_number ? ', ' + a.house_number : '';
+              var bairro = a.suburb || a.neighbourhood || a.quarter || a.district || '';
+              var cidade = a.city || a.town || a.village || a.municipality || '';
+              var uf = a['ISO3166-2-lvl4'] ? a['ISO3166-2-lvl4'].replace('BR-', '') : (a.state || '');
+              var partes = [];
+              if (rua) partes.push(rua + num);
+              if (bairro) partes.push(bairro);
+              if (cidade && uf) partes.push(cidade + ' - ' + uf);
+              else if (cidade) partes.push(cidade);
+              if (partes.length > 0) enderecoEncontrado = partes.join(', ');
+            }
           }
         } catch (e1) {}
+
+        // 2. Fallback automático via BigDataCloud (sem bloqueio CORS no navegador)
+        if (!enderecoEncontrado) {
+          try {
+            var r2 = await fetch('https:' + '//api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=pt');
+            if (r2.ok) {
+              var d2 = await r2.json();
+              var rua2 = d2.street || d2.thoroughfare || '';
+              var num2 = d2.streetNumber ? ', ' + d2.streetNumber : '';
+              var bairro2 = d2.locality || '';
+              var cidade2 = d2.city || d2.principalSubdivision || '';
+              var uf2 = d2.principalSubdivisionCode ? d2.principalSubdivisionCode.replace('BR-', '') : '';
+              var p2 = [];
+              if (rua2) p2.push(rua2 + num2);
+              if (bairro2 && bairro2 !== cidade2) p2.push(bairro2);
+              if (cidade2 && uf2) p2.push(cidade2 + ' - ' + uf2);
+              else if (cidade2) p2.push(cidade2);
+              if (p2.length > 0) enderecoEncontrado = p2.join(', ');
+            }
+          } catch (e2) {}
+        }
+
         campoEndereco.value = enderecoEncontrado || ('Coord: ' + lat + ', ' + lng);
       }
-      btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS'; btnEnd.disabled = false; btnLink.disabled = false; atualizarPreview();
-      mostrarBanner('📍 GPS capturado! (~' + precisao + 'm)', 'status-found');
-    }, function() { btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS'; btnEnd.disabled = false; btnLink.disabled = false; alert('Não foi possível obter o GPS.'); }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+
+      btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS';
+      btnEnd.disabled = false; btnLink.disabled = false;
+      atualizarPreview();
+      mostrarBanner('📍 GPS e endereço capturados! (~' + precisao + 'm)', 'status-found');
+    }, function() {
+      btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS';
+      btnEnd.disabled = false; btnLink.disabled = false;
+      alert('Não foi possível obter o GPS. Verifique a permissão de localização do navegador.');
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
   }
   function preencherCamposComSite(d) {
     document.getElementById('site').value = d.site || ''; espelharSite();
