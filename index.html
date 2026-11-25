@@ -152,10 +152,215 @@
         </div>
         <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip2" rows="3"></textarea></div>
       </div>
+            <div class="card">
+        <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
+        <div class="row">
+          <div><label>Site (Acesso)</label><input type="text" id="site_acesso" readonly /></div>
+          <div><label>Detentora</label><input type="text" id="detentora" /></div>
+        </div>
+        <div class="row-3">
+          <div><label>ID</label><input type="text" id="id_acesso" /></div>
+          <div><label>Portão</label><input type="text" id="portao" /></div>
+          <div><label>Gabinete</label><input type="text" id="gabinete" /></div>
+        </div>
+        <div class="row">
+          <div><label>Medidor</label><input type="text" id="medidor" /></div>
+          <div><label>UC</label><input type="text" id="uc" /></div>
+        </div>
+        <div class="full"><label>Instrução / Rodapé (Ex: LEVAR ESCADA)</label><input type="text" id="rodape" /></div>
+      </div>
+
+      <div class="card">
+        <h3>Notas e Localização</h3>
+        <div class="full">
+          <label>Link de Localização (GPS ou Google Maps)</label>
+          <div class="input-with-btn">
+            <input type="text" id="link_maps" placeholder="Clique em Pegar GPS ou cole o link..." />
+            <button type="button" id="btnGps" class="btn-gps" onclick="capturarLocalizacaoCompleta('link')">📍 Pegar GPS</button>
+          </div>
+        </div>
+        <div class="full"><label>OBS</label><textarea id="obs" rows="3"></textarea></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="position: sticky; top: 16px;">
+        <h3>Pré-visualização do Carimbo (Ao Vivo)</h3>
+        <div id="carimboPreview" class="preview-box"></div>
+
+        <div class="actions">
+          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar e Salvar</button>
+          <button type="button" class="btn-success" onclick="enviarWhatsApp()">📲 Enviar WhatsApp</button>
+          <button type="button" class="btn-secondary" onclick="baixarImagem()">📷 Baixar Imagem</button>
+          <button type="button" class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar Campos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modalSites" class="modal-bg">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; color:#60a5fa;">📋 Sites Cadastrados no Banco</h3>
+      <button type="button" class="btn-secondary btn-sm" onclick="fecharModal('modalSites')">Fechar ✖</button>
+    </div>
+    <input type="text" id="filtroSites" placeholder="Filtrar por site, detentora, rota ou endereço..." oninput="renderizarListaSites()" style="margin-bottom:12px;" />
+    <div id="listaSitesConteudo">Carregando...</div>
+  </div>
+</div>
+
+<div id="modalAdmin" class="modal-bg">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; color:#60a5fa;">👥 Gerenciar Técnicos</h3>
+      <button type="button" class="btn-secondary btn-sm" onclick="fecharModal('modalAdmin')">Fechar ✖</button>
+    </div>
+    <div class="row">
+      <input type="text" id="novoUser" placeholder="Login (ex: joao)" />
+      <input type="text" id="novaSenha" placeholder="Senha inicial" />
+    </div>
+    <div class="row">
+      <input type="text" id="novoNome" placeholder="Nome Completo (ex: João Silva)" />
+      <input type="text" id="novoContato" placeholder="Telefone (ex: 19 99999-0000)" />
+    </div>
+    <button type="button" class="btn-primary" style="width:100%; margin-bottom:14px;" onclick="criarTecnico()">+ Cadastrar Técnico</button>
+    <div id="listaUsuariosConteudo"></div>
+  </div>
+</div>
+
+<script>
+  var usuarioLogado = null;
+  var cacheSites = [];
+  var cacheUsuarios = [];
+
+  (function init() {
+    var salvo = localStorage.getItem('cire_user');
+    if (salvo) { usuarioLogado = JSON.parse(salvo); entrarNoApp(); }
+  })();
+
+  async function fazerLogin() {
+    var u = document.getElementById('loginUser').value.trim();
+    var s = document.getElementById('loginPass').value.trim();
+    var errEl = document.getElementById('loginErro');
+    errEl.style.display = 'none';
+    try {
+      var res = await fetch('/api/sites', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acao: 'login', usuario: u, senha: s })
+      });
+      var json = await res.json();
+      if (res.ok && json.sucesso) {
+        usuarioLogado = json.usuario;
+        localStorage.setItem('cire_user', JSON.stringify(usuarioLogado));
+        entrarNoApp();
+      } else {
+        errEl.textContent = json.erro || 'Usuário ou senha inválidos.';
+        errEl.style.display = 'block';
+      }
+    } catch (e) {
+      errEl.textContent = 'Erro de conexão com o servidor.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  function entrarNoApp() {
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('appBox').style.display = 'block';
+    document.getElementById('userInfo').textContent = '👤 Logado como: ' + usuarioLogado.nome_completo;
+    document.getElementById('tecnico').value = usuarioLogado.nome_completo || '';
+    document.getElementById('contato').value = usuarioLogado.contato || '';
+    if (usuarioLogado.is_admin === 1) {
+      document.getElementById('btnAdmin').style.display = 'inline-block';
+      document.getElementById('btnImportarAdmin').style.display = 'inline-block';
+    }
+    document.getElementById('data').valueAsDate = new Date();
+    atualizarPreview();
+  }
+
+  function sair() { localStorage.removeItem('cire_user'); location.reload(); }
+  function espelharSite() { document.getElementById('site_acesso').value = document.getElementById('site').value; atualizarPreview(); }
+
+  function mostrarBanner(texto, tipo) {
+    var banner = document.getElementById('dbBanner');
+    banner.textContent = texto;
+    banner.className = 'status-banner ' + tipo;
+    banner.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    var toast = document.getElementById('toastAviso');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toastAviso';
+      toast.style.cssText = 'position:fixed; top:20px; right:20px; z-index:9999; padding:14px 20px; border-radius:8px; font-weight:700; font-size:0.92rem; box-shadow:0 10px 25px rgba(0,0,0,0.5);';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = texto;
+    toast.style.background = tipo === 'status-found' ? '#059669' : (tipo === 'status-warn' ? '#d97706' : '#2563eb');
+    toast.style.color = '#ffffff';
+    toast.style.display = 'block';
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(function() { toast.style.display = 'none'; }, 5000);
+  }
+
+  function formatarMetros(valor, padrao) {
+    if (!valor) return padrao;
+    if (/mts|m$/i.test(valor)) return valor;
+    return valor + ' mts';
+  }
+
+  function montarTextoCarimbo() {
+    var v = function(id) { return document.getElementById(id).value.trim(); };
+    var site = v('site').toUpperCase();
+    var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
+    var texto = '***ABRIR CARIMBO CIRE***\n\n*Site:* ' + site + '\n*Data:* ' + dataFormatada + '\n*TA:* ' + v('ta') +
+      '\n*Técnico:* ' + v('tecnico') + '\n*Contato:* ' + v('contato') + '\n*Rota:* ' + v('rota') +
+      '\n*Ponta A:* ' + v('ponta_a') + '\n*Endereço:* ' + v('endereco_ponta_a') +
+      '\n*Ponta B:* ' + v('ponta_b') + '\n*Endereço:* ' + v('endereco_ponta_b') + '\n*Afetação:* ' + v('afetacao') +
+      '\n\n*Alça 1*\n*Cabo:* ' + (v('cabo1') || 'X') + '\n*Fibra:* ' + (v('fibra1') || 'XX') +
+      '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab1'), 'xxx mts') +
+      '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba1'), 'xxx mts') +
+      '\n*Distância  total:* ' + formatarMetros(v('dist_tot1'), 'XXX mts') + '\n' + (v('equip1') ? v('equip1') + '\n' : '');
+
+    if (v('cabo2') || v('fibra2') || v('dist_ab2') || v('dist_ba2') || v('dist_tot2') || v('equip2')) {
+      texto += '\n*Alça 2*\n*Cabo:* ' + (v('cabo2') || 'X') + '\n*Fibra:* ' + (v('fibra2') || 'XX') +
+        '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab2'), 'xxx mts') +
+        '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba2'), 'xxx mts') +
+        '\n*Distância  total:* ' + formatarMetros(v('dist_tot2'), 'XXX mts') + '\n' + (v('equip2') ? v('equip2') + '\n' : '');
+    }
+
+    texto += '\n\n*OBS:* ' + v('obs') + '\n\n*Localização*\n' + v('link_maps') +
+      '\n\n*### CARIMBO DE ACESSO AO SITE  ###*\n*Site:* ' + site + '\n*Detentora:* ' + v('detentora') +
+      '\n*ID :* ' + v('id_acesso') + '\n*Portão:* ' + v('portao') + '\n*Gabinete:* ' + v('gabinete') +
+      '\n*Medidor:* ' + v('medidor') + '\n*UC:* ' + v('uc');
+    if (v('rodape')) texto += '\n\n' + v('rodape');
+    return texto;
+  }
+
+  function atualizarPreview() { document.getElementById('carimboPreview').textContent = montarTextoCarimbo(); }
+  document.querySelectorAll('input, textarea').forEach(function(el) {
+    el.addEventListener('input', atualizarPreview);
+    el.addEventListener('change', atualizarPreview);
+  });
+
+  function enviarWhatsApp() { window.location.href = 'https://' + 'wa.me?text=' + encodeURIComponent(montarTextoCarimbo()); }
+
+  function capturarLocalizacaoCompleta(origem) {
+    var btnEnd = document.getElementById('btnEndGps');
+    var btnLink = document.getElementById('btnGps');
+    var campoEndereco = document.getElementById('endereco_ponta_a');
+    var campoMaps = document.getElementById('link_maps');
+    if (!navigator.geolocation) { alert('Navegador sem suporte a GPS.'); return; }
+    btnEnd.disabled = true; btnLink.disabled = true;
+    if (origem === 'endereco') btnEnd.textContent = '⏳...';
+    if (origem === 'link') btnLink.textContent = '⏳...';
+
+    navigator.geolocation.getCurrentPosition(
+      async function(pos) {
+
         var lat = pos.coords.latitude.toFixed(6);
         var lng = pos.coords.longitude.toFixed(6);
         var precisao = Math.round(pos.coords.accuracy);
-        if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://' + '://google.com' + lat + ',' + lng;
+        if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://google.com' + lat + ',' + lng;
 
         if (origem === 'endereco' || !campoEndereco.value.trim()) {
           var enderecoEncontrado = '';
