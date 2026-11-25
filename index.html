@@ -10,6 +10,12 @@
       --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
       --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
     }
+  <style>
+    :root {
+      --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f8fafc;
+      --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+    }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); margin: 0; padding: 16px; }
     .container { max-width: 1180px; margin: 0 auto; }
@@ -67,17 +73,16 @@
 </div>
 
 <div id="appBox" class="container" style="display:none;">
-  <header style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
+  <header>
+     <header style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
     <div>
       <h1>Gerador de Carimbos CIRE</h1>
       <p style="color:#94a3b8; font-size:0.82rem; margin:2px 0 4px;">Criado por: Hamilton Batista</p>
       <p id="userInfo" style="color:#6ee7b7;"></p>
     </div>
-    <div class="top-bar" style="margin-left: auto;">
+        <div class="top-bar" style="margin-left: auto;">
       <button type="button" class="btn-secondary btn-sm" onclick="abrirListaSites()">📋 Sites Salvos</button>
       <button type="button" class="btn-secondary btn-sm" onclick="exportarCSV()">📊 Baixar Excel</button>
-      <button type="button" id="btnImportarAdmin" class="btn-secondary btn-sm" style="display:none; background:#0284c7;" onclick="document.getElementById('inputKeepAdmin').click()">📥 Importar Keep/JSON</button>
-      <input type="file" id="inputKeepAdmin" accept=".json" multiple style="display:none;" onchange="importarArquivosKeepAdmin(event)" />
       <button type="button" id="btnAdmin" class="btn-secondary btn-sm" style="display:none;" onclick="abrirPainelAdmin()">👥 Técnicos</button>
       <button type="button" class="btn-danger btn-sm" onclick="sair()">Sair</button>
     </div>
@@ -152,7 +157,7 @@
         </div>
         <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip2" rows="3"></textarea></div>
       </div>
-            <div class="card">
+      <div class="card">
         <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
         <div class="row">
           <div><label>Site (Acesso)</label><input type="text" id="site_acesso" readonly /></div>
@@ -228,7 +233,6 @@
     <div id="listaUsuariosConteudo"></div>
   </div>
 </div>
-
 <script>
   var usuarioLogado = null;
   var cacheSites = [];
@@ -270,10 +274,7 @@
     document.getElementById('userInfo').textContent = '👤 Logado como: ' + usuarioLogado.nome_completo;
     document.getElementById('tecnico').value = usuarioLogado.nome_completo || '';
     document.getElementById('contato').value = usuarioLogado.contato || '';
-    if (usuarioLogado.is_admin === 1) {
-      document.getElementById('btnAdmin').style.display = 'inline-block';
-      document.getElementById('btnImportarAdmin').style.display = 'inline-block';
-    }
+    if (usuarioLogado.is_admin === 1) document.getElementById('btnAdmin').style.display = 'inline-block';
     document.getElementById('data').valueAsDate = new Date();
     atualizarPreview();
   }
@@ -341,9 +342,7 @@
     el.addEventListener('input', atualizarPreview);
     el.addEventListener('change', atualizarPreview);
   });
-
-  function enviarWhatsApp() { window.location.href = 'https://' + 'wa.me?text=' + encodeURIComponent(montarTextoCarimbo()); }
-
+  function enviarWhatsApp() { window.location.href = 'https://wa.me' + '?text=' + encodeURIComponent(montarTextoCarimbo()); }
   function capturarLocalizacaoCompleta(origem) {
     var btnEnd = document.getElementById('btnEndGps');
     var btnLink = document.getElementById('btnGps');
@@ -356,16 +355,15 @@
 
     navigator.geolocation.getCurrentPosition(
       async function(pos) {
-
         var lat = pos.coords.latitude.toFixed(6);
         var lng = pos.coords.longitude.toFixed(6);
         var precisao = Math.round(pos.coords.accuracy);
-        if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://google.com' + lat + ',' + lng;
+        if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://google.com' + '/maps?q=' + lat + ',' + lng;
 
         if (origem === 'endereco' || !campoEndereco.value.trim()) {
           var enderecoEncontrado = '';
           try {
-            var resp = await fetch('https://' + 'nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng);
+            var resp = await fetch('https://nominatim.' + 'openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng);
             var data = await resp.json();
             if (data && data.address) {
               var a = data.address;
@@ -397,38 +395,16 @@
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }
+
   function preencherCamposComSite(d) {
     document.getElementById('site').value = d.site || ''; espelharSite();
-    document.getElementById('rota').value = d.rota || '';
-    document.getElementById('ponta_a').value = d.ponta_a || '';
+    document.getElementById('rota').value = d.rota || ''; document.getElementById('ponta_a').value = d.ponta_a || '';
     document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a || '';
-    document.getElementById('ponta_b').value = d.ponta_b || '';
-    document.getElementById('endereco_ponta_b').value = d.endereco_ponta_b || '';
-    document.getElementById('afetacao').value = d.afetacao || '';
-
-    document.getElementById('cabo1').value = d.cabo1 || '';
-    document.getElementById('fibra1').value = d.fibra1 || '';
-    document.getElementById('dist_ab1').value = d.dist_ab1 || '';
-    document.getElementById('dist_ba1').value = d.dist_ba1 || '';
-    document.getElementById('dist_tot1').value = d.dist_total1 || '';
-    document.getElementById('equip1').value = d.equip1 || '';
-
-    document.getElementById('cabo2').value = d.cabo2 || '';
-    document.getElementById('fibra2').value = d.fibra2 || '';
-    document.getElementById('dist_ab2').value = d.dist_ab2 || '';
-    document.getElementById('dist_ba2').value = d.dist_ba2 || '';
-    document.getElementById('dist_tot2').value = d.dist_total2 || '';
-    document.getElementById('equip2').value = d.equip2 || '';
-
-    document.getElementById('detentora').value = d.detentora || '';
-    document.getElementById('id_acesso').value = d.id_acesso || '';
-    document.getElementById('portao').value = d.portao || '';
-    document.getElementById('gabinete').value = d.gabinete || '';
-    document.getElementById('medidor').value = d.medidor || '';
-    document.getElementById('uc').value = d.uc || '';
-    document.getElementById('link_maps').value = d.link_maps || '';
-    document.getElementById('obs').value = d.obs || '';
-    document.getElementById('rodape').value = d.rodape || '';
+    document.getElementById('detentora').value = d.detentora || ''; document.getElementById('id_acesso').value = d.id_acesso || '';
+    document.getElementById('portao').value = d.portao || ''; document.getElementById('gabinete').value = d.gabinete || '';
+    document.getElementById('medidor').value = d.medidor || ''; document.getElementById('uc').value = d.uc || '';
+    document.getElementById('link_maps').value = d.link_maps || ''; document.getElementById('obs').value = d.obs || '';
+    document.getElementById('rodape').value = d.rodape || ''; document.getElementById('equip1').value = d.equip1 || '';
     atualizarPreview();
   }
 
@@ -458,18 +434,11 @@
     try { await navigator.clipboard.writeText(textoCarimbo); } catch (e) {}
 
     var payload = {
-      site: site, rota: v('rota'),
-      ponta_a: v('ponta_a'), endereco_ponta_a: v('endereco_ponta_a'),
-      ponta_b: v('ponta_b'), endereco_ponta_b: v('endereco_ponta_b'),
-      afetacao: v('afetacao'),
-      cabo1: v('cabo1'), fibra1: v('fibra1'),
-      dist_ab1: v('dist_ab1'), dist_ba1: v('dist_ba1'), dist_total1: v('dist_tot1'), equip1: v('equip1'),
-      cabo2: v('cabo2'), fibra2: v('fibra2'),
-      dist_ab2: v('dist_ab2'), dist_ba2: v('dist_ba2'), dist_total2: v('dist_tot2'), equip2: v('equip2'),
+      site: site, rota: v('rota'), ponta_a: v('ponta_a'), endereco_ponta_a: v('endereco_ponta_a'),
       detentora: v('detentora'), id_acesso: v('id_acesso'), portao: v('portao'), gabinete: v('gabinete'),
-      medidor: v('medidor'), uc: v('uc'), link_maps: v('link_maps'), obs: v('obs'), rodape: v('rodape'),
-      atualizado_por: usuarioLogado ? usuarioLogado.nome_completo : 'Técnico',
-      forcarAtualizacao: false
+      medidor: v('medidor'), uc: v('uc'), link_maps: v('link_maps'), obs: v('obs'),
+      rodape: v('rodape'), equip1: v('equip1'),
+      atualizado_por: usuarioLogado ? usuarioLogado.nome_completo : 'Técnico', forcarAtualizacao: false
     };
 
     try {
@@ -483,108 +452,6 @@
       } else if (res.ok) { mostrarBanner('✅ Novo site ' + site + ' salvo e carimbo copiado!', 'status-found'); }
     } catch (e) { mostrarBanner('📋 Carimbo copiado!', 'status-warn'); }
   }
-  async function importarArquivosKeepAdmin(event) {
-    var files = Array.from(event.target.files || []);
-    event.target.value = '';
-    if (!files.length) return;
-
-    var senhaAdmin = prompt('Digite a SENHA DE ADMINISTRADOR para importar ' + files.length + ' arquivo(s):');
-    if (!senhaAdmin) return;
-
-    var pegarCampo = function(texto, chave) {
-      var regex = new RegExp('\\*' + chave + '[ \\t]*:\\*[ \\t]*([^\\r\\n]*)', 'i');
-      var m = String(texto || '').match(regex);
-      return m && m[1] ? m[1].trim() : '';
-    };
-    var limparDist = function(v) {
-      var s = String(v || '').replace(/\s*mts/i, '').trim();
-      return /^x+$/i.test(s) ? '' : s;
-    };
-
-    var sitesExtraidos = [];
-    for (var i = 0; i < files.length; i++) {
-      try {
-        if (files[i].name.toLowerCase() === 'labels.json') continue;
-        var nota = JSON.parse(await files[i].text());
-        if (nota.isTrashed) continue;
-        var texto = String(nota.textContent || '');
-        if (!/site|rota|ponta|detentora|port[ãa]o|cabo|fibra/i.test(texto)) continue;
-
-        var nomeArquivo = files[i].name.replace(/\.json$/i, '').replace(/\(\d+\)$/, '').trim();
-        var site = (nota.title || pegarCampo(texto, 'Site') || nomeArquivo).trim().toUpperCase();
-        if (!site || site.startsWith('***ABRIR')) continue;
-
-        var enderecos = [...texto.matchAll(/\*Endere[çc]o:\*[ \t]*([^\r\n]*)/gi)].map(function(m) { return m[1].trim(); });
-        var idx1 = texto.search(/\*Al[çc]a 1\*/i);
-        var idx2 = texto.search(/\*Al[çc]a 2\*/i);
-        var idxFim = texto.search(/\*OBS:\*|\*Localiza[çc][ãa]o\*|CARIMBO DE ACESSO/i);
-        var b1 = idx1 !== -1 ? texto.slice(idx1, idx2 !== -1 ? idx2 : (idxFim !== -1 ? idxFim : texto.length)) : '';
-        var b2 = idx2 !== -1 ? texto.slice(idx2, idxFim !== -1 && idxFim > idx2 ? idxFim : texto.length) : '';
-        var idxAcesso = texto.search(/CARIMBO DE ACESSO/i);
-        var bAcesso = idxAcesso !== -1 ? texto.slice(idxAcesso) : texto;
-
-        var matchLink = texto.match(/(https?:\/\/maps\.app\.goo\.gl\/[^\s]+|https?:\/\/www\.google\.com\/maps[^\s]+)/);
-        var equip1 = b1.split(/\r?\n/).filter(function(l) { var t = l.trim(); return t && !t.startsWith('*') && !t.startsWith('http'); }).join('\n');
-        var equip2 = b2.split(/\r?\n/).filter(function(l) { var t = l.trim(); return t && !t.startsWith('*') && !t.startsWith('http'); }).join('\n');
-
-        sitesExtraidos.push({
-          site: site,
-          rota: pegarCampo(texto, 'Rota'),
-          ponta_a: pegarCampo(texto, 'Ponta A') || site,
-          endereco_ponta_a: enderecos[0] || '',
-          ponta_b: pegarCampo(texto, 'Ponta B'),
-          endereco_ponta_b: enderecos[1] || '',
-          afetacao: pegarCampo(texto, 'Afeta[çc][ãa]o'),
-          cabo1: pegarCampo(b1, 'Cabo'), fibra1: pegarCampo(b1, 'Fibra'),
-          dist_ab1: limparDist(pegarCampo(b1, 'Dist[âa]ncia de A_[ \\t]*B')),
-          dist_ba1: limparDist(pegarCampo(b1, 'Dist[âa]ncia de B_[ \\t]*A')),
-          dist_total1: limparDist(pegarCampo(b1, 'Dist[âa]ncia[ \\t]+total')),
-          equip1: equip1,
-          cabo2: pegarCampo(b2, 'Cabo'), fibra2: pegarCampo(b2, 'Fibra'),
-          dist_ab2: limparDist(pegarCampo(b2, 'Dist[âa]ncia de A_[ \\t]*B')),
-          dist_ba2: limparDist(pegarCampo(b2, 'Dist[âa]ncia de B_[ \\t]*A')),
-          dist_total2: limparDist(pegarCampo(b2, 'Dist[âa]ncia[ \\t]+total')),
-          equip2: equip2,
-          detentora: pegarCampo(bAcesso, 'Detentora'),
-          id_acesso: pegarCampo(bAcesso, 'ID'),
-          portao: pegarCampo(bAcesso, 'Port[ãa]o'),
-          gabinete: pegarCampo(bAcesso, 'Gabinete'),
-          medidor: pegarCampo(bAcesso, 'Medidor'),
-          uc: pegarCampo(bAcesso, 'UC'),
-          link_maps: matchLink ? matchLink[1] : '',
-          obs: pegarCampo(texto, 'OBS'),
-          rodape: ''
-        });
-      } catch (e) {}
-    }
-
-    if (!sitesExtraidos.length) { alert('Nenhum carimbo válido encontrado nos arquivos selecionados.'); return; }
-
-    var totalImportado = 0;
-    var tamanhoLote = 50;
-    for (var j = 0; j < sitesExtraidos.length; j += tamanhoLote) {
-      var lote = sitesExtraidos.slice(j, j + tamanhoLote);
-      mostrarBanner('⏳ Importando ' + (j + lote.length) + ' de ' + sitesExtraidos.length + ' site(s)...', 'status-info');
-      var res = await fetch('/api/sites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          acao: 'importar_lote',
-          senhaAdmin: senhaAdmin,
-          sites: lote,
-          atualizado_por: usuarioLogado.nome_completo + ' (Importação)'
-        })
-      });
-      var json = await res.json();
-      if (!res.ok || !json.sucesso) {
-        alert(json.erro || 'Erro ao importar lote.');
-        return;
-      }
-      totalImportado += json.total;
-    }
-    mostrarBanner('✅ ' + totalImportado + ' site(s) importados/atualizados com sucesso!', 'status-found');
-  }
-
   async function abrirListaSites() {
     document.getElementById('modalSites').style.display = 'flex';
     document.getElementById('listaSitesConteudo').innerHTML = 'Carregando...';
@@ -602,11 +469,11 @@
     });
     var html = '';
     filtrados.forEach(function(s) {
-      html += '<div class="site-item"><div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(\'' + s.site.replace(/'/g, "\\'") + '\')">' +
+      html += '<div class="site-item"><div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(\'' + s.site + '\')">' +
         '<strong style="color:#60a5fa;">' + s.site + '</strong> <span style="color:#94a3b8; font-size:0.82rem;">(' + (s.detentora || '-') + ')</span><br>' +
         '<span style="font-size:0.8rem; color:#cbd5e1;">' + (s.endereco_ponta_a || s.rota || '') + '</span></div>' +
-        '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(\'' + s.site.replace(/'/g, "\\'") + '\')">Abrir</button>' +
-        '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(\'' + s.site.replace(/'/g, "\\'") + '\')">🗑️</button></div></div>';
+        '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(\'' + s.site + '\')">Abrir</button>' +
+        '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(\'' + s.site + '\')">🗑️</button></div></div>';
     });
     document.getElementById('listaSitesConteudo').innerHTML = html || '<p>Nenhum site encontrado.</p>';
   }
@@ -625,6 +492,7 @@
     if (res.ok) { alert('🗑️ Site excluído!'); if (document.getElementById('modalSites').style.display === 'flex') abrirListaSites(); }
     else alert('❌ Senha incorreta.');
   }
+
   function carregarLib(url) {
     return new Promise(function(resolve, reject) {
       var s = document.createElement('script'); s.src = url; s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
@@ -644,7 +512,7 @@
   async function exportarCSV() {
     mostrarBanner('📊 Gerando Excel com 3 abas...', 'status-info');
     try {
-      if (typeof ExcelJS === 'undefined') await carregarLib('https://jsdelivr.net');
+      if (typeof ExcelJS === 'undefined') await carregarLib('https://cdn.jsdelivr.' + 'net/npm/exceljs@4.4.0/dist/exceljs.min.js');
       var res = await fetch('/api/sites?acao=listar');
       var json = await res.json();
       var dados = (json.sites || []).map(function(s) { return Object.assign({}, s, { cidade: extrairCidade(s.endereco_ponta_a) }); });
@@ -661,7 +529,6 @@
       ws1.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
       resumo.forEach(function(item) { ws1.addRow({ cidade: item.cidade, qtd: item.qtd, perc: ((item.qtd / dados.length) * 100).toFixed(1) + '%' }); });
       ws1.addRow({ cidade: 'TOTAL GERAL', qtd: dados.length, perc: '100%' }).font = { bold: true };
-
       var ws2 = wb.addWorksheet('Sites por Cidade');
       ws2.columns = [
         { header: 'CIDADE', key: 'cidade', width: 24 }, { header: 'SITE', key: 'site', width: 20 },
@@ -678,10 +545,7 @@
       var ws3 = wb.addWorksheet('Base Completa');
       ws3.columns = [
         { header: 'SITE', key: 'site', width: 20 }, { header: 'CIDADE', key: 'cidade', width: 22 },
-        { header: 'ROTA', key: 'rota', width: 24 }, { header: 'PONTA A', key: 'ponta_a', width: 15 },
-        { header: 'ENDEREÇO A', key: 'endereco', width: 45 }, { header: 'PONTA B', key: 'ponta_b', width: 15 },
-        { header: 'AFETAÇÃO', key: 'afetacao', width: 20 }, { header: 'CABO 1', key: 'cabo1', width: 12 },
-        { header: 'FIBRA 1', key: 'fibra1', width: 12 }, { header: 'DIST TOTAL 1', key: 'dist_total1', width: 14 },
+        { header: 'ROTA', key: 'rota', width: 24 }, { header: 'ENDEREÇO', key: 'endereco', width: 45 },
         { header: 'DETENTORA', key: 'detentora', width: 18 }, { header: 'ID', key: 'id_acesso', width: 15 },
         { header: 'PORTÃO', key: 'portao', width: 18 }, { header: 'GABINETE', key: 'gabinete', width: 18 },
         { header: 'MEDIDOR', key: 'medidor', width: 15 }, { header: 'UC', key: 'uc', width: 15 },
@@ -690,12 +554,7 @@
       ];
       ws3.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
       dados.forEach(function(s) {
-        ws3.addRow({
-          site: s.site, cidade: s.cidade, rota: s.rota || '', ponta_a: s.ponta_a || '', endereco: s.endereco_ponta_a || '',
-          ponta_b: s.ponta_b || '', afetacao: s.afetacao || '', cabo1: s.cabo1 || '', fibra1: s.fibra1 || '', dist_total1: s.dist_total1 || '',
-          detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '',
-          medidor: s.medidor || '', uc: s.uc || '', link_maps: s.link_maps || '', obs: s.obs || '', atualizado_por: s.atualizado_por || ''
-        });
+        ws3.addRow({ site: s.site, cidade: s.cidade, rota: s.rota || '', endereco: s.endereco_ponta_a || '', detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '', medidor: s.medidor || '', uc: s.uc || '', link_maps: s.link_maps || '', obs: s.obs || '', atualizado_por: s.atualizado_por || '' });
       });
 
       var buf = await wb.xlsx.writeBuffer();
@@ -752,7 +611,7 @@
   function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
 
   async function baixarImagem() {
-    if (typeof html2canvas === 'undefined') await carregarLib('https://jsdelivr.net');
+    if (typeof html2canvas === 'undefined') await carregarLib('https://cdn.jsdelivr.' + 'net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
     html2canvas(document.getElementById('carimboPreview'), { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
       var link = document.createElement('a');
       link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
@@ -767,3 +626,9 @@
 </script>
 </body>
 </html>
+
+
+
+
+
+
