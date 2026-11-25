@@ -197,7 +197,10 @@
       <h3 style="margin:0; color:#60a5fa;">📋 Sites Cadastrados no Banco</h3>
       <button type="button" class="btn-secondary btn-sm" onclick="fecharModal('modalSites')">Fechar ✖</button>
     </div>
-    <input type="text" id="filtroSites" placeholder="Filtrar por site, detentora, rota ou endereço..." oninput="renderizarListaSites()" style="margin-bottom:12px;" />
+    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+      <input type="text" id="filtroSites" placeholder="Filtrar por site, detentora, rota ou endereço..." oninput="renderizarListaSites()" style="flex:1; min-width:220px;" />
+      <button type="button" id="btnFiltroPendentes" class="btn-secondary btn-sm" style="display:none; background:#b45309;" onclick="alternarFiltroPendentes()">⚠️ Ver Pendentes</button>
+    </div>
     <div id="listaSitesConteudo">Carregando...</div>
   </div>
 </div>
@@ -262,7 +265,7 @@
     document.getElementById('contato').value = usuarioLogado.contato || '';
     if (usuarioLogado.is_admin === 1) {
       document.getElementById('btnAdmin').style.display = 'inline-block';
-      document.getElementById('btnImportarAdmin').style.display = 'inline-block';
+      document.getElementById('btnImportarAdmin').style.display = 'inline-block'; document.getElementById('btnFiltroPendentes').style.display = 'inline-block';
     }
     document.getElementById('data').valueAsDate = new Date();
     atualizarPreview();
@@ -469,18 +472,33 @@
     cacheSites = json.sites || []; renderizarListaSites();
   }
 
+  var somentePendentes = false;
+  function alternarFiltroPendentes() {
+    somentePendentes = !somentePendentes;
+    var btn = document.getElementById('btnFiltroPendentes');
+    btn.style.background = somentePendentes ? '#dc2626' : '#b45309';
+    btn.textContent = somentePendentes ? '📋 Mostrar Todos' : '⚠️ Ver Pendentes';
+    renderizarListaSites();
+  }
+  function siteEstaIncompleto(s) {
+    return !s.rota || !s.endereco_ponta_a || !s.cabo1 || !s.fibra1 || !s.detentora;
+  }
   function renderizarListaSites() {
     var termo = document.getElementById('filtroSites').value.trim().toLowerCase();
+    var isAdmin = usuarioLogado && usuarioLogado.is_admin === 1;
     var filtrados = cacheSites.filter(function(s) {
+      if (isAdmin && somentePendentes && !siteEstaIncompleto(s)) return false;
       return (s.site || '').toLowerCase().includes(termo) || (s.detentora || '').toLowerCase().includes(termo) ||
              (s.rota || '').toLowerCase().includes(termo) || (s.endereco_ponta_a || '').toLowerCase().includes(termo);
     });
     var html = '';
     filtrados.forEach(function(s) {
       var cod = encodeURIComponent(s.site);
+      var alerta = (isAdmin && siteEstaIncompleto(s)) ? ' <span style="background:#92400e; color:#fde68a; font-size:0.72rem; padding:2px 6px; border-radius:4px; margin-left:6px;">⚠️ Incompleto</span>' : '';
+      var autor = (isAdmin && s.atualizado_por) ? '<br><span style="font-size:0.74rem; color:#94a3b8;">Última edição: ' + s.atualizado_por + '</span>' : '';
       html += '<div class="site-item"><div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(decodeURIComponent(\'' + cod + '\'))">' +
-        '<strong style="color:#60a5fa;">' + s.site + '</strong> <span style="color:#94a3b8; font-size:0.82rem;">(' + (s.detentora || '-') + ')</span><br>' +
-        '<span style="font-size:0.8rem; color:#cbd5e1;">' + (s.endereco_ponta_a || s.rota || '') + '</span></div>' +
+        '<strong style="color:#60a5fa;">' + s.site + '</strong> <span style="color:#94a3b8; font-size:0.82rem;">(' + (s.detentora || '-') + ')</span>' + alerta + '<br>' +
+        '<span style="font-size:0.8rem; color:#cbd5e1;">' + (s.endereco_ponta_a || s.rota || '') + '</span>' + autor + '</div>' +
         '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(decodeURIComponent(\'' + cod + '\'))">Abrir</button>' +
         '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(decodeURIComponent(\'' + cod + '\'))">🗑️</button></div></div>';
     });
