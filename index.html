@@ -10,12 +10,6 @@
       --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
       --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
     }
-  <style>
-    :root {
-      --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f8fafc;
-      --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
-      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-    }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); margin: 0; padding: 16px; }
     .container { max-width: 1180px; margin: 0 auto; }
@@ -31,10 +25,7 @@
     .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .full { margin-bottom: 10px; }
     label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
-    input, textarea {
-      width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text);
-      padding: 8px 10px; border-radius: 6px; font-size: 0.88rem;
-    }
+    input, textarea { width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 0.88rem; }
     input:focus, textarea:focus { outline: none; border-color: var(--primary); }
     .status-banner { padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; display: none; font-weight: 600; }
     .status-info { background: rgba(59, 130, 246, 0.2); border: 1px solid var(--primary); color: #93c5fd; }
@@ -48,11 +39,7 @@
     .btn-danger { background: var(--danger); color: white; }
     .btn-gps { background: #0284c7; color: white; white-space: nowrap; }
     .btn-sm { padding: 7px 11px; font-size: 0.8rem; }
-    .preview-box {
-      background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 14px;
-      white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.83rem; line-height: 1.45;
-      min-height: 360px; color: #e2e8f0;
-    }
+    .preview-box { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 14px; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.83rem; line-height: 1.45; min-height: 360px; color: #e2e8f0; }
     .input-with-btn { display: flex; gap: 6px; }
     .input-with-btn button { flex: 0 0 auto; padding: 8px 10px; }
     .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; padding: 16px; }
@@ -73,16 +60,17 @@
 </div>
 
 <div id="appBox" class="container" style="display:none;">
-  <header>
-     <header style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
+  <header style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
     <div>
       <h1>Gerador de Carimbos CIRE</h1>
       <p style="color:#94a3b8; font-size:0.82rem; margin:2px 0 4px;">Criado por: Hamilton Batista</p>
       <p id="userInfo" style="color:#6ee7b7;"></p>
     </div>
-        <div class="top-bar" style="margin-left: auto;">
+    <div class="top-bar" style="margin-left: auto;">
       <button type="button" class="btn-secondary btn-sm" onclick="abrirListaSites()">📋 Sites Salvos</button>
       <button type="button" class="btn-secondary btn-sm" onclick="exportarCSV()">📊 Baixar Excel</button>
+      <button type="button" id="btnImportarAdmin" class="btn-secondary btn-sm" style="display:none; background:#0284c7;" onclick="document.getElementById('inputKeepAdmin').click()">📥 Importar Keep/JSON</button>
+      <input type="file" id="inputKeepAdmin" accept=".json" multiple style="display:none;" onchange="importarArquivosKeepAdmin(event)" />
       <button type="button" id="btnAdmin" class="btn-secondary btn-sm" style="display:none;" onclick="abrirPainelAdmin()">👥 Técnicos</button>
       <button type="button" class="btn-danger btn-sm" onclick="sair()">Sair</button>
     </div>
@@ -91,7 +79,6 @@
   <div class="grid">
     <div>
       <div id="dbBanner" class="status-banner"></div>
-
       <div class="card">
         <h3>Dados Gerais do Chamado</h3>
         <div class="row">
@@ -156,7 +143,8 @@
           <div><label>Dist. Total (mts)</label><input type="text" id="dist_tot2" placeholder="XXX" /></div>
         </div>
         <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip2" rows="3"></textarea></div>
-      </div>
+	      </div>
+
       <div class="card">
         <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
         <div class="row">
@@ -192,7 +180,6 @@
       <div class="card" style="position: sticky; top: 16px;">
         <h3>Pré-visualização do Carimbo (Ao Vivo)</h3>
         <div id="carimboPreview" class="preview-box"></div>
-
         <div class="actions">
           <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar e Salvar</button>
           <button type="button" class="btn-success" onclick="enviarWhatsApp()">📲 Enviar WhatsApp</button>
@@ -234,9 +221,8 @@
   </div>
 </div>
 <script>
-  var usuarioLogado = null;
-  var cacheSites = [];
-  var cacheUsuarios = [];
+
+  var usuarioLogado = null, cacheSites = [], cacheUsuarios = [];
 
   (function init() {
     var salvo = localStorage.getItem('cire_user');
@@ -274,7 +260,10 @@
     document.getElementById('userInfo').textContent = '👤 Logado como: ' + usuarioLogado.nome_completo;
     document.getElementById('tecnico').value = usuarioLogado.nome_completo || '';
     document.getElementById('contato').value = usuarioLogado.contato || '';
-    if (usuarioLogado.is_admin === 1) document.getElementById('btnAdmin').style.display = 'inline-block';
+    if (usuarioLogado.is_admin === 1) {
+      document.getElementById('btnAdmin').style.display = 'inline-block';
+      document.getElementById('btnImportarAdmin').style.display = 'inline-block';
+    }
     document.getElementById('data').valueAsDate = new Date();
     atualizarPreview();
   }
@@ -284,51 +273,37 @@
 
   function mostrarBanner(texto, tipo) {
     var banner = document.getElementById('dbBanner');
-    banner.textContent = texto;
-    banner.className = 'status-banner ' + tipo;
-    banner.style.display = 'block';
+    banner.textContent = texto; banner.className = 'status-banner ' + tipo; banner.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     var toast = document.getElementById('toastAviso');
     if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'toastAviso';
+      toast = document.createElement('div'); toast.id = 'toastAviso';
       toast.style.cssText = 'position:fixed; top:20px; right:20px; z-index:9999; padding:14px 20px; border-radius:8px; font-weight:700; font-size:0.92rem; box-shadow:0 10px 25px rgba(0,0,0,0.5);';
       document.body.appendChild(toast);
     }
     toast.textContent = texto;
     toast.style.background = tipo === 'status-found' ? '#059669' : (tipo === 'status-warn' ? '#d97706' : '#2563eb');
-    toast.style.color = '#ffffff';
-    toast.style.display = 'block';
-    clearTimeout(window.toastTimer);
-    window.toastTimer = setTimeout(function() { toast.style.display = 'none'; }, 5000);
+    toast.style.color = '#ffffff'; toast.style.display = 'block';
+    clearTimeout(window.toastTimer); window.toastTimer = setTimeout(function() { toast.style.display = 'none'; }, 5000);
   }
 
-  function formatarMetros(valor, padrao) {
-    if (!valor) return padrao;
-    if (/mts|m$/i.test(valor)) return valor;
-    return valor + ' mts';
-  }
+  function formatarMetros(valor, padrao) { return !valor ? padrao : (/mts|m$/i.test(valor) ? valor : valor + ' mts'); }
 
   function montarTextoCarimbo() {
     var v = function(id) { return document.getElementById(id).value.trim(); };
-    var site = v('site').toUpperCase();
-    var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
+    var site = v('site').toUpperCase(), dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
     var texto = '***ABRIR CARIMBO CIRE***\n\n*Site:* ' + site + '\n*Data:* ' + dataFormatada + '\n*TA:* ' + v('ta') +
       '\n*Técnico:* ' + v('tecnico') + '\n*Contato:* ' + v('contato') + '\n*Rota:* ' + v('rota') +
       '\n*Ponta A:* ' + v('ponta_a') + '\n*Endereço:* ' + v('endereco_ponta_a') +
       '\n*Ponta B:* ' + v('ponta_b') + '\n*Endereço:* ' + v('endereco_ponta_b') + '\n*Afetação:* ' + v('afetacao') +
       '\n\n*Alça 1*\n*Cabo:* ' + (v('cabo1') || 'X') + '\n*Fibra:* ' + (v('fibra1') || 'XX') +
-      '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab1'), 'xxx mts') +
-      '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba1'), 'xxx mts') +
+      '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab1'), 'xxx mts') + '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba1'), 'xxx mts') +
       '\n*Distância  total:* ' + formatarMetros(v('dist_tot1'), 'XXX mts') + '\n' + (v('equip1') ? v('equip1') + '\n' : '');
-
     if (v('cabo2') || v('fibra2') || v('dist_ab2') || v('dist_ba2') || v('dist_tot2') || v('equip2')) {
       texto += '\n*Alça 2*\n*Cabo:* ' + (v('cabo2') || 'X') + '\n*Fibra:* ' + (v('fibra2') || 'XX') +
-        '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab2'), 'xxx mts') +
-        '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba2'), 'xxx mts') +
+        '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab2'), 'xxx mts') + '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba2'), 'xxx mts') +
         '\n*Distância  total:* ' + formatarMetros(v('dist_tot2'), 'XXX mts') + '\n' + (v('equip2') ? v('equip2') + '\n' : '');
     }
-
     texto += '\n\n*OBS:* ' + v('obs') + '\n\n*Localização*\n' + v('link_maps') +
       '\n\n*### CARIMBO DE ACESSO AO SITE  ###*\n*Site:* ' + site + '\n*Detentora:* ' + v('detentora') +
       '\n*ID :* ' + v('id_acesso') + '\n*Portão:* ' + v('portao') + '\n*Gabinete:* ' + v('gabinete') +
@@ -338,74 +313,51 @@
   }
 
   function atualizarPreview() { document.getElementById('carimboPreview').textContent = montarTextoCarimbo(); }
-  document.querySelectorAll('input, textarea').forEach(function(el) {
-    el.addEventListener('input', atualizarPreview);
-    el.addEventListener('change', atualizarPreview);
-  });
-  function enviarWhatsApp() { window.location.href = 'https://wa.me' + '?text=' + encodeURIComponent(montarTextoCarimbo()); }
+  document.querySelectorAll('input, textarea').forEach(function(el) { el.addEventListener('input', atualizarPreview); el.addEventListener('change', atualizarPreview); });
+  function enviarWhatsApp() { window.location.href = 'https://wa.me' + encodeURIComponent(montarTextoCarimbo()); }
+
   function capturarLocalizacaoCompleta(origem) {
-    var btnEnd = document.getElementById('btnEndGps');
-    var btnLink = document.getElementById('btnGps');
-    var campoEndereco = document.getElementById('endereco_ponta_a');
-    var campoMaps = document.getElementById('link_maps');
+    var btnEnd = document.getElementById('btnEndGps'), btnLink = document.getElementById('btnGps'), campoEndereco = document.getElementById('endereco_ponta_a'), campoMaps = document.getElementById('link_maps');
     if (!navigator.geolocation) { alert('Navegador sem suporte a GPS.'); return; }
     btnEnd.disabled = true; btnLink.disabled = true;
-    if (origem === 'endereco') btnEnd.textContent = '⏳...';
-    if (origem === 'link') btnLink.textContent = '⏳...';
-
-    navigator.geolocation.getCurrentPosition(
-      async function(pos) {
-        var lat = pos.coords.latitude.toFixed(6);
-        var lng = pos.coords.longitude.toFixed(6);
-        var precisao = Math.round(pos.coords.accuracy);
-        if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://google.com' + '/maps?q=' + lat + ',' + lng;
-
-        if (origem === 'endereco' || !campoEndereco.value.trim()) {
-          var enderecoEncontrado = '';
-          try {
-            var resp = await fetch('https://nominatim.' + 'openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng);
-            var data = await resp.json();
-            if (data && data.address) {
-              var a = data.address;
-              var rua = a.road || a.pedestrian || a.street || a.highway || '';
-              var num = a.house_number ? ', ' + a.house_number : '';
-              var bairro = a.suburb || a.neighbourhood || a.district || '';
-              var cidade = a.city || a.town || a.village || a.municipality || '';
-              var estado = a.state || '';
-              var partes = [];
-              if (rua) partes.push(rua + num);
-              if (bairro) partes.push(bairro);
-              if (cidade && estado) partes.push(cidade + ' - ' + estado);
-              else if (cidade || estado) partes.push(cidade || estado);
-              if (partes.length > 0) enderecoEncontrado = partes.join(', ');
-            }
-          } catch (e1) {}
-          campoEndereco.value = enderecoEncontrado || ('Coord: ' + lat + ', ' + lng);
-        }
-        btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS';
-        btnEnd.disabled = false; btnLink.disabled = false;
-        atualizarPreview();
-        mostrarBanner('📍 GPS capturado! (~' + precisao + 'm)', 'status-found');
-      },
-      function() {
-        btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS';
-        btnEnd.disabled = false; btnLink.disabled = false;
-        alert('Não foi possível obter o GPS.');
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
+    if (origem === 'endereco') btnEnd.textContent = '⏳...'; if (origem === 'link') btnLink.textContent = '⏳...';
+    navigator.geolocation.getCurrentPosition(async function(pos) {
+      var lat = pos.coords.latitude.toFixed(6), lng = pos.coords.longitude.toFixed(6), precisao = Math.round(pos.coords.accuracy);
+      if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://google.com' + lat + ',' + lng;
+      if (origem === 'endereco' || !campoEndereco.value.trim()) {
+        var enderecoEncontrado = '';
+        try {
+          var resp = await fetch('https://openstreetmap.org' + lat + '&lon=' + lng);
+          var data = await resp.json();
+          if (data && data.address) {
+            var a = data.address, rua = a.road || a.pedestrian || a.street || a.highway || '', num = a.house_number ? ', ' + a.house_number : '', bairro = a.suburb || a.neighbourhood || a.district || '', cidade = a.city || a.town || a.village || a.municipality || '', estado = a.state || '', partes = [];
+            if (rua) partes.push(rua + num); if (bairro) partes.push(bairro);
+            if (cidade && estado) partes.push(cidade + ' - ' + estado); else if (cidade || estado) partes.push(cidade || estado);
+            if (partes.length > 0) enderecoEncontrado = partes.join(', ');
+          }
+        } catch (e1) {}
+        campoEndereco.value = enderecoEncontrado || ('Coord: ' + lat + ', ' + lng);
+      }
+      btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS'; btnEnd.disabled = false; btnLink.disabled = false; atualizarPreview();
+      mostrarBanner('📍 GPS capturado! (~' + precisao + 'm)', 'status-found');
+    }, function() { btnEnd.textContent = '📍 GPS'; btnLink.textContent = '📍 Pegar GPS'; btnEnd.disabled = false; btnLink.disabled = false; alert('Não foi possível obter o GPS.'); }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
   }
-
   function preencherCamposComSite(d) {
     document.getElementById('site').value = d.site || ''; espelharSite();
     document.getElementById('rota').value = d.rota || ''; document.getElementById('ponta_a').value = d.ponta_a || '';
-    document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a || '';
+    document.getElementById('endereco_ponta_a').value = d.endereco_ponta_a || ''; document.getElementById('ponta_b').value = d.ponta_b || '';
+    document.getElementById('endereco_ponta_b').value = d.endereco_ponta_b || ''; document.getElementById('afetacao').value = d.afetacao || '';
+    document.getElementById('cabo1').value = d.cabo1 || ''; document.getElementById('fibra1').value = d.fibra1 || '';
+    document.getElementById('dist_ab1').value = d.dist_ab1 || ''; document.getElementById('dist_ba1').value = d.dist_ba1 || '';
+    document.getElementById('dist_tot1').value = d.dist_total1 || ''; document.getElementById('equip1').value = d.equip1 || '';
+    document.getElementById('cabo2').value = d.cabo2 || ''; document.getElementById('fibra2').value = d.fibra2 || '';
+    document.getElementById('dist_ab2').value = d.dist_ab2 || ''; document.getElementById('dist_ba2').value = d.dist_ba2 || '';
+    document.getElementById('dist_tot2').value = d.dist_total2 || ''; document.getElementById('equip2').value = d.equip2 || '';
     document.getElementById('detentora').value = d.detentora || ''; document.getElementById('id_acesso').value = d.id_acesso || '';
     document.getElementById('portao').value = d.portao || ''; document.getElementById('gabinete').value = d.gabinete || '';
     document.getElementById('medidor').value = d.medidor || ''; document.getElementById('uc').value = d.uc || '';
     document.getElementById('link_maps').value = d.link_maps || ''; document.getElementById('obs').value = d.obs || '';
-    document.getElementById('rodape').value = d.rodape || ''; document.getElementById('equip1').value = d.equip1 || '';
-    atualizarPreview();
+    document.getElementById('rodape').value = d.rodape || ''; atualizarPreview();
   }
 
   async function buscarSiteNoBanco() {
@@ -419,9 +371,7 @@
         preencherCamposComSite(json.dados);
         var quem = json.dados.atualizado_por ? ' (Última melhoria: ' + json.dados.atualizado_por + ')' : '';
         mostrarBanner('✅ Site ' + json.dados.site + ' carregado!' + quem, 'status-found');
-      } else {
-        mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado.', 'status-warn');
-      }
+      } else { mostrarBanner('🆕 Site ' + site + ' ainda não cadastrado.', 'status-warn'); }
     } catch (e) { mostrarBanner('⚠️ Erro ao consultar banco.', 'status-warn'); }
   }
 
@@ -432,15 +382,15 @@
     var textoCarimbo = montarTextoCarimbo();
     document.getElementById('carimboPreview').textContent = textoCarimbo;
     try { await navigator.clipboard.writeText(textoCarimbo); } catch (e) {}
-
     var payload = {
       site: site, rota: v('rota'), ponta_a: v('ponta_a'), endereco_ponta_a: v('endereco_ponta_a'),
+      ponta_b: v('ponta_b'), endereco_ponta_b: v('endereco_ponta_b'), afetacao: v('afetacao'),
+      cabo1: v('cabo1'), fibra1: v('fibra1'), dist_ab1: v('dist_ab1'), dist_ba1: v('dist_ba1'), dist_total1: v('dist_tot1'), equip1: v('equip1'),
+      cabo2: v('cabo2'), fibra2: v('fibra2'), dist_ab2: v('dist_ab2'), dist_ba2: v('dist_ba2'), dist_total2: v('dist_tot2'), equip2: v('equip2'),
       detentora: v('detentora'), id_acesso: v('id_acesso'), portao: v('portao'), gabinete: v('gabinete'),
-      medidor: v('medidor'), uc: v('uc'), link_maps: v('link_maps'), obs: v('obs'),
-      rodape: v('rodape'), equip1: v('equip1'),
+      medidor: v('medidor'), uc: v('uc'), link_maps: v('link_maps'), obs: v('obs'), rodape: v('rodape'),
       atualizado_por: usuarioLogado ? usuarioLogado.nome_completo : 'Técnico', forcarAtualizacao: false
     };
-
     try {
       var res = await fetch('/api/sites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (res.status === 409) {
@@ -452,13 +402,71 @@
       } else if (res.ok) { mostrarBanner('✅ Novo site ' + site + ' salvo e carimbo copiado!', 'status-found'); }
     } catch (e) { mostrarBanner('📋 Carimbo copiado!', 'status-warn'); }
   }
+  async function importarArquivosKeepAdmin(event) {
+    var files = Array.from(event.target.files || []);
+    event.target.value = '';
+    if (!files.length) return;
+    var senhaAdmin = prompt('Digite a SENHA DE ADMINISTRADOR para importar ' + files.length + ' arquivo(s):');
+    if (!senhaAdmin) return;
+    var pegarCampo = function(texto, chave) {
+      var regex = new RegExp('\\*' + chave + '[ \\t]*:\\*[ \\t]*([^\\r\\n]*)', 'i');
+      var m = String(texto || '').match(regex);
+      return m && m ? m.trim() : '';
+    };
+    var limparDist = function(v) { var s = String(v || '').replace(/\s*mts/i, '').trim(); return /^x+$/i.test(s) ? '' : s; };
+    var sitesExtraidos = [];
+    for (var i = 0; i < files.length; i++) {
+      try {
+        if (files[i].name.toLowerCase() === 'labels.json') continue;
+        var nota = JSON.parse(await files[i].text());
+        if (nota.isTrashed) continue;
+        var texto = String(nota.textContent || '');
+        if (!/site|rota|ponta|detentora|port[ãa]o|cabo|fibra/i.test(texto)) continue;
+        var nomeArquivo = files[i].name.replace(/\.json$/i, '').replace(/\(\d+\)$/, '').trim();
+        var site = (nota.title || pegarCampo(texto, 'Site') || nomeArquivo).trim().toUpperCase();
+        if (!site || site.startsWith('***ABRIR')) continue;
+        var enderecos = [...texto.matchAll(/\*Endere[çc]o:\*[ \t]*([^\r\n]*)/gi)].map(function(m) { return m.trim(); });
+        var idx1 = texto.search(/\*Al[çc]a 1\*/i), idx2 = texto.search(/\*Al[çc]a 2\*/i), idxFim = texto.search(/\*OBS:\*|\*Localiza[çc][ãa]o\*|CARIMBO DE ACESSO/i);
+        var b1 = idx1 !== -1 ? texto.slice(idx1, idx2 !== -1 ? idx2 : (idxFim !== -1 ? idxFim : texto.length)) : '';
+        var b2 = idx2 !== -1 ? texto.slice(idx2, idxFim !== -1 && idxFim > idx2 ? idxFim : texto.length) : '';
+        var idxAcesso = texto.search(/CARIMBO DE ACESSO/i);
+        var bAcesso = idxAcesso !== -1 ? texto.slice(idxAcesso) : texto;
+        var matchLink = texto.match(/(https?:\/\/maps\.app\.goo\.gl\/[^\s]+|https?:\/\/www\.google\.com\/maps[^\s]+)/);
+        var equip1 = b1.split(/\r?\n/).filter(function(l) { var t = l.trim(); return t && !t.startsWith('*') && !t.startsWith('http'); }).join('\n');
+        var equip2 = b2.split(/\r?\n/).filter(function(l) { var t = l.trim(); return t && !t.startsWith('*') && !t.startsWith('http'); }).join('\n');
+        sitesExtraidos.push({
+          site: site, rota: pegarCampo(texto, 'Rota'), ponta_a: pegarCampo(texto, 'Ponta A') || site,
+          endereco_ponta_a: enderecos || '', ponta_b: pegarCampo(texto, 'Ponta B'), endereco_ponta_b: enderecos || '',
+          afetacao: pegarCampo(texto, 'Afeta[çc][ãa]o'), cabo1: pegarCampo(b1, 'Cabo'), fibra1: pegarCampo(b1, 'Fibra'),
+          dist_ab1: limparDist(pegarCampo(b1, 'Dist[âa]ncia de A_[ \t]*B')), dist_ba1: limparDist(pegarCampo(b1, 'Dist[âa]ncia de B_[ \t]*A')),
+          dist_total1: limparDist(pegarCampo(b1, 'Dist[âa]ncia[ \t]+total')), equip1: equip1,
+          cabo2: pegarCampo(b2, 'Cabo'), fibra2: pegarCampo(b2, 'Fibra'),
+          dist_ab2: limparDist(pegarCampo(b2, 'Dist[âa]ncia de A_[ \t]*B')), dist_ba2: limparDist(pegarCampo(b2, 'Dist[âa]ncia de B_[ \t]*A')),
+          dist_total2: limparDist(pegarCampo(b2, 'Dist[âa]ncia[ \t]+total')), equip2: equip2,
+          detentora: pegarCampo(bAcesso, 'Detentora'), id_acesso: pegarCampo(bAcesso, 'ID'), portao: pegarCampo(bAcesso, 'Port[ãa]o'),
+          gabinete: pegarCampo(bAcesso, 'Gabinete'), medidor: pegarCampo(bAcesso, 'Medidor'), uc: pegarCampo(bAcesso, 'UC'),
+          link_maps: matchLink ? matchLink : '', obs: pegarCampo(texto, 'OBS'), rodape: ''
+        });
+      } catch (e) {}
+    }
+    if (!sitesExtraidos.length) { alert('Nenhum carimbo válido encontrado.'); return; }
+    var totalImportado = 0, tamanhoLote = 50;
+    for (var j = 0; j < sitesExtraidos.length; j += tamanhoLote) {
+      var lote = sitesExtraidos.slice(j, j + tamanhoLote);
+      mostrarBanner('⏳ Importando ' + (j + lote.length) + ' de ' + sitesExtraidos.length + ' site(s)...', 'status-info');
+      var res = await fetch('/api/sites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'importar_lote', senhaAdmin: senhaAdmin, sites: lote, atualizado_por: usuarioLogado.nome_completo + ' (Importação)' }) });
+      var json = await res.json();
+      if (!res.ok || !json.sucesso) { alert(json.erro || 'Erro ao importar lote.'); return; }
+      totalImportado += json.total;
+    }
+    mostrarBanner('✅ ' + totalImportado + ' site(s) importados/atualizados com sucesso!', 'status-found');
+  }
+
   async function abrirListaSites() {
     document.getElementById('modalSites').style.display = 'flex';
     document.getElementById('listaSitesConteudo').innerHTML = 'Carregando...';
-    var res = await fetch('/api/sites?acao=listar');
-    var json = await res.json();
-    cacheSites = json.sites || [];
-    renderizarListaSites();
+    var res = await fetch('/api/sites?acao=listar'); var json = await res.json();
+    cacheSites = json.sites || []; renderizarListaSites();
   }
 
   function renderizarListaSites() {
@@ -469,11 +477,12 @@
     });
     var html = '';
     filtrados.forEach(function(s) {
-      html += '<div class="site-item"><div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(\'' + s.site + '\')">' +
+      var cod = encodeURIComponent(s.site);
+      html += '<div class="site-item"><div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(decodeURIComponent(\'' + cod + '\'))">' +
         '<strong style="color:#60a5fa;">' + s.site + '</strong> <span style="color:#94a3b8; font-size:0.82rem;">(' + (s.detentora || '-') + ')</span><br>' +
         '<span style="font-size:0.8rem; color:#cbd5e1;">' + (s.endereco_ponta_a || s.rota || '') + '</span></div>' +
-        '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(\'' + s.site + '\')">Abrir</button>' +
-        '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(\'' + s.site + '\')">🗑️</button></div></div>';
+        '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(decodeURIComponent(\'' + cod + '\'))">Abrir</button>' +
+        '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(decodeURIComponent(\'' + cod + '\'))">🗑️</button></div></div>';
     });
     document.getElementById('listaSitesConteudo').innerHTML = html || '<p>Nenhum site encontrado.</p>';
   }
@@ -484,15 +493,11 @@
   }
 
   async function excluirSiteComSenha(siteCodigo) {
-    var site = (siteCodigo || '').trim().toUpperCase();
-    if (!site) return;
-    var senha = prompt('Digite a SENHA DE ADMINISTRADOR para excluir ' + site + ':');
-    if (!senha) return;
+    var site = (siteCodigo || '').trim().toUpperCase(); if (!site) return;
+    var senha = prompt('Digite a SENHA DE ADMINISTRADOR para excluir ' + site + ':'); if (!senha) return;
     var res = await fetch('/api/sites?site=' + encodeURIComponent(site) + '&senha=' + encodeURIComponent(senha), { method: 'DELETE' });
-    if (res.ok) { alert('🗑️ Site excluído!'); if (document.getElementById('modalSites').style.display === 'flex') abrirListaSites(); }
-    else alert('❌ Senha incorreta.');
+    if (res.ok) { alert('🗑️ Site excluído!'); if (document.getElementById('modalSites').style.display === 'flex') abrirListaSites(); } else alert('❌ Senha incorreta.');
   }
-
   function carregarLib(url) {
     return new Promise(function(resolve, reject) {
       var s = document.createElement('script'); s.src = url; s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
@@ -512,12 +517,10 @@
   async function exportarCSV() {
     mostrarBanner('📊 Gerando Excel com 3 abas...', 'status-info');
     try {
-      if (typeof ExcelJS === 'undefined') await carregarLib('https://cdn.jsdelivr.' + 'net/npm/exceljs@4.4.0/dist/exceljs.min.js');
-      var res = await fetch('/api/sites?acao=listar');
-      var json = await res.json();
+      if (typeof ExcelJS === 'undefined') await carregarLib('https://jsdelivr.net');
+      var res = await fetch('/api/sites?acao=listar'); var json = await res.json();
       var dados = (json.sites || []).map(function(s) { return Object.assign({}, s, { cidade: extrairCidade(s.endereco_ponta_a) }); });
       if (!dados.length) { mostrarBanner('⚠️ Base vazia.', 'status-warn'); return; }
-
       var mapa = {}; dados.forEach(function(s) { mapa[s.cidade] = (mapa[s.cidade] || 0) + 1; });
       var resumo = Object.keys(mapa).map(function(c) { return { cidade: c, qtd: mapa[c] }; }).sort(function(a, b) { return b.qtd - a.qtd || a.cidade.localeCompare(b.cidade); });
 
@@ -529,6 +532,7 @@
       ws1.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
       resumo.forEach(function(item) { ws1.addRow({ cidade: item.cidade, qtd: item.qtd, perc: ((item.qtd / dados.length) * 100).toFixed(1) + '%' }); });
       ws1.addRow({ cidade: 'TOTAL GERAL', qtd: dados.length, perc: '100%' }).font = { bold: true };
+
       var ws2 = wb.addWorksheet('Sites por Cidade');
       ws2.columns = [
         { header: 'CIDADE', key: 'cidade', width: 24 }, { header: 'SITE', key: 'site', width: 20 },
@@ -538,14 +542,15 @@
       ];
       ws2.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
       dados.slice().sort(function(a, b) { return a.cidade.localeCompare(b.cidade) || (a.site || '').localeCompare(b.site || ''); })
-        .forEach(function(s) {
-          ws2.addRow({ cidade: s.cidade, site: s.site, detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '', rota: s.rota || '', endereco: s.endereco_ponta_a || '' });
-        });
+        .forEach(function(s) { ws2.addRow({ cidade: s.cidade, site: s.site, detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '', rota: s.rota || '', endereco: s.endereco_ponta_a || '' }); });
 
       var ws3 = wb.addWorksheet('Base Completa');
       ws3.columns = [
         { header: 'SITE', key: 'site', width: 20 }, { header: 'CIDADE', key: 'cidade', width: 22 },
-        { header: 'ROTA', key: 'rota', width: 24 }, { header: 'ENDEREÇO', key: 'endereco', width: 45 },
+        { header: 'ROTA', key: 'rota', width: 24 }, { header: 'PONTA A', key: 'ponta_a', width: 15 },
+        { header: 'ENDEREÇO A', key: 'endereco', width: 45 }, { header: 'PONTA B', key: 'ponta_b', width: 15 },
+        { header: 'AFETAÇÃO', key: 'afetacao', width: 20 }, { header: 'CABO 1', key: 'cabo1', width: 12 },
+        { header: 'FIBRA 1', key: 'fibra1', width: 12 }, { header: 'DIST TOTAL 1', key: 'dist_total1', width: 14 },
         { header: 'DETENTORA', key: 'detentora', width: 18 }, { header: 'ID', key: 'id_acesso', width: 15 },
         { header: 'PORTÃO', key: 'portao', width: 18 }, { header: 'GABINETE', key: 'gabinete', width: 18 },
         { header: 'MEDIDOR', key: 'medidor', width: 15 }, { header: 'UC', key: 'uc', width: 15 },
@@ -554,7 +559,12 @@
       ];
       ws3.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
       dados.forEach(function(s) {
-        ws3.addRow({ site: s.site, cidade: s.cidade, rota: s.rota || '', endereco: s.endereco_ponta_a || '', detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '', medidor: s.medidor || '', uc: s.uc || '', link_maps: s.link_maps || '', obs: s.obs || '', atualizado_por: s.atualizado_por || '' });
+        ws3.addRow({
+          site: s.site, cidade: s.cidade, rota: s.rota || '', ponta_a: s.ponta_a || '', endereco: s.endereco_ponta_a || '',
+          ponta_b: s.ponta_b || '', afetacao: s.afetacao || '', cabo1: s.cabo1 || '', fibra1: s.fibra1 || '', dist_total1: s.dist_total1 || '',
+          detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '',
+          medidor: s.medidor || '', uc: s.uc || '', link_maps: s.link_maps || '', obs: s.obs || '', atualizado_por: s.atualizado_por || ''
+        });
       });
 
       var buf = await wb.xlsx.writeBuffer();
@@ -569,8 +579,7 @@
   function abrirPainelAdmin() { document.getElementById('modalAdmin').style.display = 'flex'; carregarListaUsuarios(); }
 
   async function carregarListaUsuarios() {
-    var res = await fetch('/api/sites?acao=usuarios');
-    var json = await res.json();
+    var res = await fetch('/api/sites?acao=usuarios'); var json = await res.json();
     cacheUsuarios = json.usuarios || [];
     var html = '';
     cacheUsuarios.forEach(function(u) {
@@ -582,8 +591,7 @@
   }
 
   async function editarTecnico(id) {
-    var u = cacheUsuarios.find(function(item) { return item.id === id; });
-    if (!u) return;
+    var u = cacheUsuarios.find(function(item) { return item.id === id; }); if (!u) return;
     var nome = prompt('Nome Completo:', u.nome_completo); if (nome === null) return;
     var user = prompt('Login:', u.usuario); if (user === null) return;
     var tel = prompt('Telefone:', u.contato || ''); if (tel === null) return;
@@ -611,7 +619,7 @@
   function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
 
   async function baixarImagem() {
-    if (typeof html2canvas === 'undefined') await carregarLib('https://cdn.jsdelivr.' + 'net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+    if (typeof html2canvas === 'undefined') await carregarLib('https://jsdelivr.net');
     html2canvas(document.getElementById('carimboPreview'), { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
       var link = document.createElement('a');
       link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
@@ -623,12 +631,7 @@
     document.querySelectorAll('input, textarea').forEach(function(el) { if (el.type !== 'date' && el.id !== 'tecnico' && el.id !== 'contato') el.value = ''; });
     atualizarPreview(); document.getElementById('dbBanner').style.display = 'none';
   }
+
 </script>
 </body>
 </html>
-
-
-
-
-
-
