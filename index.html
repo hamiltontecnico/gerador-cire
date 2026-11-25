@@ -330,7 +330,7 @@
 
     navigator.geolocation.getCurrentPosition(async function(pos) {
       var lat = pos.coords.latitude.toFixed(6), lng = pos.coords.longitude.toFixed(6), precisao = Math.round(pos.coords.accuracy);
-      var urlMaps = 'https:' + '//://google.com' + lat + ',' + lng;
+      var urlMaps = 'https:' + '////://google.com' + lat + ',' + lng;
       if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = urlMaps;
 
       if (origem === 'endereco' || !campoEndereco.value.trim()) {
@@ -702,9 +702,9 @@
     var link = document.getElementById('link_maps').value.trim();
     if (!link) { alert('Nenhum link de localização preenchido.'); return; }
     // Corrige caso tenha link antigo sem /maps?q=
-    link = link.replace(/^https?:\/\/(www\.)?google\.com(-?\d)/i, 'https://google.com');
+    link = link.replace(/^https?:\/\/(www\.)?google\.com(-?\d)/i, 'https//://google.com');
     if (!/^https?:\/\//i.test(link)) {
-      link = 'https:' + '//://google.com' + encodeURIComponent(link);
+      link = 'https:' + '////://google.com' + encodeURIComponent(link);
     }
     window.open(link, '_blank');
   }
