@@ -330,7 +330,7 @@
 
     navigator.geolocation.getCurrentPosition(async function(pos) {
       var lat = pos.coords.latitude.toFixed(6), lng = pos.coords.longitude.toFixed(6), precisao = Math.round(pos.coords.accuracy);
-      var urlMaps = 'https://google.com' + lat + ',' + lng;
+      var urlMaps = 'https:' + '//www.google.com/maps/place/' + lat + ',' + lng;
       if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = urlMaps;
 
       if (origem === 'endereco' || !campoEndereco.value.trim()) {
