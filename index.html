@@ -10,12 +10,6 @@
       --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
       --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
     }
-  <style>
-    :root {
-      --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f8fafc;
-      --muted: #94a3b8; --primary: #3b82f6; --primary-hover: #2563eb;
-      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-    }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); margin: 0; padding: 16px; }
     .container { max-width: 1180px; margin: 0 auto; }
@@ -73,19 +67,17 @@
 </div>
 
 <div id="appBox" class="container" style="display:none;">
-  <header>
-     <header style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
+  <header style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
     <div>
       <h1>Gerador de Carimbos CIRE</h1>
       <p style="color:#94a3b8; font-size:0.82rem; margin:2px 0 4px;">Criado por: Hamilton Batista</p>
       <p id="userInfo" style="color:#6ee7b7;"></p>
     </div>
-        <div class="top-bar" style="margin-left: auto;">
+    <div class="top-bar" style="margin-left: auto;">
       <button type="button" class="btn-secondary btn-sm" onclick="abrirListaSites()">📋 Sites Salvos</button>
-            <button type="button" id="btnImportarAdmin" class="btn-secondary btn-sm" style="display:none; background:#0284c7;" onclick="document.getElementById('inputKeepAdmin').click()">📥 Importar Keep/JSON</button>
+      <button type="button" class="btn-secondary btn-sm" onclick="exportarCSV()">📊 Baixar Excel</button>
+      <button type="button" id="btnImportarAdmin" class="btn-secondary btn-sm" style="display:none; background:#0284c7;" onclick="document.getElementById('inputKeepAdmin').click()">📥 Importar Keep/JSON</button>
       <input type="file" id="inputKeepAdmin" accept=".json" multiple style="display:none;" onchange="importarArquivosKeepAdmin(event)" />
-
-          <button type="button" class="btn-secondary btn-sm" onclick="exportarCSV()">📊 Baixar Excel</button>
       <button type="button" id="btnAdmin" class="btn-secondary btn-sm" style="display:none;" onclick="abrirPainelAdmin()">👥 Técnicos</button>
       <button type="button" class="btn-danger btn-sm" onclick="sair()">Sair</button>
     </div>
@@ -160,213 +152,15 @@
         </div>
         <div class="full"><label>Equipamentos / Cluster</label><textarea id="equip2" rows="3"></textarea></div>
       </div>
-      <div class="card">
-        <h3>Carimbo de Acesso ao Site (Salvo no Banco)</h3>
-        <div class="row">
-          <div><label>Site (Acesso)</label><input type="text" id="site_acesso" readonly /></div>
-          <div><label>Detentora</label><input type="text" id="detentora" /></div>
-        </div>
-        <div class="row-3">
-          <div><label>ID</label><input type="text" id="id_acesso" /></div>
-          <div><label>Portão</label><input type="text" id="portao" /></div>
-          <div><label>Gabinete</label><input type="text" id="gabinete" /></div>
-        </div>
-        <div class="row">
-          <div><label>Medidor</label><input type="text" id="medidor" /></div>
-          <div><label>UC</label><input type="text" id="uc" /></div>
-        </div>
-        <div class="full"><label>Instrução / Rodapé (Ex: LEVAR ESCADA)</label><input type="text" id="rodape" /></div>
-      </div>
-
-      <div class="card">
-        <h3>Notas e Localização</h3>
-        <div class="full">
-          <label>Link de Localização (GPS ou Google Maps)</label>
-          <div class="input-with-btn">
-            <input type="text" id="link_maps" placeholder="Clique em Pegar GPS ou cole o link..." />
-            <button type="button" id="btnGps" class="btn-gps" onclick="capturarLocalizacaoCompleta('link')">📍 Pegar GPS</button>
-          </div>
-        </div>
-        <div class="full"><label>OBS</label><textarea id="obs" rows="3"></textarea></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="card" style="position: sticky; top: 16px;">
-        <h3>Pré-visualização do Carimbo (Ao Vivo)</h3>
-        <div id="carimboPreview" class="preview-box"></div>
-
-        <div class="actions">
-          <button type="button" class="btn-primary" onclick="gerarESalvar()">⚡ Gerar e Salvar</button>
-          <button type="button" class="btn-success" onclick="enviarWhatsApp()">📲 Enviar WhatsApp</button>
-          <button type="button" class="btn-secondary" onclick="baixarImagem()">📷 Baixar Imagem</button>
-          <button type="button" class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar Campos</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="modalSites" class="modal-bg">
-  <div class="modal-box">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="margin:0; color:#60a5fa;">📋 Sites Cadastrados no Banco</h3>
-      <button type="button" class="btn-secondary btn-sm" onclick="fecharModal('modalSites')">Fechar ✖</button>
-    </div>
-    <input type="text" id="filtroSites" placeholder="Filtrar por site, detentora, rota ou endereço..." oninput="renderizarListaSites()" style="margin-bottom:12px;" />
-    <div id="listaSitesConteudo">Carregando...</div>
-  </div>
-</div>
-
-<div id="modalAdmin" class="modal-bg">
-  <div class="modal-box">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="margin:0; color:#60a5fa;">👥 Gerenciar Técnicos</h3>
-      <button type="button" class="btn-secondary btn-sm" onclick="fecharModal('modalAdmin')">Fechar ✖</button>
-    </div>
-    <div class="row">
-      <input type="text" id="novoUser" placeholder="Login (ex: joao)" />
-      <input type="text" id="novaSenha" placeholder="Senha inicial" />
-    </div>
-    <div class="row">
-      <input type="text" id="novoNome" placeholder="Nome Completo (ex: João Silva)" />
-      <input type="text" id="novoContato" placeholder="Telefone (ex: 19 99999-0000)" />
-    </div>
-    <button type="button" class="btn-primary" style="width:100%; margin-bottom:14px;" onclick="criarTecnico()">+ Cadastrar Técnico</button>
-    <div id="listaUsuariosConteudo"></div>
-  </div>
-</div>
-<script>
-  var usuarioLogado = null;
-  var cacheSites = [];
-  var cacheUsuarios = [];
-
-  (function init() {
-    var salvo = localStorage.getItem('cire_user');
-    if (salvo) { usuarioLogado = JSON.parse(salvo); entrarNoApp(); }
-  })();
-
-  async function fazerLogin() {
-    var u = document.getElementById('loginUser').value.trim();
-    var s = document.getElementById('loginPass').value.trim();
-    var errEl = document.getElementById('loginErro');
-    errEl.style.display = 'none';
-    try {
-      var res = await fetch('/api/sites', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ acao: 'login', usuario: u, senha: s })
-      });
-      var json = await res.json();
-      if (res.ok && json.sucesso) {
-        usuarioLogado = json.usuario;
-        localStorage.setItem('cire_user', JSON.stringify(usuarioLogado));
-        entrarNoApp();
-      } else {
-        errEl.textContent = json.erro || 'Usuário ou senha inválidos.';
-        errEl.style.display = 'block';
-      }
-    } catch (e) {
-      errEl.textContent = 'Erro de conexão com o servidor.';
-      errEl.style.display = 'block';
-    }
-  }
-
-  function entrarNoApp() {
-    document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('appBox').style.display = 'block';
-    document.getElementById('userInfo').textContent = '👤 Logado como: ' + usuarioLogado.nome_completo;
-    document.getElementById('tecnico').value = usuarioLogado.nome_completo || '';
-    document.getElementById('contato').value = usuarioLogado.contato || '';
-     if (usuarioLogado.is_admin === 1) {
-      document.getElementById('btnAdmin').style.display = 'inline-block';
-      document.getElementById('btnImportarAdmin').style.display = 'inline-block';
-    }
-
-  function sair() { localStorage.removeItem('cire_user'); location.reload(); }
-  function espelharSite() { document.getElementById('site_acesso').value = document.getElementById('site').value; atualizarPreview(); }
-
-  function mostrarBanner(texto, tipo) {
-    var banner = document.getElementById('dbBanner');
-    banner.textContent = texto;
-    banner.className = 'status-banner ' + tipo;
-    banner.style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    var toast = document.getElementById('toastAviso');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'toastAviso';
-      toast.style.cssText = 'position:fixed; top:20px; right:20px; z-index:9999; padding:14px 20px; border-radius:8px; font-weight:700; font-size:0.92rem; box-shadow:0 10px 25px rgba(0,0,0,0.5);';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = texto;
-    toast.style.background = tipo === 'status-found' ? '#059669' : (tipo === 'status-warn' ? '#d97706' : '#2563eb');
-    toast.style.color = '#ffffff';
-    toast.style.display = 'block';
-    clearTimeout(window.toastTimer);
-    window.toastTimer = setTimeout(function() { toast.style.display = 'none'; }, 5000);
-  }
-
-  function formatarMetros(valor, padrao) {
-    if (!valor) return padrao;
-    if (/mts|m$/i.test(valor)) return valor;
-    return valor + ' mts';
-  }
-
-  function montarTextoCarimbo() {
-    var v = function(id) { return document.getElementById(id).value.trim(); };
-    var site = v('site').toUpperCase();
-    var dataFormatada = v('data') ? v('data').split('-').reverse().join('/') : '';
-    var texto = '***ABRIR CARIMBO CIRE***\n\n*Site:* ' + site + '\n*Data:* ' + dataFormatada + '\n*TA:* ' + v('ta') +
-      '\n*Técnico:* ' + v('tecnico') + '\n*Contato:* ' + v('contato') + '\n*Rota:* ' + v('rota') +
-      '\n*Ponta A:* ' + v('ponta_a') + '\n*Endereço:* ' + v('endereco_ponta_a') +
-      '\n*Ponta B:* ' + v('ponta_b') + '\n*Endereço:* ' + v('endereco_ponta_b') + '\n*Afetação:* ' + v('afetacao') +
-      '\n\n*Alça 1*\n*Cabo:* ' + (v('cabo1') || 'X') + '\n*Fibra:* ' + (v('fibra1') || 'XX') +
-      '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab1'), 'xxx mts') +
-      '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba1'), 'xxx mts') +
-      '\n*Distância  total:* ' + formatarMetros(v('dist_tot1'), 'XXX mts') + '\n' + (v('equip1') ? v('equip1') + '\n' : '');
-
-    if (v('cabo2') || v('fibra2') || v('dist_ab2') || v('dist_ba2') || v('dist_tot2') || v('equip2')) {
-      texto += '\n*Alça 2*\n*Cabo:* ' + (v('cabo2') || 'X') + '\n*Fibra:* ' + (v('fibra2') || 'XX') +
-        '\n*Distância de A_ B:* ' + formatarMetros(v('dist_ab2'), 'xxx mts') +
-        '\n*Distância de B_ A:* ' + formatarMetros(v('dist_ba2'), 'xxx mts') +
-        '\n*Distância  total:* ' + formatarMetros(v('dist_tot2'), 'XXX mts') + '\n' + (v('equip2') ? v('equip2') + '\n' : '');
-    }
-
-    texto += '\n\n*OBS:* ' + v('obs') + '\n\n*Localização*\n' + v('link_maps') +
-      '\n\n*### CARIMBO DE ACESSO AO SITE  ###*\n*Site:* ' + site + '\n*Detentora:* ' + v('detentora') +
-      '\n*ID :* ' + v('id_acesso') + '\n*Portão:* ' + v('portao') + '\n*Gabinete:* ' + v('gabinete') +
-      '\n*Medidor:* ' + v('medidor') + '\n*UC:* ' + v('uc');
-    if (v('rodape')) texto += '\n\n' + v('rodape');
-    return texto;
-  }
-
-  function atualizarPreview() { document.getElementById('carimboPreview').textContent = montarTextoCarimbo(); }
-  document.querySelectorAll('input, textarea').forEach(function(el) {
-    el.addEventListener('input', atualizarPreview);
-    el.addEventListener('change', atualizarPreview);
-  });
-  function enviarWhatsApp() { window.location.href = 'https://wa.me' + '?text=' + encodeURIComponent(montarTextoCarimbo()); }
-  function capturarLocalizacaoCompleta(origem) {
-    var btnEnd = document.getElementById('btnEndGps');
-    var btnLink = document.getElementById('btnGps');
-    var campoEndereco = document.getElementById('endereco_ponta_a');
-    var campoMaps = document.getElementById('link_maps');
-    if (!navigator.geolocation) { alert('Navegador sem suporte a GPS.'); return; }
-    btnEnd.disabled = true; btnLink.disabled = true;
-    if (origem === 'endereco') btnEnd.textContent = '⏳...';
-    if (origem === 'link') btnLink.textContent = '⏳...';
-
-    navigator.geolocation.getCurrentPosition(
-      async function(pos) {
         var lat = pos.coords.latitude.toFixed(6);
         var lng = pos.coords.longitude.toFixed(6);
         var precisao = Math.round(pos.coords.accuracy);
-        if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://google.com' + '/maps?q=' + lat + ',' + lng;
+        if (origem === 'link' || !campoMaps.value.trim()) campoMaps.value = 'https://' + '://google.com' + lat + ',' + lng;
 
         if (origem === 'endereco' || !campoEndereco.value.trim()) {
           var enderecoEncontrado = '';
           try {
-            var resp = await fetch('https://nominatim.' + 'openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng);
+            var resp = await fetch('https://' + 'nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng);
             var data = await resp.json();
             if (data && data.address) {
               var a = data.address;
@@ -484,7 +278,6 @@
       } else if (res.ok) { mostrarBanner('✅ Novo site ' + site + ' salvo e carimbo copiado!', 'status-found'); }
     } catch (e) { mostrarBanner('📋 Carimbo copiado!', 'status-warn'); }
   }
-
   async function importarArquivosKeepAdmin(event) {
     var files = Array.from(event.target.files || []);
     event.target.value = '';
@@ -493,12 +286,11 @@
     var senhaAdmin = prompt('Digite a SENHA DE ADMINISTRADOR para importar ' + files.length + ' arquivo(s):');
     if (!senhaAdmin) return;
 
-     var pegarCampo = function(texto, chave) {
+    var pegarCampo = function(texto, chave) {
       var regex = new RegExp('\\*' + chave + '[ \\t]*:\\*[ \\t]*([^\\r\\n]*)', 'i');
       var m = String(texto || '').match(regex);
       return m && m[1] ? m[1].trim() : '';
     };
-
     var limparDist = function(v) {
       var s = String(v || '').replace(/\s*mts/i, '').trim();
       return /^x+$/i.test(s) ? '' : s;
@@ -507,43 +299,46 @@
     var sitesExtraidos = [];
     for (var i = 0; i < files.length; i++) {
       try {
+        if (files[i].name.toLowerCase() === 'labels.json') continue;
         var nota = JSON.parse(await files[i].text());
         if (nota.isTrashed) continue;
         var texto = String(nota.textContent || '');
-        if (!texto.includes('CARIMBO')) continue;
-        var site = (nota.title || pegarCampo(texto, 'Site')).trim().toUpperCase();
+        if (!/site|rota|ponta|detentora|port[ãa]o|cabo|fibra/i.test(texto)) continue;
+
+        var nomeArquivo = files[i].name.replace(/\.json$/i, '').replace(/\(\d+\)$/, '').trim();
+        var site = (nota.title || pegarCampo(texto, 'Site') || nomeArquivo).trim().toUpperCase();
         if (!site || site.startsWith('***ABRIR')) continue;
 
-        var enderecos = [...texto.matchAll(/\*Endere[çc]o:\*\s*(.*)/gi)].map(function(m) { return m.trim(); });
+        var enderecos = [...texto.matchAll(/\*Endere[çc]o:\*[ \t]*([^\r\n]*)/gi)].map(function(m) { return m[1].trim(); });
         var idx1 = texto.search(/\*Al[çc]a 1\*/i);
         var idx2 = texto.search(/\*Al[çc]a 2\*/i);
         var idxFim = texto.search(/\*OBS:\*|\*Localiza[çc][ãa]o\*|CARIMBO DE ACESSO/i);
         var b1 = idx1 !== -1 ? texto.slice(idx1, idx2 !== -1 ? idx2 : (idxFim !== -1 ? idxFim : texto.length)) : '';
         var b2 = idx2 !== -1 ? texto.slice(idx2, idxFim !== -1 && idxFim > idx2 ? idxFim : texto.length) : '';
         var idxAcesso = texto.search(/CARIMBO DE ACESSO/i);
-        var bAcesso = idxAcesso !== -1 ? texto.slice(idxAcesso) : '';
+        var bAcesso = idxAcesso !== -1 ? texto.slice(idxAcesso) : texto;
 
         var matchLink = texto.match(/(https?:\/\/maps\.app\.goo\.gl\/[^\s]+|https?:\/\/www\.google\.com\/maps[^\s]+)/);
-        var equip1 = b1.split('\n').filter(function(l) { var t = l.trim(); return t && !t.startsWith('*') && !t.startsWith('http'); }).join('\n');
-        var equip2 = b2.split('\n').filter(function(l) { var t = l.trim(); return t && !t.startsWith('*') && !t.startsWith('http'); }).join('\n');
+        var equip1 = b1.split(/\r?\n/).filter(function(l) { var t = l.trim(); return t && !t.startsWith('*') && !t.startsWith('http'); }).join('\n');
+        var equip2 = b2.split(/\r?\n/).filter(function(l) { var t = l.trim(); return t && !t.startsWith('*') && !t.startsWith('http'); }).join('\n');
 
         sitesExtraidos.push({
           site: site,
           rota: pegarCampo(texto, 'Rota'),
           ponta_a: pegarCampo(texto, 'Ponta A') || site,
-          endereco_ponta_a: enderecos || '',
+          endereco_ponta_a: enderecos[0] || '',
           ponta_b: pegarCampo(texto, 'Ponta B'),
-          endereco_ponta_b: enderecos || '',
+          endereco_ponta_b: enderecos[1] || '',
           afetacao: pegarCampo(texto, 'Afeta[çc][ãa]o'),
           cabo1: pegarCampo(b1, 'Cabo'), fibra1: pegarCampo(b1, 'Fibra'),
-          dist_ab1: limparDist(pegarCampo(b1, 'Dist[âa]ncia de A_\\s*B')),
-          dist_ba1: limparDist(pegarCampo(b1, 'Dist[âa]ncia de B_\\s*A')),
-          dist_total1: limparDist(pegarCampo(b1, 'Dist[âa]ncia\\s+total')),
+          dist_ab1: limparDist(pegarCampo(b1, 'Dist[âa]ncia de A_[ \\t]*B')),
+          dist_ba1: limparDist(pegarCampo(b1, 'Dist[âa]ncia de B_[ \\t]*A')),
+          dist_total1: limparDist(pegarCampo(b1, 'Dist[âa]ncia[ \\t]+total')),
           equip1: equip1,
           cabo2: pegarCampo(b2, 'Cabo'), fibra2: pegarCampo(b2, 'Fibra'),
-          dist_ab2: limparDist(pegarCampo(b2, 'Dist[âa]ncia de A_\\s*B')),
-          dist_ba2: limparDist(pegarCampo(b2, 'Dist[âa]ncia de B_\\s*A')),
-          dist_total2: limparDist(pegarCampo(b2, 'Dist[âa]ncia\\s+total')),
+          dist_ab2: limparDist(pegarCampo(b2, 'Dist[âa]ncia de A_[ \\t]*B')),
+          dist_ba2: limparDist(pegarCampo(b2, 'Dist[âa]ncia de B_[ \\t]*A')),
+          dist_total2: limparDist(pegarCampo(b2, 'Dist[âa]ncia[ \\t]+total')),
           equip2: equip2,
           detentora: pegarCampo(bAcesso, 'Detentora'),
           id_acesso: pegarCampo(bAcesso, 'ID'),
@@ -551,7 +346,7 @@
           gabinete: pegarCampo(bAcesso, 'Gabinete'),
           medidor: pegarCampo(bAcesso, 'Medidor'),
           uc: pegarCampo(bAcesso, 'UC'),
-          link_maps: matchLink ? matchLink : '',
+          link_maps: matchLink ? matchLink[1] : '',
           obs: pegarCampo(texto, 'OBS'),
           rodape: ''
         });
@@ -560,23 +355,29 @@
 
     if (!sitesExtraidos.length) { alert('Nenhum carimbo válido encontrado nos arquivos selecionados.'); return; }
 
-    mostrarBanner('⏳ Importando ' + sitesExtraidos.length + ' site(s)...', 'status-info');
-    var res = await fetch('/api/sites', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        acao: 'importar_lote',
-        senhaAdmin: senhaAdmin,
-        sites: sitesExtraidos,
-        atualizado_por: usuarioLogado.nome_completo + ' (Importação)'
-      })
-    });
-    var json = await res.json();
-    if (res.ok && json.sucesso) {
-      mostrarBanner('✅ ' + json.total + ' site(s) importados/atualizados com sucesso!', 'status-found');
-    } else {
-      alert(json.erro || 'Erro ao importar.');
+    var totalImportado = 0;
+    var tamanhoLote = 50;
+    for (var j = 0; j < sitesExtraidos.length; j += tamanhoLote) {
+      var lote = sitesExtraidos.slice(j, j + tamanhoLote);
+      mostrarBanner('⏳ Importando ' + (j + lote.length) + ' de ' + sitesExtraidos.length + ' site(s)...', 'status-info');
+      var res = await fetch('/api/sites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          acao: 'importar_lote',
+          senhaAdmin: senhaAdmin,
+          sites: lote,
+          atualizado_por: usuarioLogado.nome_completo + ' (Importação)'
+        })
+      });
+      var json = await res.json();
+      if (!res.ok || !json.sucesso) {
+        alert(json.erro || 'Erro ao importar lote.');
+        return;
+      }
+      totalImportado += json.total;
     }
+    mostrarBanner('✅ ' + totalImportado + ' site(s) importados/atualizados com sucesso!', 'status-found');
   }
 
   async function abrirListaSites() {
@@ -596,11 +397,11 @@
     });
     var html = '';
     filtrados.forEach(function(s) {
-      html += '<div class="site-item"><div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(\'' + s.site + '\')">' +
+      html += '<div class="site-item"><div style="cursor:pointer; flex:1;" onclick="selecionarSiteDaLista(\'' + s.site.replace(/'/g, "\\'") + '\')">' +
         '<strong style="color:#60a5fa;">' + s.site + '</strong> <span style="color:#94a3b8; font-size:0.82rem;">(' + (s.detentora || '-') + ')</span><br>' +
         '<span style="font-size:0.8rem; color:#cbd5e1;">' + (s.endereco_ponta_a || s.rota || '') + '</span></div>' +
-        '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(\'' + s.site + '\')">Abrir</button>' +
-        '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(\'' + s.site + '\')">🗑️</button></div></div>';
+        '<div style="display:flex; gap:6px;"><button type="button" class="btn-primary btn-sm" onclick="selecionarSiteDaLista(\'' + s.site.replace(/'/g, "\\'") + '\')">Abrir</button>' +
+        '<button type="button" class="btn-danger btn-sm" onclick="excluirSiteComSenha(\'' + s.site.replace(/'/g, "\\'") + '\')">🗑️</button></div></div>';
     });
     document.getElementById('listaSitesConteudo').innerHTML = html || '<p>Nenhum site encontrado.</p>';
   }
@@ -619,7 +420,6 @@
     if (res.ok) { alert('🗑️ Site excluído!'); if (document.getElementById('modalSites').style.display === 'flex') abrirListaSites(); }
     else alert('❌ Senha incorreta.');
   }
-
   function carregarLib(url) {
     return new Promise(function(resolve, reject) {
       var s = document.createElement('script'); s.src = url; s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
@@ -639,7 +439,7 @@
   async function exportarCSV() {
     mostrarBanner('📊 Gerando Excel com 3 abas...', 'status-info');
     try {
-      if (typeof ExcelJS === 'undefined') await carregarLib('https://cdn.jsdelivr.' + 'net/npm/exceljs@4.4.0/dist/exceljs.min.js');
+      if (typeof ExcelJS === 'undefined') await carregarLib('https://jsdelivr.net');
       var res = await fetch('/api/sites?acao=listar');
       var json = await res.json();
       var dados = (json.sites || []).map(function(s) { return Object.assign({}, s, { cidade: extrairCidade(s.endereco_ponta_a) }); });
@@ -656,6 +456,7 @@
       ws1.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
       resumo.forEach(function(item) { ws1.addRow({ cidade: item.cidade, qtd: item.qtd, perc: ((item.qtd / dados.length) * 100).toFixed(1) + '%' }); });
       ws1.addRow({ cidade: 'TOTAL GERAL', qtd: dados.length, perc: '100%' }).font = { bold: true };
+
       var ws2 = wb.addWorksheet('Sites por Cidade');
       ws2.columns = [
         { header: 'CIDADE', key: 'cidade', width: 24 }, { header: 'SITE', key: 'site', width: 20 },
@@ -672,7 +473,10 @@
       var ws3 = wb.addWorksheet('Base Completa');
       ws3.columns = [
         { header: 'SITE', key: 'site', width: 20 }, { header: 'CIDADE', key: 'cidade', width: 22 },
-        { header: 'ROTA', key: 'rota', width: 24 }, { header: 'ENDEREÇO', key: 'endereco', width: 45 },
+        { header: 'ROTA', key: 'rota', width: 24 }, { header: 'PONTA A', key: 'ponta_a', width: 15 },
+        { header: 'ENDEREÇO A', key: 'endereco', width: 45 }, { header: 'PONTA B', key: 'ponta_b', width: 15 },
+        { header: 'AFETAÇÃO', key: 'afetacao', width: 20 }, { header: 'CABO 1', key: 'cabo1', width: 12 },
+        { header: 'FIBRA 1', key: 'fibra1', width: 12 }, { header: 'DIST TOTAL 1', key: 'dist_total1', width: 14 },
         { header: 'DETENTORA', key: 'detentora', width: 18 }, { header: 'ID', key: 'id_acesso', width: 15 },
         { header: 'PORTÃO', key: 'portao', width: 18 }, { header: 'GABINETE', key: 'gabinete', width: 18 },
         { header: 'MEDIDOR', key: 'medidor', width: 15 }, { header: 'UC', key: 'uc', width: 15 },
@@ -681,7 +485,12 @@
       ];
       ws3.getRow(1).eachCell(function(c) { Object.assign(c, hStyle); });
       dados.forEach(function(s) {
-        ws3.addRow({ site: s.site, cidade: s.cidade, rota: s.rota || '', endereco: s.endereco_ponta_a || '', detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '', medidor: s.medidor || '', uc: s.uc || '', link_maps: s.link_maps || '', obs: s.obs || '', atualizado_por: s.atualizado_por || '' });
+        ws3.addRow({
+          site: s.site, cidade: s.cidade, rota: s.rota || '', ponta_a: s.ponta_a || '', endereco: s.endereco_ponta_a || '',
+          ponta_b: s.ponta_b || '', afetacao: s.afetacao || '', cabo1: s.cabo1 || '', fibra1: s.fibra1 || '', dist_total1: s.dist_total1 || '',
+          detentora: s.detentora || '', id_acesso: s.id_acesso || '', portao: s.portao || '', gabinete: s.gabinete || '',
+          medidor: s.medidor || '', uc: s.uc || '', link_maps: s.link_maps || '', obs: s.obs || '', atualizado_por: s.atualizado_por || ''
+        });
       });
 
       var buf = await wb.xlsx.writeBuffer();
@@ -738,7 +547,7 @@
   function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
 
   async function baixarImagem() {
-    if (typeof html2canvas === 'undefined') await carregarLib('https://cdn.jsdelivr.' + 'net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+    if (typeof html2canvas === 'undefined') await carregarLib('https://jsdelivr.net');
     html2canvas(document.getElementById('carimboPreview'), { backgroundColor: '#020617', scale: 2 }).then(function(canvas) {
       var link = document.createElement('a');
       link.download = 'carimbo-' + (document.getElementById('site').value || 'cire') + '.png';
@@ -753,10 +562,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
